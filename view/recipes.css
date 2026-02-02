@@ -1,0 +1,38 @@
+
+.recipe-card {
+  width: 100%;
+  height: 20dvh;
+  display: flex;
+  justify-content: center; /* horizontal centering */
+  align-items: center;     /* vertical centering */
+  background: #333;
+  overflow: hidden;        /* optional, just in case */
+}
+
+.recipe-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;     /* fully visible, keeps aspect ratio */
+}
+
+.favorite input {
+  display: none;
+}
+
+
+.star {
+  font-size: 30px;
+  cursor: pointer;
+  color: #ffffff;
+  transition: color 0.3s, transform 0.2s;
+}
+
+.star:hover {
+  color: orange;
+  transform: scale(1.1);
+}
+
+.favorite input:checked + .star {
+  color: orange;
+}
+
