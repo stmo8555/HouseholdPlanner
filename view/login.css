@@ -1,0 +1,79 @@
+/* not intended to be used */
+* {
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+    color: white;
+}
+
+html, body {
+    background-image: url(assets/background.jpg);
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+}
+
+body {
+    margin: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100dvh;
+}
+
+label {
+    margin-block-start: 5px;
+    display: block;
+}
+
+input {
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    outline: unset;
+    border: unset;
+    border-radius: 5px;
+    border: white 2px solid;
+    inline-size: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+input::placeholder {
+    opacity: 0.7;
+    color: white;
+}
+
+button {
+    font-size: 1rem;
+    font-weight: bold;
+    border: unset;
+    background: hotpink;
+    border-radius: 5px;
+    padding-block: 5px;
+    inline-size: 70%;
+    margin-block-start: 15px;
+}
+
+button:hover {
+    cursor: pointer;
+    scale: 1.02;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.center-in-div {
+    text-align: center;
+}
+
+h1 {
+    text-align: center;
+}
+
+.loginform {
+    padding: 24px;
+    flex: 1;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 1);
+}

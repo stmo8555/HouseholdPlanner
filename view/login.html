@@ -1,17 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>My Website</title>
+    <title>loginform</title>
     <link rel="stylesheet" href="./style.css">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
-  </head>
-  <body>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
     <main>
-      <div class='loginform'></div>
+
+        <div class="loginform">
+            <h1>Household planner</h1>
+            <form method="POST" action="/login">
+                <div>
+                    <label for="uname">Username:</label>
+                    <input type="text" id="uname" name="uname" required>
+                </div>
+
+                <div>
+                    <label for="pwd">Password:</label>
+                    <input  type="password" id="pwd" name="pwd" required>
+                </div>
+
+                <div class="center-in-div">
+                    <button type="submit">Login</button>
+                </div>
+            </form>
+        </div>
     </main>
     <script src="index.js"></script>
-  </body>
+</body>
+
 </html>
