@@ -1,0 +1,164 @@
+* {
+    box-sizing: border-box;
+    font-family: "Roboto", sans-serif;
+    color: white;
+}
+
+html,
+body {
+    background: #EEAECA;
+    background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
+}
+ header {
+    justify-content: space-between;
+}
+
+.space-and-padding {
+    justify-content: space-between;
+    padding-inline: 10px;
+}
+
+.group {
+    inline-size: 80%;
+    margin-inline: auto;
+    margin-block-end: 10px;
+    padding-block-end: 20px;
+}
+
+ul {
+    margin: unset;
+}
+
+ul:marker {
+    display: none;
+}
+
+body {
+    margin: unset;
+    /* display: flex; */
+    /* align-items: center; */
+    /* justify-content: center; */
+    min-height: 100dvh;
+}
+
+.loginform label {
+    margin-block-start: 5px;
+    display: block;
+}
+
+.loginform input {
+    font-size: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    outline: unset;
+    border: unset;
+    border-radius: 5px;
+    border: white 2px solid;
+    inline-size: 100%;
+    box-sizing: border-box;
+    padding: 5px;
+}
+
+
+input::placeholder {
+    opacity: 0.7;
+    color: white;
+}
+
+.filters {
+    display: flex;
+    margin-block-start: 10px;
+    border: 1px solid white;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.filters input[type="radio"] {
+    display: none;
+}
+
+.filters .filter:first-of-type {
+    border-inline-end: 1px solid white;
+}
+
+.filters .filter:last-of-type {
+    border-inline-start: 1px solid white;
+}
+
+.filters label {
+    display: flex;
+    align-items: center;
+    padding-inline: 5px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.2s;
+    height: 100%;
+}
+
+
+.filters input[type="radio"]:checked+label {
+    background: hotpink;
+    color: white;
+}
+
+button {
+    font-size: 1rem;
+    font-weight: bold;
+    border: unset;
+    background: hotpink;
+    border-radius: 5px;
+    padding-block: 5px;
+}
+
+button:hover {
+    cursor: pointer;
+    scale: 1.02;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+}
+
+.add {
+    margin-inline-start: auto;
+    margin-inline-end: 10%;
+    margin-block: 20px;
+    padding-inline: 30px;
+}
+
+.flex {
+    display: flex;
+}
+
+.center-horizontal {
+    justify-content: center;
+}
+
+h1 {
+    margin-inline: 10%;
+    text-align: left;
+}
+
+.loginform {
+    padding: 24px;
+    flex: 1;
+}
+
+.glass {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 1);
+}
+
+ul {
+    padding: unset;
+    flex: 1;
+    padding-inline: 10px;
+}
+
+.chore {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-inline: 10px;
+    margin-block-start: 5px;
+}

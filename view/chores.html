@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chores</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header class="flex">
+        <h1>Chores</h1>
+        <button class="add">Add</button>
+    </header>
+    <main>
+        <div class="group glass">
+            <div class="space-and-padding flex">
+                <h2>Recuring</h2>
+                <span class="filters">
+                    <span class="filter">
+                        <input type="radio" id="filter1" name="filter" value="Today" checked />
+                        <label for="filter1">Today</label>
+                    </span>
+                    <span class="filter">
+                        <input type="radio" id="filter2" name="filter" value="Week" />
+                        <label for="filter2">Week</label>
+                    </span>
+                    <span class="filter">
+                        <input type="radio" id="filter3" name="filter" value="Month" />
+                        <label for="filter3">Month</label>
+                    </span>
+                </span>
+            </div>
+            <ul>
+                <li class="chore glass center-in-div">
+                    <p><strong>Dammsuga</strong></p>
+                    <span>
+                        <button>Done</button>
+                        <button>Edit</button>
+                    </span>
+                </li>
+                <li class="chore glass">
+                    <p><strong>Bajsa</strong></p>
+                    <span>
+                        <button>Done</button>
+                        <button>Edit</button>
+                    </span>
+                </li>
+                <li class="chore glass">
+                    <p><strong>Vattna</strong></p>
+                    <span>
+                        <button>Done</button>
+                        <button>Edit</button>
+                    </span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="group flex glass">
+            <ul class="center-in-div">
+
+                <h2>Temporary</h2>
+                <li class="chore glass center-in-div">
+                    <p><strong>Dammsuga</strong></p>
+                    <span>
+                        <button>Done</button>
+                        <button>Archive</button>
+                    </span>
+                </li>
+                <li class="chore glass">
+                    <p><strong>Bajsa</strong></p>
+                    <span>
+                        <button>Done</button>
+                        <button>Archive</button>
+                    </span>
+                </li>
+                <li class="chore glass">
+                    <p><strong>Vattna</strong></p>
+                    <span>
+                        <button>Done</button>
+                        <button>Archive</button>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </main>
+    <script src="index.js"></script>
+</body>
+
+</html>
