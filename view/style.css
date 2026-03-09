@@ -4,10 +4,28 @@
   color: white;
 }
 
-html,
 body {
   background: #EEAECA;
+  position: relative;
   background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
+  overflow-x: hidden;
+}
+
+body.flower-power::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url(assets/background.jpg);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  z-index: -1;
+  transition: transform 0.8s ease-in-out;
+}
+
+/* Only animate on flower-power pages */
+body.flower-power.slide-out::before {
+  transform: translateY(100%);
 }
 
 main {
@@ -17,6 +35,7 @@ main {
 
 header {
   justify-content: space-between;
+  margin-inline: 10%;
 }
 
 .grid-5 {
@@ -56,10 +75,9 @@ header {
 }
 
 .group {
-  inline-size: 80%;
   margin-inline: auto;
   margin-block-end: 10px;
-  padding-block-end: 20px;
+  padding-block-end: 10px;
 }
 
 ul {
@@ -72,9 +90,6 @@ ul:marker {
 
 body {
   margin: unset;
-  /* display: flex; */
-  /* align-items: center; */
-  /* justify-content: center; */
   min-height: 100dvh;
 }
 
@@ -152,6 +167,20 @@ button:hover {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
+.login-button {
+  display:  block;
+  margin-block-start: 5px;
+  margin-inline: auto;
+  justify-self: center;
+  padding-inline: 60px;
+}
+
+.chore-button {
+  display: block;
+  margin-inline: auto 10px;
+  padding-inline: 50px;
+}
+
 .add {
   margin-inline-start: auto;
   margin-inline-end: 10%;
@@ -163,22 +192,25 @@ button:hover {
   display: flex;
 }
 
+.full-viewport {
+  min-height: 100dvh;
+}
+
 .center-horizontal {
   justify-content: center;
 }
 
-.center-horizontal {
+.center-vertical {
   align-items: center;
 }
 
 h1 {
-  margin-inline: 10%;
+  /* margin-inline: 10%; */
   text-align: left;
 }
 
 .loginform {
   padding: 24px;
-  flex: 1;
 }
 
 .glass {
@@ -200,13 +232,12 @@ ul {
   justify-content: space-between;
   align-items: center;
   padding-inline: 10px;
-  margin-block-start: 5px;
+  margin-block: 5px;
 }
 
 /* nav styling */
 nav {
   margin-block: auto;
-  margin-inline-end: 10%;
 }
 
 nav ul {
@@ -232,6 +263,7 @@ nav a {
 }
 
 nav a:hover {
-  background-position: 100% 100%; /*OR bottom right*/
+  background-position: 100% 100%;
+  /*OR bottom right*/
   background-size: 100% 2px;
 }
