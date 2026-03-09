@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chores</title>
+    <link rel="stylesheet" href="./style.css">
+    <link rel="icon" href="./favicon.ico" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header class="flex">
+        <h1>Grocceries</h1>
+    </header>
+    <main>
+        <h2>To be picked</h2>
+        <div class="glass">
+            <div class="grid-5">
+                <div class="checkbox">
+                </div>
+                <p class="cell">Product</p>
+                <p class="cell">Brand</p>
+                <p class="cell">Amount</p>
+                <p class="cell">Store</p>
+            </div>
+            <div class="grid-5">
+                <div class="checkbox">
+                    <input type="checkbox" id="picked" name="picked" />
+                    <label for="picked">Picked</label>
+                </div>
+                <p class="cell">Mjölk</p>
+                <p class="cell">Arla</p>
+                <p class="cell">4st</p>
+                <p class="cell">Ica</p>
+            </div>
+
+            <div class="grid-5">
+                <div class="checkbox">
+                    <input type="checkbox" id="picked" name="picked" />
+                    <label for="picked">Picked</label>
+                </div>
+                <p class="cell">Köttbullar</p>
+                <p class="cell">Mamma scans</p>
+                <p class="cell">1st</p>
+                <p class="cell">Willys</p>
+            </div>
+
+        </div>
+        <h2>Picked</h2>
+        <div class="glass">
+            <div class="grid-5">
+                <div class="checkbox">
+                    <input type="checkbox" id="picked" name="picked" checked />
+                    <label for="picked">Picked</label>
+                </div>
+                <p class="cell">Kanelbullar</p>
+                <p class="cell">Garant</p>
+                <p class="cell">100kg</p>
+                <p class="cell">Hemköp</p>
+            </div>
+        </div>
+    </main>
+    <script src="index.js"></script>
+</body>
+
+</html>

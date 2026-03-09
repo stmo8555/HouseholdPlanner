@@ -9,8 +9,39 @@ body {
     background: #EEAECA;
     background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
 }
- header {
+
+header {
     justify-content: space-between;
+}
+
+.grid-5 {
+    display: grid;
+    align-items: center;
+    grid-template-columns: 40px 1fr 1fr 1fr 1fr;
+    padding: 6px 0;
+    border-block-end: 1px solid #ddd;
+}
+
+.grid-5:last-of-type {
+    border: none;
+}
+
+.cell {
+    padding: 4px 8px;
+}
+
+.checkbox {
+    justify-self: center;
+    align-self: center;
+}
+
+.checkbox label {
+    display: none;
+}
+.checkbox input[type="checkbox"] {
+    transform: scale(1.6);
+    accent-color: hotpink;
+    cursor: pointer;
 }
 
 .space-and-padding {
