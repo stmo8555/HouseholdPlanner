@@ -1,32 +1,92 @@
 <!DOCTYPE html>
-<html>
-    <head>
+<html lang="en">
 
-    </head>
-    <body>
-        <header>
-            <ul>
-                <li><a href="./chores.html">Chores</a></li>
-                <li><a href="./grocceries.html">Grocceries</a></li>
-                <li><a href="./index.html">Home</a></li>
-                <li><a href="./login.html">Login</a></li>
-                <li><a href="./recipes.html">Recipes</a></li>
-                <li><a href="./reoccuringChores.html">ReoccuringChores</a></li>
-                <li><a href="./tmpChores.html">TmpChores</a></li>
-            </ul>
-        </header>
-        <h1>Household planner 101</h1>
-        <p>The way to make life easier, hopefully...</p>
-        <main>
-            <h2>What is possible to do</h2>
-            <ul>
-                <li>Set chores that shall be repeated in x time</li>
-                <li>Set chore that only exist for one time</li>
-                <li>Add recipes, set grade and appoint time for it</li>
-            </ul>
-        </main>
-        <footer>
-            
-        </footer>
-    </body>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Chores</title>
+  <link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="./favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <header class="flex center-vertically">
+    <h1>Home</h1>
+    <nav>
+      <ul class="flex center-horizontal">
+        <li><strong><a href="./index.html">Home</a></strong></li>
+        <li><strong><a href="./chores.html">Chores</a></strong></li>
+        <li><strong><a href="./grocceries.html">Grocceries</a></strong></li>
+        <li><strong><a href="./recipes.html">Recipes</a></strong></li>
+        <li><strong><a href="./login.html">Logout</a></strong></li>
+      </ul>
+    </nav>
+  </header>
+  <main>
+    <div class="group glass">
+      <div class="month">
+        <ul>
+          <li class="prev">&#10094;</li>
+          <li class="next">&#10095;</li>
+          <li>
+            August<br>
+            <span style="font-size:18px">2021</span>
+          </li>
+        </ul>
+      </div>
+
+      <ul class="weekdays">
+        <li>Mo</li>
+        <li>Tu</li>
+        <li>We</li>
+        <li>Th</li>
+        <li>Fr</li>
+        <li>Sa</li>
+        <li>Su</li>
+      </ul>
+
+      <ul class="days">
+        <li>1</li>
+        <li>2</li>
+        <li>3</li>
+        <li>4</li>
+        <li>5</li>
+        <li>6</li>
+        <li>7</li>
+        <li>8</li>
+        <li>9</li>
+        <li><span class="active">10</span></li>
+        <li>11</li>
+        <li>12</li>
+        <li>13</li>
+        <li>14</li>
+        <li>15</li>
+        <li>16</li>
+        <li>17</li>
+        <li>18</li>
+        <li>19</li>
+        <li>20</li>
+        <li>21</li>
+        <li>22</li>
+        <li>23</li>
+        <li>24</li>
+        <li>25</li>
+        <li>26</li>
+        <li>27</li>
+        <li>28</li>
+        <li>29</li>
+        <li>30</li>
+        <li>31</li>
+      </ul>
+
+    </div>
+  </main>
+  <script src="index.js"></script>
+</body>
+
 </html>

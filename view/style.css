@@ -43,16 +43,23 @@ header {
   align-items: center;
   grid-template-columns: 40px 1fr 1fr 1fr 1fr;
   padding: 6px 0;
-  border-block-end: 1px solid #ddd;
+  border-block-end: 1px solid white;
 }
 
 .grid-5:last-of-type {
   border: none;
 }
 
+.grid-4 {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 10px;
+}
 .cell {
   padding: 4px 8px;
 }
+
 
 .checkbox {
   justify-self: center;
@@ -78,6 +85,27 @@ header {
   margin-inline: auto;
   margin-block-end: 10px;
   padding-block-end: 10px;
+}
+
+.recipe-card {
+  flex-direction: column;
+  padding:10px;
+}
+
+.recipe-card h2 {
+  margin: unset;
+  margin-block-end: 10px;
+}
+
+.recipe-card img {
+  display: block;
+  border-radius: 5px;
+  max-width: 150px;
+}
+
+.logout {
+  border: solid 1px;
+  padding-inline: 5px;
 }
 
 ul {
@@ -266,4 +294,78 @@ nav a:hover {
   background-position: 100% 100%;
   /*OR bottom right*/
   background-size: 100% 2px;
+}
+
+/* testing calendar */
+ul {list-style-type: none;}
+body {font-family: Verdana, sans-serif;}
+
+/* Month header */
+.month {
+  padding: 70px 25px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Month list */
+.month ul {
+  margin: 0;
+  padding: 0;
+}
+
+.month ul li {
+  color: white;
+  font-size: 20px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+/* Previous button inside month header */
+.month .prev {
+  float: left;
+  padding-top: 10px;
+}
+
+/* Next button */
+.month .next {
+  float: right;
+  padding-top: 10px;
+}
+
+/* Weekdays (Mon-Sun) */
+.weekdays {
+  margin: 0;
+  padding: 10px 0;
+  background-color:#ddd;
+}
+
+.weekdays li {
+  display: inline-block;
+  width: 13.6%;
+  color: #666;
+  text-align: center;
+}
+
+/* Days (1-31) */
+.days {
+  padding: 10px 0;
+  background: #eee;
+  margin: 0;
+}
+
+.days li {
+  list-style-type: none;
+  display: inline-block;
+  width: 13.6%;
+  text-align: center;
+  margin-bottom: 5px;
+  font-size:12px;
+  color: #777;
+}
+
+/* Highlight the "current" day */
+.days li .active {
+  padding: 5px;
+  background: hotpink;
+  color: white !important
 }
