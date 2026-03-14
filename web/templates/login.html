@@ -1,35 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>loginform</title>
-  <link rel="stylesheet" href="../static/style.css">
-  <link rel="icon" href="./assets/favicon.ico" type="image/x-icon">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
-    rel="stylesheet">
-</head>
+{{template "head" .}}
 
 <body class="flower-power">
-  <main class="flex center-horizontal center-vertical full-viewport">
-    <div class="loginform glass">
-      <h1>Household planner</h1>
-      <form method="GET" action="/index.html">
-        <label for="uname">Username:</label>
-        <input type="text" id="uname" name="uname" required>
+    <main class="flex center-horizontal center-vertical full-viewport">
+        <div class="loginform glass">
+            <h1>Household planner</h1>
+            <form method="POST" action="/login">
+                <label for="uname">Username:</label>
+                <input type="text" id="uname" name="uname" required>
 
-        <label for="pwd">Password:</label>
-        <input type="password" id="pwd" name="pwd" required>
+                <label for="pwd">Password:</label>
+                <input type="password" id="pwd" name="pwd" required>
 
-        <button class="login-button" type="submit">Login</button>
-      </form>
-    </div>
-  </main>
-  <script src="../static/script.js"></script>
+                <button class="login-button" type="submit">Login</button>
+            </form>
+        </div>
+    </main>
+    <script src="/static/script.js"></script>
 </body>
 
 </html>
