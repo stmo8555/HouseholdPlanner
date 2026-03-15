@@ -10,6 +10,12 @@ type LayoutData struct {
     Data  any
 }
 
+type Grocery struct {
+	Product, Brand, Unit, Store string
+	Amount int
+	Picked bool
+}
+
 var tpl *template.Template
 
 func main() {
@@ -31,7 +37,10 @@ func choresHandleFunc(w http.ResponseWriter, r *http.Request) {
 	tpl.ExecuteTemplate(w, "chores.html", data)
 }
 func groceriesHandleFunc(w http.ResponseWriter, r *http.Request) {
-	data := LayoutData{Title: "Groceries", Data: nil}
+	groceries := make([]Grocery, 0, 5)
+	groceries = append(groceries, Grocery{Amount: 5, Product: "Mjölk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: false})
+	groceries = append(groceries, Grocery{Amount: 1, Product: "Gurk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: true})
+	data := LayoutData{Title: "Groceries", Data: groceries}
 	tpl.ExecuteTemplate(w, "groceries.html", data)
 }
 func indexHandleFunc(w http.ResponseWriter, r *http.Request) {
