@@ -1,36 +1,42 @@
 package main
 
 import (
+	_"fmt"
 	"net/http"
-    "github.com/gin-gonic/gin"
+
+	"github.com/gin-gonic/gin"
 )
 
 type LayoutData struct {
-    Title string
-    Data  any
+	Title string
+	Data  any
 }
 
 type Grocery struct {
 	Product, Brand, Unit, Store string
-	Amount int
-	Picked bool
+	Amount                      int
+	Picked                      bool
 }
 
 var r *gin.Engine
 
 func main() {
 	r = gin.Default()
-	r.LoadHTMLGlob("../../web/templates/*.html")
+	r.LoadHTMLGlob("web/templates/*.html")
 
-	r.GET("/chores", choresHandleFunc)
-	r.GET("/groceries", groceriesHandleFunc)
-	r.GET("/", indexHandleFunc)
+	r.Static("/static/", "web/static")
 	r.GET("/login", loginHandleFunc)
 	r.POST("/login", loginHandleFunc)
-	r.GET("/logout", loginHandleFunc)
-	r.GET("/recipes", recipesHandleFunc)
-	r.Static("/static/", "../../web/static")
-	
+	r.GET("/logout", logoutHandlerFunc)
+
+	auth := r.Group("/")
+	auth.Use(AuthMiddleware())
+	{
+		auth.GET("/chores", choresHandleFunc)
+		auth.GET("/groceries", groceriesHandleFunc)
+		auth.GET("/", indexHandleFunc)
+		auth.GET("/recipes", recipesHandleFunc)
+	}
 	r.Run()
 }
 
@@ -54,10 +60,38 @@ func indexHandleFunc(c *gin.Context) {
 
 func loginHandleFunc(c *gin.Context) {
 	data := LayoutData{Title: "login", Data: nil}
-	c.HTML(http.StatusOK, "login.html", data)
+
+	uname := c.PostForm("uname")
+	pwd := c.PostForm("pwd")
+
+	if uname == "stefan" && pwd == "morin" {
+		c.SetCookie("session_id", "gurkan", 0, "/", "", false, true)
+		c.Redirect(302, "/")
+	} else {
+		c.HTML(http.StatusOK, "login.html", data)
+	}
+}
+
+func logoutHandlerFunc(c *gin.Context) {
+	c.SetCookie("session_id", "", -1, "/", "", false, true)
+	c.Redirect(302, "/login")
 }
 
 func recipesHandleFunc(c *gin.Context) {
 	data := LayoutData{Title: "Recipes", Data: nil}
 	c.HTML(http.StatusOK, "recipes.html", data)
+}
+
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		session, err := c.Cookie("session_id")
+		if err != nil || session != "gurkan" {
+			c.AbortWithStatusJSON(401, gin.H{
+				"error": "unauthorized",
+			})
+			return
+		}
+
+		c.Next()
+	}
 }
