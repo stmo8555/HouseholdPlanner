@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:18
+    container_name: household-planner-db
+    env_file:
+      - .env
+    volumes:
+      - household_planner_db_data:/var/lib/postgresql    # <-- mount here instead
+      - ./db-init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+
+volumes:
+  household_planner_db_data:
