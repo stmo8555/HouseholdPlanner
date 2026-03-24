@@ -1,10 +1,12 @@
 package main
 
 import (
-	_"fmt"
+	"context"
+	_ "fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 )
 
 type LayoutData struct {
@@ -37,6 +39,13 @@ func main() {
 		auth.GET("/", indexHandleFunc)
 		auth.GET("/recipes", recipesHandleFunc)
 	}
+
+	dsn := "postgres://planner_user:supersecretpassword@localhost:5432/household_db?sslmode=disable"
+	conn, err := pgx.Connect(context.Background(), dsn)
+	if err != nil {
+    	panic(err)
+	}
+	defer conn.Close(context.Background())
 	r.Run()
 }
 
