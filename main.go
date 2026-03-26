@@ -25,13 +25,18 @@ type LayoutData struct {
 
 type Grocery struct {
 	Product, Brand, Unit, Store string
-	Amount, id                  int
+	Amount, id, household_id    int
 	Picked                      bool
+}
+
+type Session struct {
+	user_id      int
+	household_id *int
 }
 
 var r *gin.Engine
 var conn *pgx.Conn
-var sessions map[string]string
+var sessions map[string]*Session
 
 func main() {
 	r = gin.Default()
@@ -43,7 +48,7 @@ func main() {
 	r.GET("/logout", logoutHandlerFunc)
 
 	auth := r.Group("/")
-	auth.Use(AuthMiddleware())
+	auth.Use(authMiddleware())
 	auth.GET("/chores", choresHandleFunc)
 	auth.GET("/groceries", groceriesHandleFunc)
 	auth.GET("/", indexHandleFunc)
@@ -57,13 +62,25 @@ func main() {
 
 	defer conn.Close(context.Background())
 
-	sessions = make(map[string]string, 2)
-
-	id := addUserRetreiveId("Anna", "gurk")
-	joinHousehold(id, 1)
+	sessions = make(map[string]*Session, 2)
+	// setup()
 
 	r.Run()
 }
+
+// func setup() {
+	// id := addUserRetreiveId("Steffo", "apa")
+	// createHousehold(id, "la casa")
+	// id = addUserRetreiveId("Anna", "gurk")
+	// joinHousehold(id, 1)
+
+	// session := &Session{
+	// 	user_id:      id,
+	// 	household_id: 1,
+	// }
+	// addGrocery(Grocery{Amount: 5, Product: "Mjölk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: false}, session)
+	// addGrocery(Grocery{Amount: 1, Product: "Gurk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: true}, session)
+// }
 
 func joinHousehold(user_id, hid int) {
 	_, err := conn.Exec(context.Background(),
@@ -106,30 +123,8 @@ func createHousehold(owner int, name string) {
 	}
 }
 
-func addUser(conn *pgx.Conn) {
-	sql := `insert into users (username,pwd) Values ($1,$2) Returning id;`
-
-	password := "apa"
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-
-	_, err := conn.Exec(context.Background(), sql, "Steffo", hashedPassword)
-
-	if err != nil {
-		panic("failed to create user: " + err.Error())
-	}
-}
-
-func verifyPassword(conn *pgx.Conn, uname, password string) bool {
-	sql := "SELECT pwd FROM users WHERE username=$1"
-	var hash string
-	err := conn.QueryRow(context.Background(), sql, uname).Scan(&hash)
-
-	if err != nil {
-		fmt.Println("Could not verify user. Err: " + err.Error())
-		return false
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
+func verifyPassword(pwd, hash string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pwd))
 
 	if err != nil {
 		fmt.Println("Wrong credentials!!!")
@@ -137,6 +132,19 @@ func verifyPassword(conn *pgx.Conn, uname, password string) bool {
 	}
 
 	return true
+}
+
+func addUserRetreiveId(uname, pwd string) int {
+	sql := `INSERT INTO users (username,pwd) VALUES ($1,$2) RETURNING id;`
+	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
+	var id int
+	err := conn.QueryRow(context.Background(), sql, uname, hashedPassword).Scan(&id)
+
+	if err != nil {
+		panic("failed to create user: " + err.Error())
+	}
+
+	return id
 }
 
 func deleteUser(conn *pgx.Conn) {
@@ -148,50 +156,68 @@ func deleteUser(conn *pgx.Conn) {
 	}
 }
 
-func addUserRetreiveId(uname, pwd string) int {
-	sql := `INSERT INTO users (username,pwd) VALUES ($1,$2) RETURNING id;`
-	var id int
-	err := conn.QueryRow(context.Background(), sql, uname, pwd).Scan(&id)
-
-	if err != nil {
-		panic("failed to create user: " + err.Error())
-	}
-
-	return id
-}
-
 func choresHandleFunc(c *gin.Context) {
 	data := LayoutData{Title: "Chores", Data: nil}
 	c.HTML(http.StatusOK, "chores.html", data)
 }
 
-func addGrocery(grocery Grocery, user_id int) {
-	sql := `select household_id from users where user_id=$1`
-	var household_id string
-	err := conn.QueryRow(context.Background(), sql, user_id).Scan(&household_id)
-
-	if err != nil {
-		panic(err)
-	}
-
-	sql = `INSERT INTO groceries 
+func addGrocery(grocery Grocery, session *Session) {
+	sql := `INSERT INTO groceries 
 	(product, brand, amount, unit, store, household_id)
-	VALUES ($1, $2, $3, $4, $5)`
+	VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err = conn.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Unit, grocery.Store)
+	_, err := conn.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Unit, grocery.Store, session.household_id)
 
 	if err != nil {
+		fmt.Println("noooooooooo bad input")
 		panic(err)
 	}
+
+	// reload page or htmx
 }
 
 func groceriesHandleFunc(c *gin.Context) {
-	// var name string var weight int64 err = conn.QueryRow(context.Background(), "select name, weight from widgets where id=$1", 42).Scan(&name, &weight)
-	// sql := `SELECT * from groceries;`
-	// conn.Query(context.Background())
-	groceries := make([]Grocery, 0, 5)
-	groceries = append(groceries, Grocery{Amount: 5, Product: "Mjölk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: false})
-	groceries = append(groceries, Grocery{Amount: 1, Product: "Gurk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: true})
+	session, _ := c.Cookie("session_id")
+	hid := *sessions[session].household_id
+	sql := `
+        SELECT id, product, brand, unit, store, amount, household_id 
+        FROM groceries
+        WHERE household_id = $1
+        ORDER BY product;
+    `
+
+	rows, err := conn.Query(context.Background(), sql, hid)
+	if err != nil {
+		fmt.Println(err)
+	}
+	defer rows.Close()
+
+	var groceries []Grocery
+
+	for rows.Next() {
+		var g Grocery
+		err := rows.Scan(
+			&g.id,
+			&g.Product,
+			&g.Brand,
+			&g.Unit,
+			&g.Store,
+			&g.Amount,
+			&g.household_id,
+		)
+
+		g.Picked = false
+		if err != nil {
+			panic(err)
+		}
+
+		groceries = append(groceries, g)
+	}
+
+	if rows.Err() != nil {
+		fmt.Println(rows.Err())
+	}
+
 	data := LayoutData{Title: "Groceries", Data: groceries}
 	c.HTML(http.StatusOK, "groceries.html", data)
 }
@@ -206,13 +232,48 @@ func loginHandleFunc(c *gin.Context) {
 	c.HTML(http.StatusOK, "login.html", data)
 }
 
+func getHouseholdId(user_id int) (int, error) {
+	sql := `select household_id FROM household_members where user_id=$1`
+	var hid int
+	err := conn.QueryRow(context.Background(), sql, user_id).Scan(&hid)
+
+	return hid, err
+}
+
 func authHandleFunc(c *gin.Context) {
 	uname := c.PostForm("uname")
 	pwd := c.PostForm("pwd")
 
-	if verifyPassword(conn, uname, pwd) {
+	sql := "SELECT id, pwd FROM users WHERE username=$1"
+
+	var uid int
+	var hash string
+
+	err := conn.QueryRow(context.Background(), sql, uname).Scan(&uid, &hash)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			fmt.Println("User not found")
+		} else {
+			fmt.Println("Query error:", err)
+		}
+		c.Redirect(302, "/login")
+		return
+	}
+
+	if verifyPassword(pwd, hash) {
 		id := uuid.New().String()
-		sessions[id] = uname
+		session := &Session{
+			user_id:      uid,
+			household_id: nil,
+		}
+		var hid int
+		hid, err = getHouseholdId(uid)
+		if err == nil {
+			session.household_id = &hid
+		}
+
+		sessions[id] = session
 		c.SetCookie("session_id", id, 0, "/", "", false, true)
 		c.Redirect(302, "/")
 	} else {
@@ -235,15 +296,14 @@ func recipesHandleFunc(c *gin.Context) {
 	c.HTML(http.StatusOK, "recipes.html", data)
 }
 
-func AuthMiddleware() gin.HandlerFunc {
+func authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		session, _ := c.Cookie("session_id")
 		_, ok := sessions[session]
 
 		if !ok {
-			c.AbortWithStatusJSON(401, gin.H{
-				"error": "unauthorized",
-			})
+			c.Redirect(http.StatusSeeOther, "/login")
+			c.Abort()
 			return
 		}
 
