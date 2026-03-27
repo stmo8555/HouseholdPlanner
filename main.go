@@ -219,7 +219,7 @@ func groceriesHandleFunc(c *gin.Context) {
 	}
 
 	data := LayoutData{Title: "Groceries", Data: groceries}
-	c.HTML(http.StatusOK, "groceries.html", data)
+	c.HTML(http.StatusOK, "test.html", data)
 }
 
 func indexHandleFunc(c *gin.Context) {

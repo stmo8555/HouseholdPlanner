@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{template "head" .}}
+
+<body>
+    <header class="flex center-vertically">
+        <h1>Groceries</h1>
+        {{template "nav"}}
+    </header>
+    <main>
+        <div class='glass'>
+            <h2 class="table_h2">Shopping ({{ len .Data }} items)</h2>
+            <table>
+                <thead>
+                    <tr class="t">
+                        <th>
+                        </th>
+                        <th>
+                            <a href="/groceries?sort=product">Product</a>
+                        </th>
+
+                        <th>
+                            <a href="/groceries?sort=brand"> Brand </a>
+                        </th>
+
+                        <th>
+                            <a href="/groceries?sort=amount"> Amount </a>
+                        </th>
+                        <th>
+                            <a href="/groceries?sort=store"> Store </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Data}}
+                    <tr>
+                        <td>
+                            <div class="checkbox"><input type="checkbox" id="picked" name="picked" />
+                                <label for="picked">Picked</label>
+                            </div>
+                        </td>
+                        <td>{{.Product}}</td>
+                        <td>{{.Brand}}</td>
+                        <td>{{.Amount}} {{.Unit}}</td>
+                        <td>{{.Store}}</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        <h2>Picked</h2>
+        <div class="glass">
+            {{range .Data}}
+            <div class="grid-5">
+                <div class="checkbox">
+                    <input type="checkbox" id="picked" name="picked" checked />
+                    <label for="picked">Picked</label>
+                </div>
+                <p class="cell">a</p>
+                <p class="cell">b</p>
+                <p class="cell">b</p>
+                <p class="cell">b</p>
+            </div>
+            {{end}}
+        </div>
+    </main>
+    <script src="/static/script.js"></script>
+</body>
+
+</html>
