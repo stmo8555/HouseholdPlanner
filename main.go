@@ -25,7 +25,7 @@ type LayoutData struct {
 
 type Grocery struct {
 	Product, Brand, Unit, Store string
-	Amount, id, household_id    int
+	Amount, Id, Household_id    int
 	Picked                      bool
 }
 
@@ -51,6 +51,7 @@ func main() {
 	auth.Use(authMiddleware())
 	auth.GET("/chores", choresHandleFunc)
 	auth.GET("/groceries", groceriesHandleFunc)
+	auth.POST("/groceries", groceriesPickHandleFunc)
 	auth.GET("/", indexHandleFunc)
 	auth.GET("/recipes", recipesHandleFunc)
 
@@ -63,24 +64,24 @@ func main() {
 	defer conn.Close(context.Background())
 
 	sessions = make(map[string]*Session, 2)
-	// setup()
+	setup()
 
 	r.Run()
 }
 
-// func setup() {
-	// id := addUserRetreiveId("Steffo", "apa")
-	// createHousehold(id, "la casa")
-	// id = addUserRetreiveId("Anna", "gurk")
-	// joinHousehold(id, 1)
+func setup() {
+	id := addUserRetreiveId("Steffo", "apa")
+	hid := createHousehold(id, "la casa")
+	id = addUserRetreiveId("Anna", "gurk")
+	joinHousehold(id, hid)
 
-	// session := &Session{
-	// 	user_id:      id,
-	// 	household_id: 1,
-	// }
-	// addGrocery(Grocery{Amount: 5, Product: "Mjölk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: false}, session)
-	// addGrocery(Grocery{Amount: 1, Product: "Gurk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: true}, session)
-// }
+	session := &Session{
+		user_id:      id,
+		household_id: &hid,
+	}
+	addGrocery(Grocery{Amount: 5, Product: "Mjölk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: false}, session)
+	addGrocery(Grocery{Amount: 1, Product: "Gurk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: true}, session)
+}
 
 func joinHousehold(user_id, hid int) {
 	_, err := conn.Exec(context.Background(),
@@ -94,7 +95,7 @@ func joinHousehold(user_id, hid int) {
 	}
 }
 
-func createHousehold(owner int, name string) {
+func createHousehold(owner int, name string) int {
 	tx, err := conn.Begin(context.Background())
 	if err != nil {
 		panic(err)
@@ -121,6 +122,8 @@ func createHousehold(owner int, name string) {
 	if err != nil {
 		panic(err)
 	}
+
+	return hid
 }
 
 func verifyPassword(pwd, hash string) bool {
@@ -197,13 +200,13 @@ func groceriesHandleFunc(c *gin.Context) {
 	for rows.Next() {
 		var g Grocery
 		err := rows.Scan(
-			&g.id,
+			&g.Id,
 			&g.Product,
 			&g.Brand,
 			&g.Unit,
 			&g.Store,
 			&g.Amount,
-			&g.household_id,
+			&g.Household_id,
 		)
 
 		g.Picked = false
@@ -220,6 +223,12 @@ func groceriesHandleFunc(c *gin.Context) {
 
 	data := LayoutData{Title: "Groceries", Data: groceries}
 	c.HTML(http.StatusOK, "test.html", data)
+}
+
+func groceriesPickHandleFunc(c *gin.Context) {
+	id := c.PostForm("id")
+	fmt.Println("!!!!!!!!!!!!!!! id !!!!!!" + id)
+	c.Redirect(302, "/groceries")
 }
 
 func indexHandleFunc(c *gin.Context) {

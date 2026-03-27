@@ -11,17 +11,17 @@ body {
     overflow-x: hidden;
 }
 
-body.flower-power::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background-image: url(assets/background.jpg);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    z-index: -1;
-    transition: transform 0.8s ease-in-out;
-}
+/* body.flower-power::before { */
+/*     content: ""; */
+/*     position: fixed; */
+/*     inset: 0; */
+/*     background-image: url(assets/background.jpg); */
+/*     background-size: cover; */
+/*     background-position: center; */
+/*     background-repeat: no-repeat; */
+/*     z-index: -1; */
+/*     transition: transform 0.8s ease-in-out; */
+/* } */
 
 /* Only animate on flower-power pages */
 body.flower-power.slide-out::before {
@@ -40,46 +40,66 @@ header {
 
 table a {
     text-decoration: none;
+    display: block;
 }
 
 .table_h2 {
     margin-inline-start: 5%;
 }
-
 table {
     width: 90%;
     margin-inline: auto;
-    margin-block-end: 12px;
+    margin-block-end: 24px;
     /* background: black;  */
     border-collapse: collapse;
 }
 
+thead {
+    border-block-end: solid rgba(255, 255, 255, 0.5) 2px;
+}
+
 th,
 td {
-    padding: 5px;
+    padding: 10px;
     text-align: left;
 }
 
+th:hover {
+    border-start-start-radius: 10px;
+    border-start-end-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
+}
+
+td .store {
+    background: rgba(255, 105, 180, 0.5);
+    display: inline-block;
+    border-radius: 1000px;
+    text-align: center;
+    padding-inline: 20px;
+    padding-block: 5px;
+}
+
 tr:nth-child(even) {
-    background: rgba(0, 0, 0, 0.05);
+    /* background: rgba(0, 0, 0, 0.05); */
 }
 
 tr {
     border-radius: 16px;
     overflow: hidden;
+    border-block-end: solid rgba(255, 255, 255, 0.2) 1px;
 }
 
-tr:hover {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-
-thead {
-    border-block-end: solid white 1px;
+tbody tr:hover {
+    border-start-start-radius: 10px;
+    border-start-end-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    overflow: hidden;
 }
 
 .checkbox {
     display: inline-block;
+    background: transparent;
     border: 2px white solid;
     border-radius: 5px;
     padding: 7px;

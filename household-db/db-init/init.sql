@@ -31,7 +31,8 @@ CREATE TABLE "groceries" (
   "store" varchar,
   "household_id" int NOT NULL,
   "created_at" timestamp DEFAULT (now()),
-  "updated_at" timestamp
+  "updated_at" timestamp,
+  "picked" bool DEFAULT FALSE
 );
 
 CREATE TABLE "chores" (

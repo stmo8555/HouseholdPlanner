@@ -36,33 +36,20 @@
                     {{range .Data}}
                     <tr>
                         <td>
-                            <div class="checkbox"><input type="checkbox" id="picked" name="picked" />
-                                <label for="picked">Picked</label>
-                            </div>
+                            <form method="POST" action="/groceries">
+                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                            </form>
                         </td>
                         <td>{{.Product}}</td>
                         <td>{{.Brand}}</td>
                         <td>{{.Amount}} {{.Unit}}</td>
-                        <td>{{.Store}}</td>
+                        <td>
+                            <div class='store'>{{.Store}}</div>
+                        </td>
                     </tr>
                     {{end}}
                 </tbody>
             </table>
-        </div>
-        <h2>Picked</h2>
-        <div class="glass">
-            {{range .Data}}
-            <div class="grid-5">
-                <div class="checkbox">
-                    <input type="checkbox" id="picked" name="picked" checked />
-                    <label for="picked">Picked</label>
-                </div>
-                <p class="cell">a</p>
-                <p class="cell">b</p>
-                <p class="cell">b</p>
-                <p class="cell">b</p>
-            </div>
-            {{end}}
         </div>
     </main>
     <script src="/static/script.js"></script>
