@@ -1,0 +1,13 @@
+{{define "checkbox_td"}}
+<td>
+    <div class="checkbox-wrapper">
+        <button class="checkbox" type="button"
+            hx-post="/groceries"
+            hx-vals='{"id": "{{.Id}}"}'
+            hx-target="closest td"
+            hx-swap="outerHTML">
+        </button>
+        <span class="checkmark">{{if .Picked}}✓{{end}}</span>
+    </div>
+</td>
+{{end}}

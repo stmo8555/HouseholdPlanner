@@ -37,7 +37,9 @@
                     <tr>
                         <td>
                             <form method="POST" action="/groceries">
+                                <div class="checkbox-wrapper">
                                     <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                                </div>
                             </form>
                         </td>
                         <td>{{.Product}}</td>
@@ -79,7 +81,10 @@
                     <tr>
                         <td>
                             <form method="POST" action="/groceries">
-                                    <button class="checkbox checked" type="submit" name="id" value="{{.Id}}">✓</button>
+                                <div class="checkbox-wrapper">
+                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                                    <span class="checkmark">✓</span>
+                                </div>
                             </form>
                         </td>
                         <td>{{.Product}}</td>

@@ -102,6 +102,11 @@ tbody tr:hover {
     overflow: hidden;
 }
 
+.checkbox-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
 .checkbox {
     display: inline-block;
     background: transparent;
@@ -109,21 +114,17 @@ tbody tr:hover {
     border-radius: 5px;
     padding: 10px;
     aspect-ratio: 1;
-    margin: auto;
+    margin: 0;
 }
 
-.checkbox.checked {
-    color: hotpink;
-    font-size: 2rem;
-    padding: 1px;
-}
-
-.checkbox label {
-    display: none;
-}
-
-.checkbox input[type="checkbox"] {
-    display: none;
+.checkmark {
+    position: absolute;
+    pointer-events: none;
+    inset-inline-start: 50%;
+    inset-block-start: 40%;
+    transform: translate(-50%, -50%);
+    color: rgba(255, 105, 180, 1);
+    font-size: 2.8rem;
 }
 
 .checkbox:hover {
