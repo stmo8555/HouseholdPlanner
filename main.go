@@ -56,7 +56,7 @@ func main() {
 	auth.GET("/recipes", recipesHandleFunc)
 
 	var err error
-	conn, err = pgx.Connect(context.Background(), "postgres://planner_user:supersecretpassword@localhost:5432/household_db?sslmode=disable")
+	conn, err = pgx.Connect(context.Background(), "postgres://Admin:Admin@localhost:5432/db?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
@@ -64,7 +64,7 @@ func main() {
 	defer conn.Close(context.Background())
 
 	sessions = make(map[string]*Session, 2)
-	setup()
+	// setup()
 
 	r.Run()
 }
@@ -179,11 +179,15 @@ func addGrocery(grocery Grocery, session *Session) {
 	// reload page or htmx
 }
 
+type Groceries struct {
+	Picked, NotPicked []Grocery
+}
+
 func groceriesHandleFunc(c *gin.Context) {
 	session, _ := c.Cookie("session_id")
 	hid := *sessions[session].household_id
 	sql := `
-        SELECT id, product, brand, unit, store, amount, household_id 
+        SELECT id, product, brand, unit, store, amount, household_id, picked 
         FROM groceries
         WHERE household_id = $1
         ORDER BY product;
@@ -195,7 +199,7 @@ func groceriesHandleFunc(c *gin.Context) {
 	}
 	defer rows.Close()
 
-	var groceries []Grocery
+	var groceries Groceries
 
 	for rows.Next() {
 		var g Grocery
@@ -207,14 +211,18 @@ func groceriesHandleFunc(c *gin.Context) {
 			&g.Store,
 			&g.Amount,
 			&g.Household_id,
+			&g.Picked,
 		)
 
-		g.Picked = false
 		if err != nil {
 			panic(err)
 		}
 
-		groceries = append(groceries, g)
+		if g.Picked == true {
+			groceries.NotPicked = append(groceries.NotPicked, g)
+		} else {
+			groceries.Picked = append(groceries.Picked, g)
+		}
 	}
 
 	if rows.Err() != nil {
@@ -227,7 +235,11 @@ func groceriesHandleFunc(c *gin.Context) {
 
 func groceriesPickHandleFunc(c *gin.Context) {
 	id := c.PostForm("id")
-	fmt.Println("!!!!!!!!!!!!!!! id !!!!!!" + id)
+    sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1;`
+	_, err := conn.Exec(context.Background(), sql, id)
+	if err != nil {
+		panic(err)
+	}
 	c.Redirect(302, "/groceries")
 }
 

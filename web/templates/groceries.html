@@ -18,8 +18,8 @@
                 <a class="cell">Amount</a>
                 <a class="cell">Store</a>
             </div>
-            {{range .Data}}
-            {{if not .Picked}}
+            {{range .Data.NotPicked}}
+            <!-- {{if not .Picked}} -->
             <div class="grid-5">
                 <div class="checkbox">
                     <input type="checkbox" id="picked" name="picked" />
@@ -30,13 +30,13 @@
                 <p class="cell">{{.Amount}} {{.Unit}}</p>
                 <p class="cell">{{.Store}}</p>
             </div>
-            {{end}}
+            <!-- {{end}} -->
             {{end}}
         </div>
             <h2>Picked</h2>
             <div class="glass">
-                {{range .Data}}
-                {{if .Picked}}
+                {{range .Data.Picked}}
+                <!-- {{if .Picked}} -->
                 <div class="grid-5">
                     <div class="checkbox">
                         <input type="checkbox" id="picked" name="picked" checked />
@@ -48,7 +48,7 @@
                     <p class="cell">{{.Store}}</p>
                 </div>
                 {{end}}
-                {{end}}
+                <!-- {{end}} -->
             </div>
     </main>
     <script src="/static/script.js"></script>

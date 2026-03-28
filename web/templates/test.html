@@ -9,8 +9,8 @@
         {{template "nav"}}
     </header>
     <main>
-        <div class='glass'>
-            <h2 class="table_h2">Shopping ({{ len .Data }} items)</h2>
+        <div class='glass margin-block-end-24px'>
+            <h2 class="table_h2">Shopping ({{ len .Data.NotPicked }} items)</h2>
             <table>
                 <thead>
                     <tr class="t">
@@ -33,11 +33,53 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {{range .Data}}
+                    {{range .Data.NotPicked}}
                     <tr>
                         <td>
                             <form method="POST" action="/groceries">
                                     <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                            </form>
+                        </td>
+                        <td>{{.Product}}</td>
+                        <td>{{.Brand}}</td>
+                        <td>{{.Amount}} {{.Unit}}</td>
+                        <td>
+                            <div class='store'>{{.Store}}</div>
+                        </td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        <div class='glass'>
+            <h2 class="table_h2">Picked ({{ len .Data.Picked }} items)</h2>
+            <table>
+                <thead>
+                    <tr class="t">
+                        <th>
+                        </th>
+                        <th>
+                            <a href="/groceries?sort=product">Product</a>
+                        </th>
+
+                        <th>
+                            <a href="/groceries?sort=brand"> Brand </a>
+                        </th>
+
+                        <th>
+                            <a href="/groceries?sort=amount"> Amount </a>
+                        </th>
+                        <th>
+                            <a href="/groceries?sort=store"> Store </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Data.Picked}}
+                    <tr>
+                        <td>
+                            <form method="POST" action="/groceries">
+                                    <button class="checkbox checked" type="submit" name="id" value="{{.Id}}">✓</button>
                             </form>
                         </td>
                         <td>{{.Product}}</td>

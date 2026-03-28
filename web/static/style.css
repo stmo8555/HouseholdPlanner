@@ -46,6 +46,11 @@ table a {
 .table_h2 {
     margin-inline-start: 5%;
 }
+
+.margin-block-end-24px {
+    margin-block-end: 24px;
+}
+
 table {
     width: 90%;
     margin-inline: auto;
@@ -102,8 +107,15 @@ tbody tr:hover {
     background: transparent;
     border: 2px white solid;
     border-radius: 5px;
-    padding: 7px;
+    padding: 10px;
+    aspect-ratio: 1;
     margin: auto;
+}
+
+.checkbox.checked {
+    color: hotpink;
+    font-size: 2rem;
+    padding: 1px;
 }
 
 .checkbox label {
