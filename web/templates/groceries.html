@@ -4,54 +4,130 @@
 {{template "head" .}}
 
 <body>
-    <header class="flex center-vertically">
-        <h1>Groceries</h1>
-        {{template "nav"}}
-    </header>
-    <main>
-        <h2>To be picked</h2>
-        <div class="glass">
-            <div class="grid-5">
-                <div class="checkbox"></div>
-                <a href="/login"class="cell">Product</a>
-                <a class="cell">Brand</a>
-                <a class="cell">Amount</a>
-                <a class="cell">Store</a>
-            </div>
-            {{range .Data.NotPicked}}
-            <!-- {{if not .Picked}} -->
-            <div class="grid-5">
-                <div class="checkbox">
-                    <input type="checkbox" id="picked" name="picked" />
-                    <label for="picked">Picked</label>
-                </div>
-                <p class="cell">{{.Product}}</p>
-                <p class="cell">{{.Brand}}</p>
-                <p class="cell">{{.Amount}} {{.Unit}}</p>
-                <p class="cell">{{.Store}}</p>
-            </div>
-            <!-- {{end}} -->
-            {{end}}
-        </div>
-            <h2>Picked</h2>
-            <div class="glass">
-                {{range .Data.Picked}}
-                <!-- {{if .Picked}} -->
-                <div class="grid-5">
-                    <div class="checkbox">
-                        <input type="checkbox" id="picked" name="picked" checked />
-                        <label for="picked">Picked</label>
+    {{template "header" .}}
+    <!-- modal -->
+    <div class="overlay">
+        <div class="glass fixed-center">
+            <h2 class="table-h2">Add Grocery</h2>
+            <form class="add-grocery-form" method="POST" action="/groceries/add">
+                <div class="grid-2">
+                    <div>
+                        <label for="1">Product</label>
+                        <input id="1" type="text" name="product" required>
                     </div>
-                    <p class="cell">{{.Product}}</p>
-                    <p class="cell">{{.Brand}}</p>
-                    <p class="cell">{{.Amount}} {{.Unit}}</p>
-                    <p class="cell">{{.Store}}</p>
+                    <div>
+                        <label for="3">Amount</label>
+                        <input id="3" type="text" name="amount">
+                    </div>
                 </div>
-                {{end}}
-                <!-- {{end}} -->
-            </div>
+                <div class="grid-2">
+                    <div>
+                        <label for="2">Brand</label>
+                        <input id="2" type="text" name="brand">
+                    </div>
+                    <div>
+                        <label for="4">Store</label>
+                        <input id="4" type="text" name="store">
+                    </div>
+                </div>
+                <div class="text-align-center">
+                    <button type="submit">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <main>
+        <div class="margin-block-end-24px">
+            <button class="toggle-add-btn">Add Grocery</button>
+            <button>Edit</button>
+        </div>
+        <!-- table start -->
+        {{if gt (len .Data.NotPicked) 0}}
+        <div class='glass margin-block-end-24px'>
+            <h2 class="table-h2">Shopping ({{ len .Data.NotPicked }} items)</h2>
+            <table>
+                <thead>
+                    <tr class="t">
+                        <th>
+                        </th>
+                        <th>
+                            <a href="/groceries?sort=product">Product</a>
+                        </th>
+
+                        <th>
+                            <a href="/groceries?sort=amount"> Amount </a>
+                        </th>
+
+                        <th>
+                            <a href="/groceries?sort=brand"> Brand </a>
+                        </th>
+                        <th>
+                            <a href="/groceries?sort=store"> Store </a>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Data.NotPicked}}
+                    <tr>
+                        <td>
+                            <form method="POST" action="/groceries">
+                                <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                            </form>
+                        </td>
+                        <td>{{.Product}}</td>
+                        <td>{{.Amount}}</td>
+                        <td>{{.Brand}}</td>
+                        <td>{{.Store}}</td>
+                    </tr>
+                    {{end}}
+
+                    <!-- Picked section starts -->
+                    {{if gt (len .Data.Picked) 0}}
+                    <tr class="divider-top">
+                        <td colspan="5">
+                            <strong>Picked ({{len .Data.Picked}} items)</strong>
+                        </td>
+                    </tr>
+                    {{range .Data.Picked}}
+                    <tr>
+                        <td>
+                            <form method="POST" action="/groceries">
+                                <button class="checkbox checked" type="submit" name="id" value="{{.Id}}"></button>
+                            </form>
+                        </td>
+                        <td class="line-through">{{.Product}}</td>
+                        <td class="line-through">{{.Amount}}</td>
+                        <td class="line-through">{{.Brand}}</td>
+                        <td class="line-through">{{.Store}}</td>
+                    </tr>
+                    {{end}}
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
+        {{end}}
     </main>
     <script src="/static/script.js"></script>
+    <script>
+        const btn = document.querySelector('.toggle-add-btn');
+        const main = document.querySelector("main")
+        const overlay = document.querySelector(".overlay");
+        const modal = overlay.querySelector(".glass"); // the inner modal content
+
+        // Show modal
+        btn.addEventListener("click", () => {
+            overlay.style.display = "block";
+            main.style.display = "none"
+        });
+
+        // Hide modal if clicking outside the modal content
+        overlay.addEventListener("click", (e) => {
+            if (!modal.contains(e.target)) { // click was outside modal
+                overlay.style.display = "none";
+                main.style.display = "block"
+            }
+        });
+    </script>
 </body>
 
 </html>

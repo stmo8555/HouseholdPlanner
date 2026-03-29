@@ -20,13 +20,14 @@ import (
 
 type LayoutData struct {
 	Title string
+	CurrentPath string
 	Data  any
 }
 
 type Grocery struct {
-	Product, Brand, Unit, Store string
-	Amount, Id, Household_id    int
-	Picked                      bool
+	Product, Brand, Store, Amount string
+	Id, Household_id              int
+	Picked                        bool
 }
 
 type Session struct {
@@ -52,6 +53,7 @@ func main() {
 	auth.GET("/chores", choresHandleFunc)
 	auth.GET("/groceries", groceriesHandleFunc)
 	auth.POST("/groceries", groceriesPickHandleFunc)
+	auth.POST("/groceries/add", groceriesAddHandleFunc)
 	auth.GET("/", indexHandleFunc)
 	auth.GET("/recipes", recipesHandleFunc)
 
@@ -76,11 +78,11 @@ func setup() {
 	joinHousehold(id, hid)
 
 	session := &Session{
-		user_id:      id,
 		household_id: &hid,
 	}
-	addGrocery(Grocery{Amount: 5, Product: "Mjölk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: false}, session)
-	addGrocery(Grocery{Amount: 1, Product: "Gurk", Brand: "Arla", Unit: "kg", Store: "ICA", Picked: true}, session)
+
+	addGrocery(Grocery{Amount: "5", Product: "Mjölk", Brand: "Arla", Store: "ICA", Picked: false, Household_id: *session.household_id})
+	addGrocery(Grocery{Amount: "1", Product: "Gurk", Brand: "Arla", Store: "ICA", Picked:false, Household_id: *session.household_id})
 }
 
 func joinHousehold(user_id, hid int) {
@@ -160,23 +162,21 @@ func deleteUser(conn *pgx.Conn) {
 }
 
 func choresHandleFunc(c *gin.Context) {
-	data := LayoutData{Title: "Chores", Data: nil}
+	data := LayoutData{Title: "Chores", CurrentPath: c.Request.URL.Path, Data: nil}
 	c.HTML(http.StatusOK, "chores.html", data)
 }
 
-func addGrocery(grocery Grocery, session *Session) {
+func addGrocery(grocery Grocery) {
 	sql := `INSERT INTO groceries 
-	(product, brand, amount, unit, store, household_id)
+	(product, brand, amount, store, picked, household_id)
 	VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err := conn.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Unit, grocery.Store, session.household_id)
+	_, err := conn.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Store, grocery.Picked,grocery.Household_id)
 
 	if err != nil {
 		fmt.Println("noooooooooo bad input")
 		panic(err)
 	}
-
-	// reload page or htmx
 }
 
 type Groceries struct {
@@ -187,7 +187,7 @@ func groceriesHandleFunc(c *gin.Context) {
 	session, _ := c.Cookie("session_id")
 	hid := *sessions[session].household_id
 	sql := `
-        SELECT id, product, brand, unit, store, amount, household_id, picked 
+        SELECT id, product, brand, store, amount, household_id, picked 
         FROM groceries
         WHERE household_id = $1
         ORDER BY product;
@@ -207,7 +207,6 @@ func groceriesHandleFunc(c *gin.Context) {
 			&g.Id,
 			&g.Product,
 			&g.Brand,
-			&g.Unit,
 			&g.Store,
 			&g.Amount,
 			&g.Household_id,
@@ -229,13 +228,13 @@ func groceriesHandleFunc(c *gin.Context) {
 		fmt.Println(rows.Err())
 	}
 
-	data := LayoutData{Title: "Groceries", Data: groceries}
-	c.HTML(http.StatusOK, "test.html", data)
+	data := LayoutData{Title: "Groceries", CurrentPath: c.Request.URL.Path,Data: groceries}
+	c.HTML(http.StatusOK, "groceries.html", data)
 }
 
 func groceriesPickHandleFunc(c *gin.Context) {
 	id := c.PostForm("id")
-    sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1;`
+	sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1;`
 	_, err := conn.Exec(context.Background(), sql, id)
 	if err != nil {
 		panic(err)
@@ -243,8 +242,29 @@ func groceriesPickHandleFunc(c *gin.Context) {
 	c.Redirect(302, "/groceries")
 }
 
+func groceriesAddHandleFunc(c *gin.Context) {
+	product := c.PostForm("product")
+	brand := c.PostForm("brand")
+	amount := c.PostForm("amount")
+	store := c.PostForm("store")
+	cookie, _ := c.Cookie("session_id")
+	session := sessions[cookie]
+	grocery := Grocery{
+		Product: product,
+		Brand:  brand,
+		Amount: amount,
+		Store:  store,
+		Picked: false,
+		Household_id: *session.household_id,
+	}
+
+	addGrocery(grocery)
+	c.Redirect(302, "/groceries")
+}
+
 func indexHandleFunc(c *gin.Context) {
-	data := LayoutData{Title: "Home", Data: nil}
+	data := LayoutData{Title: "Home", CurrentPath: c.Request.URL.Path, Data: nil}
+	fmt.Println("-------------------- " + c.Request.URL.Path)
 	c.HTML(http.StatusOK, "index.html", data)
 }
 
@@ -313,7 +333,7 @@ func logoutHandlerFunc(c *gin.Context) {
 }
 
 func recipesHandleFunc(c *gin.Context) {
-	data := LayoutData{Title: "Recipes", Data: nil}
+	data := LayoutData{Title: "Recipes", CurrentPath: c.Request.URL.Path, Data: nil}
 	c.HTML(http.StatusOK, "recipes.html", data)
 }
 

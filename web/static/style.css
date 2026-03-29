@@ -6,9 +6,14 @@
 
 body {
     background: #EEAECA;
-    position: relative;
     background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
     overflow-x: hidden;
+    block-size: 100dvh;
+}
+
+.overlay {
+    display: none;
+    block-size: 100%;
 }
 
 /* body.flower-power::before { */
@@ -38,12 +43,18 @@ header {
     margin-inline: 10%;
 }
 
+header a.active {
+    background-position: 100% 100%;
+    /*OR bottom right*/
+    background-size: 100% 2px;
+}
+
 table a {
     text-decoration: none;
     display: block;
 }
 
-.table_h2 {
+.table-h2 {
     margin-inline-start: 5%;
 }
 
@@ -67,6 +78,7 @@ th,
 td {
     padding: 10px;
     text-align: left;
+    margin-block: auto;
 }
 
 th:hover {
@@ -85,14 +97,22 @@ td .store {
     padding-block: 5px;
 }
 
-tr:nth-child(even) {
-    /* background: rgba(0, 0, 0, 0.05); */
-}
-
 tr {
     border-radius: 16px;
     overflow: hidden;
     border-block-end: solid rgba(255, 255, 255, 0.2) 1px;
+}
+
+tr.divider-top {
+    border-block-start: solid rgba(255, 255, 255, 0.5) 2px;
+}
+
+tr.divider-top td {
+    padding-inline-start: 0px;
+}
+
+.line-through {
+    text-decoration: line-through;
 }
 
 tbody tr:hover {
@@ -102,29 +122,42 @@ tbody tr:hover {
     overflow: hidden;
 }
 
-.checkbox-wrapper {
-    position: relative;
-    display: inline-block;
-}
-
 .checkbox {
+    font-size: 3rem;
     display: inline-block;
     background: transparent;
-    border: 2px white solid;
-    border-radius: 5px;
-    padding: 10px;
     aspect-ratio: 1;
+    border-radius: 50%;
+    border: solid white 1px;
+    justify-self: center;
     margin: 0;
 }
 
-.checkmark {
-    position: absolute;
-    pointer-events: none;
+.checkbox.checked {
+    background: white;
+}
+
+.fixed-center {
+    position: fixed;
+    inset-block-start: 50%;
     inset-inline-start: 50%;
-    inset-block-start: 40%;
     transform: translate(-50%, -50%);
-    color: rgba(255, 105, 180, 1);
-    font-size: 2.8rem;
+}
+
+.add-grocery-form {
+    padding-inline: 24px;
+    padding-block-end: 24px;
+    /* margin: auto; */
+}
+
+.text-align-center {
+    text-align: center;
+}
+
+.add-grocery-form button {
+    margin-inline-end: auto;
+    margin-block-start: 12px;
+    width: 100%;
 }
 
 .checkbox:hover {
@@ -183,11 +216,20 @@ body {
     min-height: 100dvh;
 }
 
+.grid-2 {
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr 1fr;
+    margin-block-end: 10px;
+}
+
+.add-grocery-form input,
 .loginform label {
     margin-block-start: 5px;
     display: block;
 }
 
+.add-grocery-form input,
 .loginform input {
     font-size: 1rem;
     background: rgba(0, 0, 0, 0.2);

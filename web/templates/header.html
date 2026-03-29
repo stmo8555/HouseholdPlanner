@@ -1,0 +1,14 @@
+{{define "header"}}
+<header class="flex center-vertically">
+    <h1>Household planner</h1>
+    <nav>
+        <ul class="flex center-horizontal">
+            <li><strong><a href="/" class="{{if eq .CurrentPath "/"}}active{{end}}">Home</a></strong></li>
+            <li><strong><a href="/chores" class="{{if eq .CurrentPath "/chores"}}active{{end}}">Chores</a></strong></li>
+            <li><strong><a href="/groceries" class="{{if eq .CurrentPath "/groceries"}}active{{end}}">Groceries</a></strong></li>
+            <li><strong><a href="/recipes" class="{{if eq .CurrentPath "/recipes"}}active{{end}}">Recipes</a></strong></li>
+            <li><strong><a href="/logout" class="{{if eq .CurrentPath "/logout"}}active{{end}}">Logout</a></strong></li>
+        </ul>
+    </nav>
+</header>
+{{end}}
