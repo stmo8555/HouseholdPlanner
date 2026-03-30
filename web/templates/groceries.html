@@ -36,10 +36,11 @@
             </form>
         </div>
     </div>
+
     <main>
         <div class="margin-block-end-24px">
             <button class="toggle-add-btn">Add Grocery</button>
-            <button>Edit</button>
+            <button id="edit-button">Edit</button>
         </div>
         <!-- table start -->
         {{if gt (len .Data.NotPicked) 0}}
@@ -68,16 +69,16 @@
                 </thead>
                 <tbody>
                     {{range .Data.NotPicked}}
-                    <tr>
+                    <tr data-id="{{.Id}}" class="changable">
                         <td>
                             <form method="POST" action="/groceries">
                                 <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
                             </form>
                         </td>
-                        <td>{{.Product}}</td>
-                        <td>{{.Amount}}</td>
-                        <td>{{.Brand}}</td>
-                        <td>{{.Store}}</td>
+                        <td data-field="product">{{.Product}}</td>
+                        <td data-field="amount">{{.Amount}}</td>
+                        <td data-field="brand">{{.Brand}}</td>
+                        <td data-field="store">{{.Store}}</td>
                     </tr>
                     {{end}}
 
@@ -109,22 +110,70 @@
     </main>
     <script src="/static/script.js"></script>
     <script>
-        const btn = document.querySelector('.toggle-add-btn');
+        const add_btn = document.querySelector('.toggle-add-btn');
+        // const edit_btn = document.getElementById('edit-button');
         const main = document.querySelector("main")
         const overlay = document.querySelector(".overlay");
         const modal = overlay.querySelector(".glass"); // the inner modal content
 
         // Show modal
-        btn.addEventListener("click", () => {
+        add_btn.addEventListener("click", () => {
             overlay.style.display = "block";
             main.style.display = "none"
         });
 
-        // Hide modal if clicking outside the modal content
         overlay.addEventListener("click", (e) => {
-            if (!modal.contains(e.target)) { // click was outside modal
+            if (!modal.contains(e.target)) {
                 overlay.style.display = "none";
                 main.style.display = "block"
+            }
+        });
+
+        const edit_btn = document.getElementById('edit-button');
+        let editing = false;
+
+        edit_btn.addEventListener("click", () => {
+            const changables = document.querySelectorAll(".changable");
+
+            if (!editing) {
+                // ENTER EDIT MODE
+                changables.forEach(row => {
+                    row.querySelectorAll('td[data-field]').forEach(cell => {
+                        const input = document.createElement('input');
+                        input.name = cell.dataset.field;
+                        input.value = cell.innerText;
+                        cell.innerHTML = '';
+                        cell.appendChild(input);
+                    });
+                });
+
+                edit_btn.textContent = "Save";
+                editing = true;
+
+            } else {
+                // SAVE MODE
+                const changes = [];
+
+                changables.forEach(row => {
+                    const data = {id: parseInt(row.dataset.id)};
+                    row.querySelectorAll('input').forEach(input => {
+                        data[input.name] = input.value;
+                    });
+                    changes.push(data);
+                });
+
+                // Send JSON to backend
+                fetch('/groceries/edit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(changes)
+                })
+                    .then(res => {
+                        if (res.ok) {
+                            window.location.href = "/groceries"; // manual redirect
+                        }
+                    })
+                    .catch(console.error);
             }
         });
     </script>

@@ -19,15 +19,19 @@ import (
 )
 
 type LayoutData struct {
-	Title string
+	Title       string
 	CurrentPath string
-	Data  any
+	Data        any
 }
 
 type Grocery struct {
-	Product, Brand, Store, Amount string
-	Id, Household_id              int
-	Picked                        bool
+	Id           int    `json:"id"`
+	Product      string `json:"product"`
+	Amount       string `json:"amount"`
+	Brand        string `json:"brand"`
+	Store        string `json:"store"`
+	Household_id int
+	Picked       bool
 }
 
 type Session struct {
@@ -54,6 +58,7 @@ func main() {
 	auth.GET("/groceries", groceriesHandleFunc)
 	auth.POST("/groceries", groceriesPickHandleFunc)
 	auth.POST("/groceries/add", groceriesAddHandleFunc)
+	auth.POST("/groceries/edit", groceriesEditHandleFunc)
 	auth.GET("/", indexHandleFunc)
 	auth.GET("/recipes", recipesHandleFunc)
 
@@ -82,7 +87,7 @@ func setup() {
 	}
 
 	addGrocery(Grocery{Amount: "5", Product: "Mjölk", Brand: "Arla", Store: "ICA", Picked: false, Household_id: *session.household_id})
-	addGrocery(Grocery{Amount: "1", Product: "Gurk", Brand: "Arla", Store: "ICA", Picked:false, Household_id: *session.household_id})
+	addGrocery(Grocery{Amount: "1", Product: "Gurk", Brand: "Arla", Store: "ICA", Picked: false, Household_id: *session.household_id})
 }
 
 func joinHousehold(user_id, hid int) {
@@ -171,7 +176,7 @@ func addGrocery(grocery Grocery) {
 	(product, brand, amount, store, picked, household_id)
 	VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err := conn.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Store, grocery.Picked,grocery.Household_id)
+	_, err := conn.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Store, grocery.Picked, grocery.Household_id)
 
 	if err != nil {
 		fmt.Println("noooooooooo bad input")
@@ -228,7 +233,7 @@ func groceriesHandleFunc(c *gin.Context) {
 		fmt.Println(rows.Err())
 	}
 
-	data := LayoutData{Title: "Groceries", CurrentPath: c.Request.URL.Path,Data: groceries}
+	data := LayoutData{Title: "Groceries", CurrentPath: c.Request.URL.Path, Data: groceries}
 	c.HTML(http.StatusOK, "groceries.html", data)
 }
 
@@ -250,16 +255,50 @@ func groceriesAddHandleFunc(c *gin.Context) {
 	cookie, _ := c.Cookie("session_id")
 	session := sessions[cookie]
 	grocery := Grocery{
-		Product: product,
-		Brand:  brand,
-		Amount: amount,
-		Store:  store,
-		Picked: false,
+		Product:      product,
+		Brand:        brand,
+		Amount:       amount,
+		Store:        store,
+		Picked:       false,
 		Household_id: *session.household_id,
 	}
 
 	addGrocery(grocery)
 	c.Redirect(302, "/groceries")
+}
+
+func groceriesEditHandleFunc(c *gin.Context) {
+
+	var groceries []Grocery
+	err := c.BindJSON(&groceries)
+	if err != nil {
+		panic(err)
+	}
+
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		panic(err)
+	}
+	defer tx.Rollback(context.Background())
+
+	for _, g := range groceries {
+		sql := `UPDATE groceries
+		SET product=$1, amount=$2, brand=$3, store=$4
+		WHERE id=$5`
+		_, err = tx.Exec(context.Background(), sql, g.Product, g.Amount, g.Brand, g.Store, g.Id)
+
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	err = tx.Commit(context.Background())
+	if err != nil {
+		panic(err)
+	}
+
+	// c.Redirect(302, "/groceries")
+	c.JSON(200, gin.H{"status": "ok"})
 }
 
 func indexHandleFunc(c *gin.Context) {

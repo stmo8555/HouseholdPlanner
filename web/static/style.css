@@ -223,14 +223,12 @@ body {
     margin-block-end: 10px;
 }
 
-.add-grocery-form input,
-.loginform label {
+label {
     margin-block-start: 5px;
     display: block;
 }
 
-.add-grocery-form input,
-.loginform input {
+input {
     font-size: 1rem;
     background: rgba(0, 0, 0, 0.2);
     outline: unset;
