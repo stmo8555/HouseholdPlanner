@@ -22,6 +22,10 @@ type Groceries struct {
 	Picked, NotPicked []Grocery
 }
 
+func GroceriesExtractFromRecipe(){
+
+}
+
 func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	hid, ok := c.Get("household_id")
 
