@@ -43,7 +43,6 @@
             <button id="edit-button">Edit</button>
         </div>
         <!-- table start -->
-        {{if gt (len .Data.NotPicked) 0}}
         <div class='glass margin-block-end-24px'>
             <h2 class="table-h2">Shopping ({{ len .Data.NotPicked }} items)</h2>
             <table>
@@ -68,6 +67,7 @@
                     </tr>
                 </thead>
                 <tbody>
+                    {{if gt (len .Data.NotPicked) 0}}
                     {{range .Data.NotPicked}}
                     <tr data-id="{{.Id}}" class="changable">
                         <td>
@@ -81,13 +81,20 @@
                         <td data-field="store">{{.Store}}</td>
                     </tr>
                     {{end}}
+                    {{end}}
 
                     <!-- Picked section starts -->
                     {{if gt (len .Data.Picked) 0}}
                     <tr class="divider-top">
-                        <td colspan="5">
+                        <td colspan="4">
                             <strong>Picked ({{len .Data.Picked}} items)</strong>
                         </td>
+                        <td>
+                            <form action="/groceries/delete/picked" method="POST">
+                                <button type="submit" name="household_id" value="{{.Data.Household_id}}">Remove</button>
+                            </form>
+                        </td>
+
                     </tr>
                     {{range .Data.Picked}}
                     <tr>
@@ -101,7 +108,6 @@
                         <td class="line-through">{{.Brand}}</td>
                         <td class="line-through">{{.Store}}</td>
                     </tr>
-                    {{end}}
                     {{end}}
                 </tbody>
             </table>
@@ -120,6 +126,8 @@
         add_btn.addEventListener("click", () => {
             overlay.style.display = "block";
             main.style.display = "none"
+            overlay.style.cursor = "pointer"
+            modal.style.cursor = "default"
         });
 
         overlay.addEventListener("click", (e) => {

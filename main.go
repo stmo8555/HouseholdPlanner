@@ -59,6 +59,7 @@ func main() {
 	auth.POST("/groceries", groceriesPickHandleFunc)
 	auth.POST("/groceries/add", groceriesAddHandleFunc)
 	auth.POST("/groceries/edit", groceriesEditHandleFunc)
+	auth.POST("/groceries/delete/picked", groceriesDeletePickedHandleFunc)
 	auth.GET("/", indexHandleFunc)
 	auth.GET("/recipes", recipesHandleFunc)
 
@@ -186,6 +187,7 @@ func addGrocery(grocery Grocery) {
 
 type Groceries struct {
 	Picked, NotPicked []Grocery
+	Household_id      int
 }
 
 func groceriesHandleFunc(c *gin.Context) {
@@ -205,6 +207,7 @@ func groceriesHandleFunc(c *gin.Context) {
 	defer rows.Close()
 
 	var groceries Groceries
+	groceries.Household_id = hid
 
 	for rows.Next() {
 		var g Grocery
@@ -222,7 +225,7 @@ func groceriesHandleFunc(c *gin.Context) {
 			panic(err)
 		}
 
-		if g.Picked == true {
+		if g.Picked == false {
 			groceries.NotPicked = append(groceries.NotPicked, g)
 		} else {
 			groceries.Picked = append(groceries.Picked, g)
@@ -299,6 +302,18 @@ func groceriesEditHandleFunc(c *gin.Context) {
 
 	// c.Redirect(302, "/groceries")
 	c.JSON(200, gin.H{"status": "ok"})
+}
+
+func groceriesDeletePickedHandleFunc(c *gin.Context) {
+	household_id := c.PostForm("household_id")
+	fmt.Println("-------------------------------" + household_id)
+	sql := `DELETE FROM groceries WHERE household_id=$1 AND picked=true`
+
+	_, err := conn.Exec(context.Background(), sql, household_id)
+	if err != nil {
+		panic(err)
+	}
+	c.Redirect(302, "/groceries")
 }
 
 func indexHandleFunc(c *gin.Context) {

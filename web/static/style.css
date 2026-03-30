@@ -49,8 +49,11 @@ header a.active {
     background-size: 100% 2px;
 }
 
-table a {
+a {
     text-decoration: none;
+}
+
+table a {
     display: block;
 }
 
@@ -147,7 +150,6 @@ tbody tr:hover {
 .add-grocery-form {
     padding-inline: 24px;
     padding-block-end: 24px;
-    /* margin: auto; */
 }
 
 .text-align-center {
@@ -391,7 +393,6 @@ nav a {
         background-position 0s 0.3s;
     /*change after the size immediately*/
 }
-
 nav a:hover {
     background-position: 100% 100%;
     /*OR bottom right*/
