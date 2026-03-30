@@ -1,4 +1,4 @@
-module main
+module github.com/stmo8555/HouseholdPlanner
 
 go 1.25.5
 
