@@ -7,6 +7,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/openai/openai-go/v3"
+	"github.com/openai/openai-go/v3/option"
+	"github.com/openai/openai-go/v3/responses"
 	"github.com/stmo8555/HouseholdPlanner/pages"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -21,8 +24,24 @@ var r *gin.Engine
 var conn *pgx.Conn
 
 func main() {
-	
 	var err error
+	
+	client := openai.NewClient(
+		option.WithAPIKey(""), // defaults to os.LookupEnv("OPENAI_API_KEY")
+	)
+
+	question := "Write me a haiku about computers"
+
+	resp, err := client.Responses.New(context.Background(), responses.ResponseNewParams{
+		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
+		Model: openai.ChatModelGPT5_2,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	println(resp.OutputText())
 	conn, err = pgx.Connect(context.Background(), "postgres://Admin:Admin@localhost:5432/db?sslmode=disable")
 	if err != nil {
 		panic(err)
@@ -52,7 +71,43 @@ func main() {
 
 	// setup()
 
-	r.Run()
+	err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func ai() {
+ctx := context.Background()
+	client := openai.NewClient(
+		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("OPENAI_API_KEY")
+	)
+
+	question := `You are an expert recipe parser. Extract all ingredients from this recipe link: [INSERT LINK].
+
+Requirements:
+1. The recipe may be in Swedish or English. Extract ingredients regardless of language.
+2. Return only valid JSON, formatted exactly as follows:
+[
+  { "Product": "ingredient name", "Amount": "amount with units" }
+]
+3. Use the exact units from the recipe (e.g., g, dl, msk, tsk). Include ranges or “to taste” exactly as written.
+4. Include only ingredients. Do NOT include instructions, preparation steps, serving suggestions, optional notes, or any extra text.
+5. If an ingredient has no specific quantity, use the value "efter smak" (Swedish) or "to taste" (English) exactly as it appears.
+6. Output JSON only. Do not include markdown, explanations, or any additional characters.
+
+End result: a pure JSON array of ingredient objects, ready to be parsed by an application.`
+
+	resp, err := client.Responses.New(ctx, responses.ResponseNewParams{
+		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
+		Model: openai.ChatModelGPT5_2,
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	println(resp.OutputText())
 }
 
 func setup() {
@@ -134,6 +189,7 @@ func recipesHandleFunc(c *gin.Context) {
 
 func choresHandleFunc(c *gin.Context) {
 	data := LayoutData{Title: "Chores", CurrentPath: c.Request.URL.Path, Data: nil}
+	fmt.Println(data.CurrentPath)
 	c.HTML(http.StatusOK, "chores.html", data)
 }
 
