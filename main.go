@@ -3,12 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/openai/openai-go/v3"
-	"github.com/openai/openai-go/v3/option"
 	"github.com/openai/openai-go/v3/responses"
 	"github.com/stmo8555/HouseholdPlanner/pages"
 	"golang.org/x/crypto/bcrypt"
@@ -20,28 +20,11 @@ type LayoutData struct {
 	Data        any
 }
 
-var r *gin.Engine
 var conn *pgx.Conn
 
 func main() {
 	var err error
-	
-	client := openai.NewClient(
-		option.WithAPIKey(""), // defaults to os.LookupEnv("OPENAI_API_KEY")
-	)
 
-	question := "Write me a haiku about computers"
-
-	resp, err := client.Responses.New(context.Background(), responses.ResponseNewParams{
-		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
-		Model: openai.ChatModelGPT5_2,
-	})
-
-	if err != nil {
-		panic(err)
-	}
-
-	println(resp.OutputText())
 	conn, err = pgx.Connect(context.Background(), "postgres://Admin:Admin@localhost:5432/db?sslmode=disable")
 	if err != nil {
 		panic(err)
@@ -50,7 +33,7 @@ func main() {
 	defer conn.Close(context.Background())
 
 	sessions := make(map[string]*pages.Session, 2)
-	r = gin.Default()
+	r := gin.Default()
 	r.LoadHTMLGlob("web/templates/*.html")
 
 	r.Static("/static/", "web/static")
@@ -71,43 +54,56 @@ func main() {
 
 	// setup()
 
+	// ai("https://www.ica.se/recept/flaskfilegryta-med-champinjoner-724256/")
+	// ai("https://www.koket.se/pasta-salsiccia-classico")
+
 	err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
 	if err != nil {
 		panic(err)
 	}
 }
 
-func ai() {
-ctx := context.Background()
-	client := openai.NewClient(
-		option.WithAPIKey("My API Key"), // defaults to os.LookupEnv("OPENAI_API_KEY")
-	)
+func ai(link string) {
 
-	question := `You are an expert recipe parser. Extract all ingredients from this recipe link: [INSERT LINK].
-
-Requirements:
-1. The recipe may be in Swedish or English. Extract ingredients regardless of language.
-2. Return only valid JSON, formatted exactly as follows:
-[
-  { "Product": "ingredient name", "Amount": "amount with units" }
-]
-3. Use the exact units from the recipe (e.g., g, dl, msk, tsk). Include ranges or “to taste” exactly as written.
-4. Include only ingredients. Do NOT include instructions, preparation steps, serving suggestions, optional notes, or any extra text.
-5. If an ingredient has no specific quantity, use the value "efter smak" (Swedish) or "to taste" (English) exactly as it appears.
-6. Output JSON only. Do not include markdown, explanations, or any additional characters.
-
-End result: a pure JSON array of ingredient objects, ready to be parsed by an application.`
-
-	resp, err := client.Responses.New(ctx, responses.ResponseNewParams{
-		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
-		Model: openai.ChatModelGPT5_2,
-	})
+	resp, err := http.Get(link)
+	body, _ := io.ReadAll(resp.Body)
 
 	if err != nil {
 		panic(err)
 	}
 
-	println(resp.OutputText())
+	ctx := context.Background()
+	client := openai.NewClient()
+
+	templatePrompt := `You are an expert recipe parser. I will provide the full HTML content of a recipe page. Extract all ingredients from the HTML. 
+
+Requirements:
+1. The recipe may be in Swedish or English. Extract ingredients regardless of language.
+2. Return only valid JSON in this format:
+[
+  { "Product": "ingredient name", "Amount": "amount with units" }
+]
+3. Use the exact units and quantities as written in the HTML (e.g., g, dl, msk, tsk). Include ranges and "to taste"/"efter smak" exactly as written.
+4. Include only ingredients. Ignore instructions, steps, preparation methods, notes, optional tips, or serving suggestions.
+5. If an ingredient has no specific quantity, use the value "to taste" or "efter smak" exactly as it appears in the HTML.
+6. Output JSON only. Do not include any extra text, explanation, or markdown.
+7. If the HTML contains extra text, ads, or unrelated content, ignore it and focus only on the recipe ingredients.
+8. Be robust to messy HTML. Parse only the meaningful ingredient list.
+
+HTML content:
+$1`
+
+	question := fmt.Sprintf(templatePrompt, string(body))
+	ai_resp, ai_err := client.Responses.New(ctx, responses.ResponseNewParams{
+		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
+		Model: openai.ChatModelGPT5Mini,
+	})
+
+	if ai_err != nil {
+		panic(ai_err)
+	}
+
+	println(ai_resp.OutputText())
 }
 
 func setup() {

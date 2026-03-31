@@ -18,11 +18,29 @@ type Grocery struct {
 	Picked       bool
 }
 
-type Groceries struct {
+type groceries struct {
 	Picked, NotPicked []Grocery
 }
 
 func GroceriesExtractFromRecipe(){
+	received := `[
+  { "Product": "olivolja", "Amount": "till stekning" },
+  { "Product": "vitlök", "Amount": "3 klyftor" },
+  { "Product": "smör", "Amount": "till stekning" },
+  { "Product": "färska salsicciakorvar", "Amount": "4" },
+  { "Product": "vispgrädde", "Amount": "2 dl" },
+  { "Product": "passerade tomater", "Amount": "3 dl" },
+  { "Product": "tomatpuré", "Amount": "2 msk" },
+  { "Product": "vitt vin", "Amount": "1-2 dl" },
+  { "Product": "oregano", "Amount": "några kvistar" },
+  { "Product": "timjankvist", "Amount": "några kvistar" },
+  { "Product": "pasta (av favoritsort)", "Amount": "4 port" },
+  { "Product": "salt", "Amount": "efter smak" },
+  { "Product": "svartpeppar", "Amount": "nymalen" },
+  { "Product": "persilja", "Amount": "några kvistar" }
+]`
+
+
 
 }
 
