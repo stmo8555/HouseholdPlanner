@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{template "head" .}}
+
+<body>
+    {{template "header" .}}
+    <main>
+        <div class="margin-block-end-24px">
+            <button id="save-button">Save</button>
+        </div>
+        <!-- table start -->
+        <div class="overlay">
+            <div class='glass margin-block-end-24px'>
+                <h2 class="table-h2">Extracted from recipe ({{ len .Data.Groceries }} items)</h2>
+                <table>
+                    <thead>
+                        <tr class="t">
+                            <th>
+                            </th>
+                            <th>
+                                <p>Product</p>
+                            </th>
+
+                            <th>
+                                <p>Amount</p>
+                            </th>
+
+                            <th>
+                                <p>Brand</p>
+                            </th>
+                            <th>
+                                <p>Store</p>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if gt (len .Data.Groceries) 0}}
+                        {{range .Data.Groceries}}
+                        <tr>
+                            <td></td>
+                            <td data-field="product">{{.Product}}</td>
+                            <td data-field="amount">{{.Amount}}</td>
+                            <td data-field="brand">{{.Brand}}</td>
+                            <td data-field="store">{{.Store}}</td>
+                        </tr>
+                        {{end}}
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{end}}
+    </main>
+    <script src="/static/script.js"></script>
+    <script>
+        const add_btn = document.querySelector('.toggle-add-btn');
+        // const edit_btn = document.getElementById('edit-button');
+        const main = document.querySelector("main")
+        const overlay = document.querySelector(".overlay");
+        const modal = overlay.querySelector(".glass"); // the inner modal content
+
+        // Show modal
+        add_btn.addEventListener("click", () => {
+            overlay.style.display = "block";
+            main.style.display = "none"
+            overlay.style.cursor = "pointer"
+            modal.style.cursor = "default"
+        });
+
+        overlay.addEventListener("click", (e) => {
+            if (!modal.contains(e.target)) {
+                overlay.style.display = "none";
+                main.style.display = "block"
+            }
+        });
+
+        const edit_btn = document.getElementById('edit-button');
+        let editing = false;
+
+        edit_btn.addEventListener("click", () => {
+            const changables = document.querySelectorAll(".changable");
+
+            if (!editing) {
+                // ENTER EDIT MODE
+                changables.forEach(row => {
+                    row.querySelectorAll('td[data-field]').forEach(cell => {
+                        const input = document.createElement('input');
+                        input.name = cell.dataset.field;
+                        input.value = cell.innerText;
+                        cell.innerHTML = '';
+                        cell.appendChild(input);
+                    });
+                });
+
+                edit_btn.textContent = "Save";
+                editing = true;
+
+            } else {
+                // SAVE MODE
+                const changes = [];
+
+                changables.forEach(row => {
+                    const data = {id: parseInt(row.dataset.id)};
+                    row.querySelectorAll('input').forEach(input => {
+                        data[input.name] = input.value;
+                    });
+                    changes.push(data);
+                });
+
+                // Send JSON to backend
+                fetch('/groceries/edit', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(changes)
+                })
+                    .then(res => {
+                        if (res.ok) {
+                            window.location.href = "/groceries"; // manual redirect
+                        }
+                    })
+                    .catch(console.error);
+            }
+        });
+    </script>
+</body>
+
+</html>

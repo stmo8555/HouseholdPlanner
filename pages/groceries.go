@@ -2,10 +2,12 @@ package pages
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"net/http"
 )
 
 type Grocery struct {
@@ -22,7 +24,7 @@ type groceries struct {
 	Picked, NotPicked []Grocery
 }
 
-func GroceriesExtractFromRecipe(){
+func GroceriesExtractFromRecipeHandleFunc(c *gin.Context) {
 	received := `[
   { "Product": "olivolja", "Amount": "till stekning" },
   { "Product": "vitlök", "Amount": "3 klyftor" },
@@ -40,8 +42,20 @@ func GroceriesExtractFromRecipe(){
   { "Product": "persilja", "Amount": "några kvistar" }
 ]`
 
+	var gs []Grocery
+	err := json.Unmarshal([]byte(received), &gs)
 
+	if err != nil {
+		panic(err)
+	}
 
+	for _, g := range gs {
+		fmt.Println(g.Product + " " + g.Amount)
+	}
+
+	data := gin.H{"Data": gin.H{"Groceries": gs}}
+
+	c.HTML(http.StatusOK, "groceries_extraction.html", data)
 }
 
 func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
@@ -64,7 +78,7 @@ func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	}
 	defer rows.Close()
 
-	var groceries Groceries
+	var groceries groceries
 
 	for rows.Next() {
 		var g Grocery

@@ -49,6 +49,7 @@ func main() {
 	auth.POST("/groceries/add", func(c *gin.Context) { pages.GroceriesAddHandleFunc(c, conn) })
 	auth.POST("/groceries/edit", func(c *gin.Context) { pages.GroceriesEditHandleFunc(c, conn) })
 	auth.POST("/groceries/delete/picked", func(c *gin.Context) { pages.GroceriesDeletePickedHandleFunc(c, conn) })
+	auth.GET("/groceries/extracted", func(c *gin.Context) { pages.GroceriesExtractFromRecipeHandleFunc(c) })
 	auth.GET("/", indexHandleFunc)
 	auth.GET("/recipes", recipesHandleFunc)
 
