@@ -4,20 +4,21 @@
 {{template "head" .}}
 
 <body class="flower-power">
-    <main class="flex center-horizontal center-vertical full-viewport">
-        <div class="loginform glass">
-            <h1>Household planner</h1>
+    {{template "header" .}}
+    <main>
+        <div class="login-form">
             <form method="POST" action="/login">
-                <label for="uname">Username:</label>
+                <label for="uname">Username</label>
                 <input type="text" id="uname" name="uname" required>
 
-                <label for="pwd">Password:</label>
+                <label for="pwd">Password</label>
                 <input type="password" id="pwd" name="pwd" required>
 
                 <button class="login-button" type="submit">Login</button>
             </form>
         </div>
     </main>
+    {{template "footer" .}}
     <script src="/static/script.js"></script>
 </body>
 

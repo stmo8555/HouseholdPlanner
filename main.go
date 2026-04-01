@@ -3,13 +3,10 @@ package main
 import (
 	"context"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"github.com/openai/openai-go/v3"
-	"github.com/openai/openai-go/v3/responses"
 	"github.com/stmo8555/HouseholdPlanner/pages"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -49,7 +46,8 @@ func main() {
 	auth.POST("/groceries/add", func(c *gin.Context) { pages.GroceriesAddHandleFunc(c, conn) })
 	auth.POST("/groceries/edit", func(c *gin.Context) { pages.GroceriesEditHandleFunc(c, conn) })
 	auth.POST("/groceries/delete/picked", func(c *gin.Context) { pages.GroceriesDeletePickedHandleFunc(c, conn) })
-	auth.GET("/groceries/extracted", func(c *gin.Context) { pages.GroceriesExtractFromRecipeHandleFunc(c) })
+	auth.POST("/groceries/extract", func(c *gin.Context) { pages.GroceriesExtractFromRecipeHandleFunc(c) })
+	auth.POST("/groceries/extracted", func(c *gin.Context) { pages.HandleAcceptGroceries(c, conn) })
 	auth.GET("/", indexHandleFunc)
 	auth.GET("/recipes", recipesHandleFunc)
 
@@ -62,49 +60,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-}
-
-func ai(link string) {
-
-	resp, err := http.Get(link)
-	body, _ := io.ReadAll(resp.Body)
-
-	if err != nil {
-		panic(err)
-	}
-
-	ctx := context.Background()
-	client := openai.NewClient()
-
-	templatePrompt := `You are an expert recipe parser. I will provide the full HTML content of a recipe page. Extract all ingredients from the HTML. 
-
-Requirements:
-1. The recipe may be in Swedish or English. Extract ingredients regardless of language.
-2. Return only valid JSON in this format:
-[
-  { "Product": "ingredient name", "Amount": "amount with units" }
-]
-3. Use the exact units and quantities as written in the HTML (e.g., g, dl, msk, tsk). Include ranges and "to taste"/"efter smak" exactly as written.
-4. Include only ingredients. Ignore instructions, steps, preparation methods, notes, optional tips, or serving suggestions.
-5. If an ingredient has no specific quantity, use the value "to taste" or "efter smak" exactly as it appears in the HTML.
-6. Output JSON only. Do not include any extra text, explanation, or markdown.
-7. If the HTML contains extra text, ads, or unrelated content, ignore it and focus only on the recipe ingredients.
-8. Be robust to messy HTML. Parse only the meaningful ingredient list.
-
-HTML content:
-$1`
-
-	question := fmt.Sprintf(templatePrompt, string(body))
-	ai_resp, ai_err := client.Responses.New(ctx, responses.ResponseNewParams{
-		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
-		Model: openai.ChatModelGPT5Mini,
-	})
-
-	if ai_err != nil {
-		panic(ai_err)
-	}
-
-	println(ai_resp.OutputText())
 }
 
 func setup() {

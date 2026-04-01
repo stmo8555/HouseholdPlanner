@@ -5,9 +5,24 @@
 
 <body>
     {{template "header" .}}
-    <!-- modal -->
-    <div class="overlay">
-        <div class="glass fixed-center">
+    <!-- modal1 -->
+    <div id="extract" class="overlay">
+        <div id="extractModal" class="glass fixed-center">
+            <h2 class="table-h2">Extract Ingredients From Recipe</h2>
+            <form class="add-grocery-form" method="POST" action="/groceries/extract">
+                <div>
+                    <label for="1">URL</label>
+                    <input id="1" type="text" name="link" required>
+                    <div class="text-align-center">
+                        <button type="submit">Add</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- modal2 -->
+    <div id="add" class="overlay">
+        <div id="addModal" class="glass fixed-center">
             <h2 class="table-h2">Add Grocery</h2>
             <form class="add-grocery-form" method="POST" action="/groceries/add">
                 <div class="grid-2">
@@ -36,18 +51,19 @@
             </form>
         </div>
     </div>
-
     <main>
         <div class="margin-block-end-24px">
-            <button class="toggle-add-btn">Add Grocery</button>
+            <button id="add-button" class="toggle-add-btn">Add Grocery</button>
             <button id="edit-button">Edit</button>
+            <button id="extract-button">Import</button>
+            <!-- <a href="/groceries/extracted" class="button-styling">Import</a> -->
         </div>
         <!-- table start -->
-        <div class='glass margin-block-end-24px'>
+        <div class='glass margin-block-end-24px padding-inline-24px'>
             <h2 class="table-h2">Shopping ({{ len .Data.NotPicked }} items)</h2>
             <table>
                 <thead>
-                    <tr class="t">
+                    <tr>
                         <th>
                         </th>
                         <th>
@@ -75,10 +91,18 @@
                                 <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
                             </form>
                         </td>
-                        <td data-field="product">{{.Product}}</td>
-                        <td data-field="amount">{{.Amount}}</td>
-                        <td data-field="brand">{{.Brand}}</td>
-                        <td data-field="store">{{.Store}}</td>
+                        <td data-field="product">
+                            <p>{{.Product}}</p>
+                        </td>
+                        <td data-field="amount">
+                            <p>{{.Amount}}</p>
+                        </td>
+                        <td data-field="brand">
+                            <p>{{.Brand}}</p>
+                        </td>
+                        <td data-field="store">
+                            <p>{{.Store}}</p>
+                        </td>
                     </tr>
                     {{end}}
                     {{end}}
@@ -109,29 +133,48 @@
                         <td class="line-through">{{.Store}}</td>
                     </tr>
                     {{end}}
+                    {{end}}
                 </tbody>
             </table>
         </div>
-        {{end}}
     </main>
+    {{template "footer" .}}
     <script src="/static/script.js"></script>
     <script>
-        const add_btn = document.querySelector('.toggle-add-btn');
-        // const edit_btn = document.getElementById('edit-button');
+        const add_btn = document.getElementById('add-button');
+        const extraxt_btn = document.getElementById('extract-button');
         const main = document.querySelector("main")
-        const overlay = document.querySelector(".overlay");
-        const modal = overlay.querySelector(".glass"); // the inner modal content
+        const overlay = document.getElementById("add");
+        const overlayExtract = document.getElementById("extract");
+        const addModal = document.getElementById("addModal"); // the inner modal content
+        const extractModal = document.getElementById("extractModal"); // the inner modal content
+
+
+        // Show modal
+        extraxt_btn.addEventListener("click", () => {
+            overlayExtract.style.display = "block";
+            main.style.display = "none"
+            overlayExtract.style.cursor = "pointer"
+            extractModal.style.cursor = "default"
+        });
+
+        overlayExtract.addEventListener("click", (e) => {
+            if (!extractModal.contains(e.target)) {
+                overlayExtract.style.display = "none";
+                main.style.display = "block";
+            }
+        });
 
         // Show modal
         add_btn.addEventListener("click", () => {
             overlay.style.display = "block";
             main.style.display = "none"
             overlay.style.cursor = "pointer"
-            modal.style.cursor = "default"
+            addModal.style.cursor = "default"
         });
 
         overlay.addEventListener("click", (e) => {
-            if (!modal.contains(e.target)) {
+            if (!addModal.contains(e.target)) {
                 overlay.style.display = "none";
                 main.style.display = "block"
             }

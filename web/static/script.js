@@ -20,5 +20,7 @@ nav_toggle.addEventListener("click", () => {
     toggled = !toggled;
     nav_toggle.textContent = toggled ? "×" : "≡";
     nav.style.display = toggled ? "block" : "none";
+
+    // todo: add event when doc is clicked to toggle of nav on mobile
 });
 

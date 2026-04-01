@@ -1,35 +1,41 @@
 {{define "header"}}
-<header class="flex center-vertically">
-    <h1><a href="/">Household planner</a></h1>
-    <button id="nav-toggle">≡</button>
-    <nav id="primary-nav">
-        <ul class="center-horizontal">
-            <li>
-                <strong>
-                    <a href="/" class='{{if eq .CurrentPath "/"}}active mobile-nav-chosen{{end}}'>Home</a>
-                </strong>
-            </li>
-            <li>
-                <strong>
-                    <a href="/chores" class='{{if eq .CurrentPath "/chores"}}active mobile-nav-chosen{{end}}'>Chores</a>
-                </strong>
-            </li>
-            <li>
-                <strong>
-                    <a href="/groceries" class='{{if eq .CurrentPath "/groceries"}}active mobile-nav-chosen{{end}}'>Groceries</a>
-                </strong>
-            </li>
-            <li>
-                <strong>
-                    <a href="/recipes" class='{{if eq .CurrentPath "/recipes"}}active mobile-nav-chosen{{end}}'>Recipes</a>
-                </strong>
-            </li>
-            <li>
-                <strong>
-                    <a href="/logout" class='{{if eq .CurrentPath "/logout"}}active mobile-nav-chosen{{end}}'>Logout</a>
-                </strong>
-            </li>
-        </ul>
-    </nav>
+<header>
+    <div class="header-items">
+        <h1><a href="/">Household planner</a></h1>
+        <button id="nav-toggle">≡</button>
+        <nav id="primary-nav">
+            <ul class="center-horizontal">
+                <li>
+                    <strong>
+                        <a href="/" class='{{if eq .CurrentPath "/"}}active mobile-nav-chosen{{end}}'>Home</a>
+                    </strong>
+                </li>
+                <li>
+                    <strong>
+                        <a href="/chores"
+                            class='{{if eq .CurrentPath "/chores"}}active mobile-nav-chosen{{end}}'>Chores</a>
+                    </strong>
+                </li>
+                <li>
+                    <strong>
+                        <a href="/groceries"
+                            class='{{if eq .CurrentPath "/groceries"}}active mobile-nav-chosen{{end}}'>Groceries</a>
+                    </strong>
+                </li>
+                <li>
+                    <strong>
+                        <a href="/recipes"
+                            class='{{if eq .CurrentPath "/recipes"}}active mobile-nav-chosen{{end}}'>Recipes</a>
+                    </strong>
+                </li>
+                <li>
+                    <strong>
+                        <a href="/logout"
+                            class='{{if eq .CurrentPath "/logout"}}active mobile-nav-chosen{{end}}'>Logout</a>
+                    </strong>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </header>
 {{end}}
