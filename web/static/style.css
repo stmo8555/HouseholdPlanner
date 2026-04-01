@@ -117,7 +117,7 @@ h1 {
     }
 
     .header-items button {
-        display: none;
+        display: none !important;
     }
 }
 
