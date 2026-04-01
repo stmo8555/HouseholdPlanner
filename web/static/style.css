@@ -177,11 +177,13 @@ td {
     padding-block: 10px;
 }
 
-th:hover {
-    border-start-start-radius: 10px;
-    border-start-end-radius: 10px;
-    background: rgba(255, 255, 255, 0.2);
-    overflow: hidden;
+@media screen and (min-width: 500px) {
+    th:hover {
+        border-start-start-radius: 10px;
+        border-start-end-radius: 10px;
+        background: rgba(255, 255, 255, 0.2);
+        overflow: hidden;
+    }
 }
 
 td p,
@@ -218,8 +220,10 @@ tr.divider-top td {
     text-decoration: line-through;
 }
 
-tbody tr:hover {
-    background: rgba(255, 255, 255, 0.2);
+@media screen and (min-width: 500px) {
+    tbody tr:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
 }
 
 .checkbox {
@@ -265,8 +269,10 @@ tbody tr:hover {
     width: 100%;
 }
 
-.checkbox:hover {
-    cursor: pointer;
+@media screen and (min-width: 500px) {
+    .checkbox:hover {
+        cursor: pointer;
+    }
 }
 
 .grid-4 {
@@ -415,11 +421,13 @@ button {
     padding: 5px;
 }
 
-.button-styling:hover,
-button:hover {
-    cursor: pointer;
-    scale: 1.01;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+@media screen and (min-width: 500px) {
+    .button-styling:hover,
+    button:hover {
+        cursor: pointer;
+        scale: 1.01;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
 }
 
 .chore-button {
