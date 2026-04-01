@@ -20,6 +20,15 @@
     </main>
     {{template "footer" .}}
     <script src="/static/script.js"></script>
+    <script>
+        document.querySelectorAll(".header-items").forEach(container => {
+            container.querySelectorAll(":scope > *").forEach(child => {
+                if (child.tagName !== "H1") {
+                    child.remove();
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -328,9 +328,11 @@ body {
 
 .login-form {
     inline-size: 100%;
+    padding-block-start: 20dvh;
     margin-inline: auto;
 
     @media screen and (min-width: 500px) {
+        padding-block-start: 30dvh;
         inline-size: 60%;
     }
 }
@@ -422,6 +424,7 @@ button {
 }
 
 @media screen and (min-width: 500px) {
+
     .button-styling:hover,
     button:hover {
         cursor: pointer;
