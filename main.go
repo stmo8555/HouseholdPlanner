@@ -52,9 +52,6 @@ func main() {
 
 	// setup()
 
-	// ai("https://www.ica.se/recept/flaskfilegryta-med-champinjoner-724256/")
-	// ai("https://www.koket.se/pasta-salsiccia-classico")
-
 	err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
 	if err != nil {
 		panic(err)

@@ -313,7 +313,7 @@ func findTags(resp *http.Response) string {
 	processNode = func(n *html.Node) {
 		if n.Type == html.TextNode {
 			var match bool
-			match, err = regexp.MatchString("[iI]ngredien(ser|ts)", n.Data)
+			match, err = regexp.MatchString("^[iI]ngredien(ser|ts)$", n.Data)
 			if err != nil {
 				panic(err)
 			}
@@ -322,6 +322,7 @@ func findTags(resp *http.Response) string {
 				for ; parent.Data == "div"; parent = parent.Parent {
 				}
 
+				parent = parent.Parent
 				for ; parent != nil; parent = parent.NextSibling {
 					potentialCandidates = append(potentialCandidates, parent)
 				}
@@ -335,53 +336,62 @@ func findTags(resp *http.Response) string {
 	}
 	processNode(doc)
 
+	fmt.Printf("numb of potential: %v\n", len(potentialCandidates))
 	if len(potentialCandidates) == 0 {
 		return ""
 	}
 
 	score_li := 1
 	score_tr := 1
-	score_attr := 10
-	score_text := 15
-	score_units := 7
+	score_attr := 1
+	score_ingredient := 1
+	score_regularText := 2
+	score_units := 5
 	score_numbers := 1
 
 	var bestFit func(n *html.Node, index int)
 
 	points := make([]int, len(potentialCandidates))
 	bestFit = func(n *html.Node, index int) {
-		if n.Type == html.ElementNode && n.Data == "li" {
-			points[index] += score_li
-		}
-		if n.Type == html.ElementNode && n.Data == "tr" {
-			points[index] += score_tr
-		}
-
 		var match bool
 		if n.Type == html.TextNode {
+			// fmt.Println("_____Text Node_____")
+			match, err = regexp.MatchString("^[\\w\\såäöÅÄÖ\\.,]+$", n.Data)
+			if err != nil {
+				panic(err)
+			}
+			if match {
+				points[index] += score_regularText
+				// fmt.Print("regular ")
+			}
 			match, err = regexp.MatchString("[iI]ngredien(ser|ts)", n.Data)
 			if err != nil {
 				panic(err)
 			}
 			if match {
-				points[index] += score_text
+				points[index] += score_ingredient
+				// fmt.Print("text ")
 			}
-			match, err = regexp.MatchString("\\d*\\s?([mcd]?l|tm[sk]|k?g)", n.Data)
+			match, err = regexp.MatchString("^([mcd]?l|tm[sk]|k?g)$", strings.TrimSpace(n.Data))
 			if err != nil {
 				panic(err)
 			}
 			if match {
 				points[index] += score_units
+				// fmt.Print("units ")
 			}
-			match, err = regexp.MatchString("\\d+", n.Data)
+			match, err = regexp.MatchString("^\\d+$", n.Data)
 			if err != nil {
 				panic(err)
 			}
 			if match {
 				points[index] += score_numbers
+				// fmt.Print("number ")
 			}
 
-		} else {
+		}
+		if n.Type == html.ElementNode && false {
+			// fmt.Println("_____Element Node_____")
 			for _, attr := range n.Attr {
 				for val := range strings.SplitSeq(attr.Val, " ") {
 
@@ -391,9 +401,19 @@ func findTags(resp *http.Response) string {
 					}
 					if match {
 						points[index] += score_attr
+						// fmt.Print("attr ")
 					}
 				}
 			}
+			if n.Data == "li" {
+				points[index] += score_li
+				// fmt.Print("li ")
+			}
+			if n.Data == "tr" {
+				points[index] += score_tr
+				// fmt.Print("tr ")
+			}
+
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
 			bestFit(c, index)
@@ -401,7 +421,9 @@ func findTags(resp *http.Response) string {
 	}
 
 	for i, nodes := range potentialCandidates {
+		// fmt.Printf("_____BEGIN____%v\n", i)
 		bestFit(nodes, i)
+		// fmt.Println("______END______")
 	}
 
 	var text strings.Builder
@@ -409,13 +431,14 @@ func findTags(resp *http.Response) string {
 	var findText func(n *html.Node)
 	findText = func(n *html.Node) {
 		if n.Type == html.TextNode {
-			text.WriteString(strings.TrimSpace(n.Data))
+			text.WriteString(strings.TrimSpace(n.Data) + " ")
 		} else {
 			for c := n.FirstChild; c != nil; c = c.NextSibling {
 				findText(c)
 			}
 		}
 	}
+
 	maxIndex := 0
 	maxValue := points[0]
 
@@ -424,9 +447,26 @@ func findTags(resp *http.Response) string {
 			maxValue = v
 			maxIndex = i
 		}
+		fmt.Printf("Points: %v %v\n", i, v)
 	}
 
+	fmt.Printf("Choosing: %v\n", maxIndex)
 	findText(potentialCandidates[maxIndex])
+
+	// for i, v := range potentialCandidates {
+	//
+	// 	findText(v)	
+	// 	fmt.Printf("candidate %d------------------------------\n", i)
+	// 	fmt.Println(text.String())
+	// 	text.Reset()	
+	// }
+
+
+	// var sb strings.Builder
+	//
+	// html.Render(&sb, potentialCandidates[maxIndex])
+	//
+	// fmt.Println(sb.String())
 
 	return text.String()
 }
