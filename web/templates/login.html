@@ -21,6 +21,9 @@
     {{template "footer" .}}
     <script src="/static/script.js"></script>
     <script>
+        const header = document.querySelector("header");
+        header.style.background = "#94BBE9";
+        document.querySelector("main").style.background = "transparent"
         document.querySelectorAll(".header-items").forEach(container => {
             container.querySelectorAll(":scope > *").forEach(child => {
                 if (child.tagName !== "H1") {

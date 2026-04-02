@@ -6,8 +6,6 @@
 }
 
 html {
-    background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, #94BBE9 100%);
-    z-index: -2;
     min-block-size: 100dvh;
 }
 
@@ -19,6 +17,7 @@ body {
 }
 
 body {
+    background: #94BBE9;
     display: flex;
     flex-direction: column;
 }
@@ -74,6 +73,7 @@ main {
     inline-size: 95dvw;
     margin-inline: auto;
     block-size: 100%;
+    background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, #94BBE9 100%);
 }
 
 @media screen and (min-width: 500px) {
@@ -83,7 +83,6 @@ main {
 }
 
 header {
-    background: white;
     margin-block-end: 24px;
 }
 
@@ -91,7 +90,6 @@ header {
     justify-content: space-between;
     align-items: center;
     padding-inline: 5dvw;
-    color: hotpink;
     display: flex;
 }
 
@@ -99,25 +97,10 @@ h1 {
     margin-block: auto;
 }
 
-.header-items button,
-.header-items h1 a {
-    color: hotpink;
-}
-
 @media screen and (min-width: 500px) {
     header {
         margin-block-start: 12px;
-        background: inherit;
         color: white;
-    }
-
-    .header-items button,
-    .header-items h1 a {
-        color: white;
-    }
-
-    .header-items button {
-        display: none !important;
     }
 }
 

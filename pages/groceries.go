@@ -309,11 +309,12 @@ func findTags(resp *http.Response) string {
 
 	potentialCandidates := make([]*html.Node, 0)
 
-	var processNode func(n *html.Node)
-	processNode = func(n *html.Node) {
+	var processNode func(n *html.Node, pattern string)
+	processNode = func(n *html.Node, pattern string) {
 		if n.Type == html.TextNode {
+			fmt.Println(n.Data)
 			var match bool
-			match, err = regexp.MatchString("^[iI]ngredien(ser|ts)$", n.Data)
+			match, err = regexp.MatchString(pattern, strings.TrimSpace(n.Data))
 			if err != nil {
 				panic(err)
 			}
@@ -331,14 +332,17 @@ func findTags(resp *http.Response) string {
 			}
 		}
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			processNode(c)
+			processNode(c, pattern)
 		}
 	}
-	processNode(doc)
+	processNode(doc, "^[iI]ngredien(ser|ts)$")
 
 	fmt.Printf("numb of potential: %v\n", len(potentialCandidates))
 	if len(potentialCandidates) == 0 {
-		return ""
+		processNode(doc,  "[iI]ngredien(ser|ts)")
+		if len(potentialCandidates) == 0 {
+			return ""
+		}
 	}
 
 	score_li := 1
@@ -355,8 +359,9 @@ func findTags(resp *http.Response) string {
 	bestFit = func(n *html.Node, index int) {
 		var match bool
 		if n.Type == html.TextNode {
-			// fmt.Println("_____Text Node_____")
-			match, err = regexp.MatchString("^[\\w\\såäöÅÄÖ\\.,]+$", n.Data)
+			data := strings.TrimSpace(n.Data)
+			
+			match, err = regexp.MatchString("^[\\w\\såäöÅÄÖ\\.,]+$", data)
 			if err != nil {
 				panic(err)
 			}
@@ -364,7 +369,7 @@ func findTags(resp *http.Response) string {
 				points[index] += score_regularText
 				// fmt.Print("regular ")
 			}
-			match, err = regexp.MatchString("[iI]ngredien(ser|ts)", n.Data)
+			match, err = regexp.MatchString("^[iI]ngredien(ser|ts)$", data)
 			if err != nil {
 				panic(err)
 			}
@@ -372,7 +377,7 @@ func findTags(resp *http.Response) string {
 				points[index] += score_ingredient
 				// fmt.Print("text ")
 			}
-			match, err = regexp.MatchString("^([mcd]?l|tm[sk]|k?g)$", strings.TrimSpace(n.Data))
+			match, err = regexp.MatchString("^([mcd]?l|tm[sk]|k?g|krm)$", data)
 			if err != nil {
 				panic(err)
 			}
@@ -380,7 +385,7 @@ func findTags(resp *http.Response) string {
 				points[index] += score_units
 				// fmt.Print("units ")
 			}
-			match, err = regexp.MatchString("^\\d+$", n.Data)
+			match, err = regexp.MatchString("^\\d+$", data)
 			if err != nil {
 				panic(err)
 			}
@@ -468,5 +473,6 @@ func findTags(resp *http.Response) string {
 	//
 	// fmt.Println(sb.String())
 
+	fmt.Printf("Bytes: %v", text.Len())
 	return text.String()
 }
