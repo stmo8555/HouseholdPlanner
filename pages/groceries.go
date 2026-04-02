@@ -4,13 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/net/html"
 	"net/http"
+	"regexp"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
-	"io"
 )
 
 type Grocery struct {
@@ -30,37 +32,43 @@ type groceries struct {
 func ai(link string) string {
 
 	resp, err := http.Get(link)
-	body, _ := io.ReadAll(resp.Body)
-
 	if err != nil {
 		panic(err)
 	}
 
+	defer resp.Body.Close()
+
+	tags := findTags(resp)
+
+	fmt.Println("Parsed: " + tags)
+
 	ctx := context.Background()
 	client := openai.NewClient()
 
-	templatePrompt := `You are an expert recipe parser. I will provide the full HTML content of a recipe page. Extract all ingredients from the HTML. 
+	templatePrompt := `Extract ingredients from the text.
 
-Requirements:
-1. The recipe may be in Swedish or English. Extract ingredients regardless of language.
-2. Return only valid JSON in this format:
+Return ONLY raw JSON (no markdown, no code blocks):
 [
-  { "Product": "ingredient name", "Amount": "amount with units" }
+	{ "Product": "ingredient name", "Amount": "amount", "Brand": "brand"}
 ]
-3. Use the exact units and quantities as written in the HTML (e.g., g, dl, msk, tsk). Include ranges and "to taste"/"efter smak" exactly as written.
-4. Include only ingredients. Ignore instructions, steps, preparation methods, notes, optional tips, or serving suggestions.
-5. If an ingredient has no specific quantity, use the value "to taste" or "efter smak" exactly as it appears in the HTML.
-6. Output JSON only. Do not include any extra text, explanation, or markdown.
-7. If the HTML contains extra text, ads, or unrelated content, ignore it and focus only on the recipe ingredients.
-8. Be robust to messy HTML. Parse only the meaningful ingredient list.
 
-HTML content:
-$1`
+Rules:
+- Amount = only numbers + units (e.g. "2 dl", "1 msk", "efter smak")
+- Product = only the ingredient name
+- Brand = only the products brand
+- If there is not suffiecent info, return empty json list []
+- Remove preparation words (hackad, skivad, riven, etc.)
+- Remove text after commas
+- No explanations
+- Do NOT wrap output in ANYTHING ELSE THAN []
 
-	question := fmt.Sprintf(templatePrompt, string(body))
+Text: 
+%s`
+
+	question := fmt.Sprintf(templatePrompt, tags)
 	ai_resp, ai_err := client.Responses.New(ctx, responses.ResponseNewParams{
 		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
-		Model: openai.ChatModelGPT5_2,
+		Model: openai.ChatModelGPT4_1Nano,
 	})
 
 	if ai_err != nil {
@@ -72,33 +80,31 @@ $1`
 
 func GroceriesExtractFromRecipeHandleFunc(c *gin.Context) {
 	link := c.PostForm("link")
-	received := ai(link)
-// 	received := `[
-//   { "Product": "olivolja", "Amount": "till stekning" },
-//   { "Product": "vitlök", "Amount": "3 klyftor" },
-//   { "Product": "smör", "Amount": "till stekning" },
-//   { "Product": "färska salsicciakorvar", "Amount": "4" },
-//   { "Product": "vispgrädde", "Amount": "2 dl" },
-//   { "Product": "passerade tomater", "Amount": "3 dl" },
-//   { "Product": "tomatpuré", "Amount": "2 msk" },
-//   { "Product": "vitt vin", "Amount": "1-2 dl" },
-//   { "Product": "oregano", "Amount": "några kvistar" },
-//   { "Product": "timjankvist", "Amount": "några kvistar" },
-//   { "Product": "pasta (av favoritsort)", "Amount": "4 port" },
-//   { "Product": "salt", "Amount": "efter smak" },
-//   { "Product": "svartpeppar", "Amount": "nymalen" },
-//   { "Product": "persilja", "Amount": "några kvistar" }
-// ]`
 
+	received := ai(link)
+	// 	received := `[
+	//   { "Product": "olivolja", "Amount": "till stekning" },
+	//   { "Product": "vitlök", "Amount": "3 klyftor" },
+	//   { "Product": "smör", "Amount": "till stekning" },
+	//   { "Product": "färska salsicciakorvar", "Amount": "4" },
+	//   { "Product": "vispgrädde", "Amount": "2 dl" },
+	//   { "Product": "passerade tomater", "Amount": "3 dl" },
+	//   { "Product": "tomatpuré", "Amount": "2 msk" },
+	//   { "Product": "vitt vin", "Amount": "1-2 dl" },
+	//   { "Product": "oregano", "Amount": "några kvistar" },
+	//   { "Product": "timjankvist", "Amount": "några kvistar" },
+	//   { "Product": "pasta (av favoritsort)", "Amount": "4 port" },
+	//   { "Product": "salt", "Amount": "efter smak" },
+	//   { "Product": "svartpeppar", "Amount": "nymalen" },
+	//   { "Product": "persilja", "Amount": "några kvistar" }
+	// ]`
+
+	fmt.Println(string(received))
 	var gs []Grocery
 	err := json.Unmarshal([]byte(received), &gs)
 
 	if err != nil {
 		panic(err)
-	}
-
-	for _, g := range gs {
-		fmt.Println(g.Product + " " + g.Amount)
 	}
 
 	data := gin.H{
@@ -292,4 +298,135 @@ func GroceriesDeletePickedHandleFunc(c *gin.Context, conn *pgx.Conn) {
 		panic(err)
 	}
 	c.Redirect(302, "/groceries")
+}
+
+func findTags(resp *http.Response) string {
+	doc, err := html.Parse(resp.Body)
+
+	if err != nil {
+		panic(err)
+	}
+
+	potentialCandidates := make([]*html.Node, 0)
+
+	var processNode func(n *html.Node)
+	processNode = func(n *html.Node) {
+		if n.Type == html.TextNode {
+			var match bool
+			match, err = regexp.MatchString("[iI]ngredien(ser|ts)", n.Data)
+			if err != nil {
+				panic(err)
+			}
+			if match {
+				parent := n.Parent
+				for ; parent.Data == "div"; parent = parent.Parent {
+				}
+
+				for ; parent != nil; parent = parent.NextSibling {
+					potentialCandidates = append(potentialCandidates, parent)
+				}
+				return
+
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			processNode(c)
+		}
+	}
+	processNode(doc)
+
+	if len(potentialCandidates) == 0 {
+		return ""
+	}
+
+	score_li := 1
+	score_tr := 1
+	score_attr := 10
+	score_text := 15
+	score_units := 7
+	score_numbers := 1
+
+	var bestFit func(n *html.Node, index int)
+
+	points := make([]int, len(potentialCandidates))
+	bestFit = func(n *html.Node, index int) {
+		if n.Type == html.ElementNode && n.Data == "li" {
+			points[index] += score_li
+		}
+		if n.Type == html.ElementNode && n.Data == "tr" {
+			points[index] += score_tr
+		}
+
+		var match bool
+		if n.Type == html.TextNode {
+			match, err = regexp.MatchString("[iI]ngredien(ser|ts)", n.Data)
+			if err != nil {
+				panic(err)
+			}
+			if match {
+				points[index] += score_text
+			}
+			match, err = regexp.MatchString("\\d*\\s?([mcd]?l|tm[sk]|k?g)", n.Data)
+			if err != nil {
+				panic(err)
+			}
+			if match {
+				points[index] += score_units
+			}
+			match, err = regexp.MatchString("\\d+", n.Data)
+			if err != nil {
+				panic(err)
+			}
+			if match {
+				points[index] += score_numbers
+			}
+
+		} else {
+			for _, attr := range n.Attr {
+				for val := range strings.SplitSeq(attr.Val, " ") {
+
+					match, err = regexp.MatchString("[iI]ngredien(ser|ts)", val)
+					if err != nil {
+						panic(err)
+					}
+					if match {
+						points[index] += score_attr
+					}
+				}
+			}
+		}
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			bestFit(c, index)
+		}
+	}
+
+	for i, nodes := range potentialCandidates {
+		bestFit(nodes, i)
+	}
+
+	var text strings.Builder
+
+	var findText func(n *html.Node)
+	findText = func(n *html.Node) {
+		if n.Type == html.TextNode {
+			text.WriteString(strings.TrimSpace(n.Data))
+		} else {
+			for c := n.FirstChild; c != nil; c = c.NextSibling {
+				findText(c)
+			}
+		}
+	}
+	maxIndex := 0
+	maxValue := points[0]
+
+	for i, v := range points {
+		if v > maxValue {
+			maxValue = v
+			maxIndex = i
+		}
+	}
+
+	findText(potentialCandidates[maxIndex])
+
+	return text.String()
 }

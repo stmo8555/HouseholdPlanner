@@ -3,12 +3,11 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/stmo8555/HouseholdPlanner/pages"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 type LayoutData struct {
