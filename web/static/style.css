@@ -13,13 +13,11 @@ html,
 body {
     margin: 0;
     padding: 0;
-    height: 100%;
 }
 
 body {
+    block-size: 100%;
     background: #94BBE9;
-    display: flex;
-    flex-direction: column;
 }
 
 a {
@@ -69,16 +67,14 @@ body.flower-power.slide-out::before {
 }
 
 main {
-    flex: 1;
-    inline-size: 95dvw;
-    margin-inline: auto;
-    block-size: 100%;
-    background: radial-gradient(circle, rgba(238, 174, 202, 1) 0%, #94BBE9 100%);
+    margin-inline: 2dvw;
+    /* margin-block-end: 24px; */
+    background: linear-gradient(nulldeg, rgba(148, 187, 233, 1) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 @media screen and (min-width: 500px) {
     main {
-        inline-size: 80dvw;
+        margin-inline: 10dvw;
     }
 }
 
@@ -97,13 +93,6 @@ h1 {
     margin-block: auto;
 }
 
-@media screen and (min-width: 500px) {
-    header {
-        margin-block-start: 12px;
-        color: white;
-    }
-}
-
 .header-items button {
     font-size: 3rem;
     display: inline-block;
@@ -115,6 +104,17 @@ h1 {
 .header-items a.active {
     background-position: 100% 100%;
     background-size: 100% 2px;
+}
+
+@media screen and (min-width: 500px) {
+    header {
+        margin-block-start: 12px;
+        color: white;
+    }
+
+    .header-items button {
+        display: none;
+    }
 }
 
 .glass {
@@ -493,10 +493,6 @@ nav ul li a {
 }
 
 @media screen and (min-width: 500px) {
-    header button {
-        display: none;
-    }
-
     nav {
         display: block;
         position: static;
