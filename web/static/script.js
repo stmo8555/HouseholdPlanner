@@ -23,4 +23,3 @@ nav_toggle.addEventListener("click", () => {
 
     // todo: add event when doc is clicked to toggle of nav on mobile
 });
-

@@ -47,12 +47,14 @@ func main() {
 	auth.POST("/groceries/delete/picked", func(c *gin.Context) { pages.GroceriesDeletePickedHandleFunc(c, conn) })
 	auth.POST("/groceries/extract", func(c *gin.Context) { pages.GroceriesExtractFromRecipeHandleFunc(c) })
 	auth.POST("/groceries/extracted", func(c *gin.Context) { pages.HandleAcceptGroceries(c, conn) })
+	auth.GET("/recipes", func(c *gin.Context) {pages.RecipesHandleFunc(c, conn)})
+	auth.POST("/recipes/add", func(c *gin.Context) { pages.RecipesAddHandleFunc(c, conn) })
 	auth.GET("/", indexHandleFunc)
-	auth.GET("/recipes", recipesHandleFunc)
 
-	// setup()
 
-	err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
+
+	// err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
+	err = r.Run("localhost:8080")
 	if err != nil {
 		panic(err)
 	}
@@ -128,11 +130,6 @@ func deleteUser(conn *pgx.Conn) {
 	if err != nil {
 		panic("Failed to to delete user: " + err.Error())
 	}
-}
-
-func recipesHandleFunc(c *gin.Context) {
-	data := LayoutData{Title: "Recipes", CurrentPath: c.Request.URL.Path, Data: nil}
-	c.HTML(http.StatusOK, "recipes.html", data)
 }
 
 func choresHandleFunc(c *gin.Context) {

@@ -5,54 +5,56 @@
 
 <body>
     {{template "header" .}}
-    <main class="grid-4">
-        <div class="glass recipe-card flex center-horizontal center-vertical">
-            <h2>Spaghetti bolognese</h2>
-            <img
-                src="https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/hchsnpxo3gkm8zyzxp5j.jpg">
-            <p>Estimated time: mindre än 30 min.</p>
-
-            <button>Ingredients</button>
+    <div id="add-recipe-overlay" class="overlay">
+        <div id="add-recipe-modal" class="glass fixed-center">
+            <h2 class="table-h2">Add Recipe</h2>
+            <form class="add-grocery-form" method="post" action="/recipes/add">
+                <div>
+                    <label for="1">url</label>
+                    <input id="1" type="text" name="link" required>
+                    <div class="text-align-center">
+                        <button type="submit">add</button>
+                    </div>
+                </div>
+            </form>
         </div>
-        <div class="glass recipe-card flex center-horizontal center-vertical">
-            <h2>Spaghetti bolognese</h2>
-            <img
-                src="https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/hchsnpxo3gkm8zyzxp5j.jpg">
-            <!-- <p>En italiensk, och svensk, klassiker med smak av vitlök, oregano och sälta från soja. Serveras med spaghetti al dente och toppas med rucola.</p> -->
-            <p>Estimated time: mindre än 30 min.</p>
+    </div>
+    <main>
+        <div class="margin-block-end-24px">
+            <button id="add-recipe">Add Recipe</button>
+    </div>
 
-            <button>Ingredients</button>
-        </div>
-        <div class="glass recipe-card flex center-horizontal center-vertical">
-            <h2>Spaghetti bolognese</h2>
-            <img
-                src="https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/hchsnpxo3gkm8zyzxp5j.jpg">
-            <!-- <p>En italiensk, och svensk, klassiker med smak av vitlök, oregano och sälta från soja. Serveras med spaghetti al dente och toppas med rucola.</p> -->
-            <p>Estimated time: mindre än 30 min.</p>
-
-            <button>Ingredients</button>
-        </div>
-        <div class="glass recipe-card flex center-horizontal center-vertical">
-            <h2>Spaghetti bolognese</h2>
-            <img
-                src="https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/hchsnpxo3gkm8zyzxp5j.jpg">
-            <!-- <p>En italiensk, och svensk, klassiker med smak av vitlök, oregano och sälta från soja. Serveras med spaghetti al dente och toppas med rucola.</p> -->
-            <p>Estimated time: mindre än 30 min.</p>
-
-            <button>Ingredients</button>
-        </div>
-        <div class="glass recipe-card flex center-horizontal center-vertical">
-            <h2>Spaghetti bolognese</h2>
-            <img
-                src="https://assets.icanet.se/e_sharpen:80,q_auto,dpr_1.25,w_718,h_718,c_lfill/hchsnpxo3gkm8zyzxp5j.jpg">
-            <!-- <p>En italiensk, och svensk, klassiker med smak av vitlök, oregano och sälta från soja. Serveras med spaghetti al dente och toppas med rucola.</p> -->
-            <p>Estimated time: mindre än 30 min.</p>
-
-            <button>Ingredients</button>
+        <div class="grid-recipe">
+            {{range .Data}}
+            <div class="glass recipe-card flex center-horizontal center-vertical">
+                <h2>{{.Title}}</h2>
+                <img src="{{.Img_url}}" alt="{{.Title}}">
+                <a href="{{.Link}}" class="button-styling">Visit</a>
+            </div>
+            {{end}}
         </div>
     </main>
     {{template "footer" .}}
     <script src="/static/script.js"></script>
-</body>
+    <script>
+        const add_recipe_btn = document.getElementById('add-recipe');
+        const overlay_recipe = document.getElementById("add-recipe-overlay");
+        const main = document.querySelector("main")
+        const add_recipe_modal = document.getElementById("add-recipe-modal"); // the inner modal content
 
+        add_recipe_btn.addEventListener("click", () => {
+            overlay_recipe.style.display = "block";
+            main.style.display = "none"
+            overlay_recipe.style.cursor = "pointer"
+            add_recipe_modal.style.cursor = "default"
+        });
+
+        overlay_recipe.addEventListener("click", (e) => {
+            if (!add_recipe_modal.contains(e.target)) {
+                overlay_recipe.style.display = "none";
+                main.style.display = "block"
+            }
+        });
+    </script>
+</body>
 </html>

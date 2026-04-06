@@ -25,38 +25,34 @@
         <div id="addModal" class="glass fixed-center">
             <h2 class="table-h2">Add Grocery</h2>
             <form class="add-grocery-form" method="POST" action="/groceries/add">
-                <div class="grid-2">
-                    <div>
-                        <label for="1">Product</label>
-                        <input id="1" type="text" name="product" required>
-                    </div>
-                    <div>
-                        <label for="3">Amount</label>
-                        <input id="3" type="text" name="amount">
-                    </div>
-                </div>
-                <div class="grid-2">
-                    <div>
-                        <label for="2">Brand</label>
-                        <input id="2" type="text" name="brand">
-                    </div>
-                    <div>
-                        <label for="4">Store</label>
-                        <input id="4" type="text" name="store">
-                    </div>
-                </div>
-                <div class="text-align-center">
-                    <button type="submit">Add</button>
-                </div>
+                <li>
+                <li>
+                    <label for="1">Product <small>(required)</small></label>
+                    <input id="1" type="text" name="product" required>
+                </li>
+                <li>
+                    <label for="3">Amount</label>
+                    <input id="3" type="text" name="amount">
+                </li>
+                <li>
+                    <label for="2">Brand</label>
+                    <input id="2" type="text" name="brand">
+                </li>
+                <li>
+                    <label for="4">Store</label>
+                    <input id="4" type="text" name="store">
+                </li>
+                <button class="text-align-center" type="submit">Add</button>
+                </button>
+                </ul>
             </form>
         </div>
     </div>
     <main>
         <div class="margin-block-end-24px">
-            <button id="add-button" class="toggle-add-btn">Add Grocery</button>
+            <button id="add-button">Add Grocery</button>
             <button id="edit-button">Edit</button>
             <button id="extract-button">Import</button>
-            <!-- <a href="/groceries/extracted" class="button-styling">Import</a> -->
         </div>
         <!-- table start -->
         <div class='glass margin-block-end-24px padding-inline-24px'>
@@ -148,7 +144,6 @@
         const overlayExtract = document.getElementById("extract");
         const addModal = document.getElementById("addModal"); // the inner modal content
         const extractModal = document.getElementById("extractModal"); // the inner modal content
-
 
         // Show modal
         extraxt_btn.addEventListener("click", () => {

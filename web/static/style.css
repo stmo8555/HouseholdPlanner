@@ -108,8 +108,8 @@ h1 {
 
 @media screen and (min-width: 500px) {
     header {
-        margin-block-start: 12px;
-        color: white;
+        background: transparent;
+        padding-top: 5px;
     }
 
     .header-items button {
@@ -139,6 +139,7 @@ table {
     margin-block-end: 24px;
     border-collapse: collapse;
     width: 100%;
+    table-layout: fixed;
 }
 
 table a {
@@ -160,12 +161,21 @@ td {
     padding-block: 10px;
 }
 
+td:first-child,
+th:first-child {
+    width: 50px;
+}
+
 @media screen and (min-width: 500px) {
     th:hover {
         border-start-start-radius: 10px;
         border-start-end-radius: 10px;
-        background: rgba(255, 255, 255, 0.2);
+        background: rgba(25, 25, 255, 0.1);
         overflow: hidden;
+    }
+
+    th:first-of-type:hover {
+        background: transparent;
     }
 }
 
@@ -178,9 +188,9 @@ td input {
 }
 
 td input {
-    inline-size: 90%;
-    background: rgba(255, 105, 180, 0.1);
+    background: rgba(25, 25, 255, 0.1);
     padding-block: 10px;
+    padding-inline: 5px;
     border: none;
     outline: none;
 }
@@ -205,19 +215,17 @@ tr.divider-top td {
 
 @media screen and (min-width: 500px) {
     tbody tr:hover {
-        background: rgba(255, 255, 255, 0.2);
+        /* background: rgba(255, 255, 255, 0.2); */
+        /* background: rgba(25, 25, 255, 0.2); */
     }
 }
 
 .checkbox {
-    font-size: 3rem;
-    display: inline-block;
+    display: block;
     background: transparent;
-    aspect-ratio: 1;
     border-radius: 50%;
     border: solid white 1px;
-    margin-inline: 5px;
-    vertical-align: middle;
+    margin-inline: auto;
 }
 
 .checkbox.checked {
@@ -258,11 +266,17 @@ tr.divider-top td {
     }
 }
 
-.grid-4 {
+.grid-recipe {
     display: grid;
     align-items: center;
-    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
+}
+
+@media screen and (min-width: 500px) {
+    .grid-recipe {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+    }
 }
 
 .space-and-padding {
@@ -302,13 +316,6 @@ body {
     min-height: 100dvh;
 }
 
-.grid-2 {
-    display: grid;
-    gap: 12px;
-    grid-template-columns: 1fr 1fr;
-    margin-block-end: 10px;
-}
-
 .login-form {
     inline-size: 100%;
     padding-block-start: 20dvh;
@@ -318,6 +325,10 @@ body {
         padding-block-start: 30dvh;
         inline-size: 60%;
     }
+}
+
+.add-grocery-form li {
+    margin-block-end: 5px;
 }
 
 .add-grocery-form input,
@@ -333,7 +344,6 @@ body {
 }
 
 .add-grocery-form input {
-    border: white 2px solid;
     padding: 5px;
 }
 
