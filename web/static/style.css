@@ -1,8 +1,40 @@
+:root {
+    --bg: #94BBE9;
+    --bg-image: url(assets/background.jpg);
+    --bg-image-mobile: url(assets/background-mobile.jpg);
+    --text: white;
+    --text-lightly-dimmed: rgba(255, 255, 255, 0.5);
+    --text-dimmed: rgba(255, 255, 255, 0.2);
+    --shadow: rgba(0, 0, 0, 0.1);
+    --td-input: rgba(25, 25, 255, 0.1);
+    --input-contrast: rgba(0, 0, 0, 0.2);
+    --placeholder: rgba(255, 255, 255, 0.8);
+    --accent: hotpink;
+    --accent-dark: #4F0048;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #222;
+        --bg-image: url(assets/background-dark.jpg);
+        --bg-image-mobile: url(assets/background-dark.jpg);
+        --text: white;
+        --text-lightly-dimmed: rgba(255, 255, 255, 0.5);
+        --text-dimmed: rgba(255, 255, 255, 0.2);
+        --shadow: rgba(255, 255, 255, 0.1);
+        --td-input: #0B8282;
+        --input-contrast: rgba(255, 255, 255, 0.1);
+        --placeholder: rgba(255, 255, 255, 0.8);
+        --accent: #096C6C;
+        --accent-dark: #075656;
+    }
+}
+
 * {
     box-sizing: border-box;
     font-family: "Roboto", sans-serif;
     /* outline: 1px solid red; */
-    color: white;
+    color: var(--text);
 }
 
 html {
@@ -16,8 +48,18 @@ body {
 }
 
 body {
-    block-size: 100%;
-    background: #94BBE9;
+    background: var(--bg);
+}
+
+img {
+    display: block;
+    max-inline-size: 100%;
+    object-fit: cover;
+}
+
+h1 {
+    margin-block: auto;
+    text-align: left;
 }
 
 a {
@@ -25,14 +67,9 @@ a {
 }
 
 ul {
-    padding: unset;
-    padding-inline: 10px;
-    margin: unset;
-}
-
-
-li {
     list-style: none;
+    padding: unset;
+    margin: unset;
 }
 
 .overlay {
@@ -48,10 +85,10 @@ body.flower-power::before {
     position: fixed;
     inset: 0;
 
-    background-image: url(assets/background-mobile.jpg);
+    background-image: var(--bg-image-mobile);
 
     @media screen and (min-width: 500px) {
-        background-image: url(assets/background.jpg);
+        background-image: var(--bg-image);
     }
 
     background-size: cover;
@@ -68,8 +105,6 @@ body.flower-power.slide-out::before {
 
 main {
     margin-inline: 2dvw;
-    /* margin-block-end: 24px; */
-    background: linear-gradient(nulldeg, rgba(148, 187, 233, 1) 0%, rgba(255, 255, 255, 1) 100%);
 }
 
 @media screen and (min-width: 500px) {
@@ -79,18 +114,16 @@ main {
 }
 
 header {
+    background: var(--bg);
+    padding-block-start: 5px;
     margin-block-end: 24px;
 }
 
 .header-items {
     justify-content: space-between;
     align-items: center;
-    padding-inline: 5dvw;
+    padding-inline: 2.5dvw;
     display: flex;
-}
-
-h1 {
-    margin-block: auto;
 }
 
 .header-items button {
@@ -109,7 +142,6 @@ h1 {
 @media screen and (min-width: 500px) {
     header {
         background: transparent;
-        padding-top: 5px;
     }
 
     .header-items button {
@@ -118,21 +150,12 @@ h1 {
 }
 
 .glass {
-    background: rgba(255, 255, 255, 0.2);
+    background: var(--text-dimmed);
     border-radius: 16px;
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 30px var(--shadow);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 1);
-}
-
-
-.margin-block-end-24px {
-    margin-block-end: 24px;
-}
-
-.padding-inline-24px {
-    padding-inline: 24px;
+    border: 1px solid var(--text)
 }
 
 table {
@@ -146,12 +169,8 @@ table a {
     display: block;
 }
 
-.table-h2 {
-    margin-inline-start: 5%;
-}
-
 thead {
-    border-block-end: solid rgba(255, 255, 255, 0.5) 2px;
+    border-block-end: solid var(--text-lightly-dimmed) 2px;
 }
 
 th,
@@ -170,7 +189,7 @@ th:first-child {
     th:hover {
         border-start-start-radius: 10px;
         border-start-end-radius: 10px;
-        background: rgba(25, 25, 255, 0.1);
+        background: var(--td-input);
         overflow: hidden;
     }
 
@@ -188,7 +207,7 @@ td input {
 }
 
 td input {
-    background: rgba(25, 25, 255, 0.1);
+    background: var(--td-input);
     padding-block: 10px;
     padding-inline: 5px;
     border: none;
@@ -198,11 +217,11 @@ td input {
 tr {
     border-radius: 16px;
     overflow: hidden;
-    border-block-end: solid rgba(255, 255, 255, 0.2) 1px;
+    border-block-end: solid var(--text-dimmed) 1px;
 }
 
 tr.divider-top {
-    border-block-start: solid rgba(255, 255, 255, 0.5) 2px;
+    border-block-start: solid var(--text-lightly-dimmed) 2px;
 }
 
 tr.divider-top td {
@@ -213,23 +232,17 @@ tr.divider-top td {
     text-decoration: line-through;
 }
 
-@media screen and (min-width: 500px) {
-    tbody tr:hover {
-        /* background: rgba(255, 255, 255, 0.2); */
-        /* background: rgba(25, 25, 255, 0.2); */
-    }
-}
-
 .checkbox {
     display: block;
     background: transparent;
     border-radius: 50%;
-    border: solid white 1px;
+    border: solid var(--text) 1px;
     margin-inline: auto;
+    aspect-ratio: 1;
 }
 
 .checkbox.checked {
-    background: white;
+    background: var(--text);
 }
 
 .fixed-center {
@@ -237,27 +250,6 @@ tr.divider-top td {
     inset-block-start: 50%;
     inset-inline-start: 50%;
     transform: translate(-50%, -50%);
-}
-
-.add-grocery-form {
-    inline-size: 95dvw;
-
-    @media screen and (min-width: 500px) {
-        inline-size: auto;
-    }
-
-    padding-inline: 24px;
-    padding-block-end: 24px;
-}
-
-.text-align-center {
-    text-align: center;
-}
-
-.add-grocery-form button {
-    margin-inline-end: auto;
-    margin-block-start: 12px;
-    width: 100%;
 }
 
 @media screen and (min-width: 500px) {
@@ -279,11 +271,6 @@ tr.divider-top td {
     }
 }
 
-.space-and-padding {
-    justify-content: space-between;
-    padding-inline: 10px;
-}
-
 .group {
     margin-inline: auto;
     margin-block-end: 10px;
@@ -303,7 +290,9 @@ tr.divider-top td {
 .recipe-card img {
     display: block;
     border-radius: 5px;
-    max-width: 150px;
+    min-inline-size: 100px;
+    max-inline-size: 100%;
+    aspect-ratio: 1 / 1;
 }
 
 .logout {
@@ -311,9 +300,25 @@ tr.divider-top td {
     padding-inline: 5px;
 }
 
-body {
-    margin: unset;
-    min-height: 100dvh;
+.add-grocery-form {
+    inline-size: 95dvw;
+    padding-block-end: 24px;
+
+    @media screen and (min-width: 500px) {
+        inline-size: auto;
+    }
+}
+
+.quick-select {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+.add-grocery-form button {
+    margin-inline-end: auto;
+    margin-block-start: 12px;
+    width: 100%;
 }
 
 .login-form {
@@ -333,14 +338,13 @@ body {
 
 .add-grocery-form input,
 .login-form input {
-    display: block;
+    display: inline-block;
     font-size: 1rem;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--input-contrast);
     outline: unset;
     border: unset;
     border-radius: 5px;
     inline-size: 100%;
-    box-sizing: border-box;
 }
 
 .add-grocery-form input {
@@ -364,42 +368,45 @@ body {
     inline-size: 60%;
 }
 
-
-.filters {
+.todo-form {
     display: flex;
-    margin-block-start: 10px;
-    border: 1px solid white;
-    border-radius: 5px;
-    overflow: hidden;
+    gap: 10px;
 }
 
-.filters input[type="radio"] {
-    display: none;
-}
-
-.filters .filter:first-of-type {
-    border-inline-end: 1px solid white;
-}
-
-.filters .filter:last-of-type {
-    border-inline-start: 1px solid white;
-}
-
-.filters label {
+.todo-form label {
     display: flex;
-    align-items: center;
-    padding-inline: 5px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.2s;
-    height: 100%;
+    flex: 1;
 }
 
-
-.filters input[type="radio"]:checked+label {
-    background: hotpink;
-    color: white;
+.todo-form input {
+    font-size: 1rem;
+    font-weight: bold;
+    background: transparent;
+    outline: unset;
+    border: unset;
+    margin: 12px 12px;
+    flex: 1;
 }
+
+.todo-form input::placeholder {
+    color: var(--placeholder);
+}
+
+.badge {
+    font-size: 0.8rem;
+    display: inline-block;
+    border-radius: 10000px;
+    padding: 5px 10px;
+    background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+    margin: 0;
+}
+
+.badge::before {
+    content: "✦";
+    color: silver;
+    margin: 5px;
+}
+
 
 .button-styling {
     all: unset;
@@ -411,9 +418,9 @@ button {
     font-size: 1rem;
     font-weight: bold;
     border: unset;
-    background: hotpink;
-    border-radius: 5px;
-    padding: 5px;
+    background: var(--accent);
+    border-radius: 16px;
+    padding: 5px 10px;
 }
 
 @media screen and (min-width: 500px) {
@@ -422,41 +429,17 @@ button {
     button:hover {
         cursor: pointer;
         scale: 1.01;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 10px var(--shadow);
     }
 }
 
-.chore-button {
+.todo-button {
     display: block;
     margin-inline: auto 10px;
     padding-inline: 50px;
 }
 
-.add {
-    margin-inline-start: auto;
-    margin-inline-end: 10%;
-    margin-block: 20px;
-    padding-inline: 30px;
-}
-
-.flex {
-    display: flex;
-}
-
-.center-horizontal {
-    justify-content: center;
-}
-
-.center-vertical {
-    align-items: center;
-}
-
-h1 {
-    /* margin-inline: 10%; */
-    text-align: left;
-}
-
-.chore {
+.todo {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -492,7 +475,7 @@ nav ul li {
         font-size: 4em;
         line-height: 0;
         margin-inline-start: 5px;
-        color: hotpink;
+        color: var(--accent);
         vertical-align: middle;
     }
 }
@@ -527,7 +510,7 @@ nav ul li a {
         text-decoration: none;
         display: inline-block;
         padding-bottom: 2px;
-        background-image: linear-gradient(hotpink 0 0);
+        background-image: linear-gradient(var(--accent) 0 0);
         background-position: 0 100%;
         /*OR bottom left*/
         background-size: 0% 2px;
@@ -545,27 +528,15 @@ nav ul li a {
     }
 }
 
-footer {
-    color: black;
-    background: white;
-    border-start-start-radius: 10px;
-    border-start-end-radius: 10px;
-    border-block-end: 1px solid white;
-    text-align: center;
-    z-index: 1;
+/* Utilities */
+.margin-inline-24px {
+    margin-inline: 24px;
 }
 
-footer p {
-    margin: 3px;
-    color: black;
+.margin-block-end-24px {
+    margin-block-end: 24px;
 }
 
-footer span {
-    color: hotpink;
-}
-
-@media screen and (min-width: 500px) {
-    footer {
-        display: none;
-    }
+.padding-inline-24px {
+    padding-inline: 24px;
 }

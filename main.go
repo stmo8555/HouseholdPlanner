@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/robfig/cron/v3"
 	"github.com/stmo8555/HouseholdPlanner/pages"
 	"golang.org/x/crypto/bcrypt"
 	"net/http"
@@ -39,7 +40,11 @@ func main() {
 
 	auth := r.Group("/")
 	auth.Use(pages.AuthMiddleware(sessions))
-	auth.GET("/chores", choresHandleFunc)
+	auth.GET("/todos", func(c *gin.Context) { pages.List(c, conn) })
+
+	auth.POST("/todos/done", func(c *gin.Context) { pages.Done(c, conn) })
+	auth.POST("/todos/undo", func(c *gin.Context) { pages.Undo(c, conn) })
+	auth.POST("/todos/add", func(c *gin.Context) { pages.Add(c, conn) })
 	auth.GET("/groceries", func(c *gin.Context) { pages.GroceriesHandleFunc(c, conn) })
 	auth.POST("/groceries", func(c *gin.Context) { pages.GroceriesPickHandleFunc(c, conn) })
 	auth.POST("/groceries/add", func(c *gin.Context) { pages.GroceriesAddHandleFunc(c, conn) })
@@ -47,14 +52,19 @@ func main() {
 	auth.POST("/groceries/delete/picked", func(c *gin.Context) { pages.GroceriesDeletePickedHandleFunc(c, conn) })
 	auth.POST("/groceries/extract", func(c *gin.Context) { pages.GroceriesExtractFromRecipeHandleFunc(c) })
 	auth.POST("/groceries/extracted", func(c *gin.Context) { pages.HandleAcceptGroceries(c, conn) })
-	auth.GET("/recipes", func(c *gin.Context) {pages.RecipesHandleFunc(c, conn)})
+	auth.GET("/recipes", func(c *gin.Context) { pages.RecipesHandleFunc(c, conn) })
 	auth.POST("/recipes/add", func(c *gin.Context) { pages.RecipesAddHandleFunc(c, conn) })
 	auth.GET("/", indexHandleFunc)
+	// setup()
 
-
+	c := cron.New()
+	c.AddFunc("0 * * * *", func() {
+		pages.RemoveTodos(conn)
+	})
+	c.Start()
 
 	// err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
-	err = r.Run("localhost:8080")
+	err = r.Run(":8080")
 	if err != nil {
 		panic(err)
 	}
@@ -65,6 +75,23 @@ func setup() {
 	hid := createHousehold(id, "la casa")
 	id = addUserRetreiveId("Anna", "gurk")
 	joinHousehold(id, hid)
+	g1 := pages.Grocery{Product: "skinka", Household_id: hid}
+	g2 := pages.Grocery{Product: "mjölk", Household_id: hid}
+	g3 := pages.Grocery{Product: "lök", Household_id: hid}
+	g4 := pages.Grocery{Product: "tomat", Household_id: hid}
+	g5 := pages.Grocery{Product: "vispgrädde", Household_id: hid}
+	g6 := pages.Grocery{Product: "bröd", Household_id: hid}
+	g7 := pages.Grocery{Product: "persilja", Household_id: hid}
+	g8 := pages.Grocery{Product: "linguini", Household_id: hid}
+	g9 := pages.Grocery{Product: "billys", Household_id: hid}
+	g10 := pages.Grocery{Product: "oatly", Household_id: hid}
+	g11 := pages.Grocery{Product: "bregott", Household_id: hid}
+	groceries := [...]pages.Grocery{g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11}
+	for _, g := range groceries {
+		for range 10 {
+			pages.AddToHistory(conn, g)
+		}
+	}
 }
 
 func joinHousehold(user_id, hid int) {
@@ -130,12 +157,6 @@ func deleteUser(conn *pgx.Conn) {
 	if err != nil {
 		panic("Failed to to delete user: " + err.Error())
 	}
-}
-
-func choresHandleFunc(c *gin.Context) {
-	data := LayoutData{Title: "Chores", CurrentPath: c.Request.URL.Path, Data: nil}
-	fmt.Println(data.CurrentPath)
-	c.HTML(http.StatusOK, "chores.html", data)
 }
 
 func indexHandleFunc(c *gin.Context) {

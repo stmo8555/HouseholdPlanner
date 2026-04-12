@@ -29,6 +29,31 @@ type groceries struct {
 	Picked, NotPicked []Grocery
 }
 
+func getTopProducts(conn *pgx.Conn, householdID int) ([]string, error) {
+	sql := `
+		SELECT product
+		FROM groceries_history
+		WHERE household_id = $1
+		ORDER BY times_added DESC
+		LIMIT 10;
+	`
+
+	rows, err := conn.Query(context.Background(), sql, householdID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []string
+
+	for rows.Next() {
+		var p string
+		rows.Scan(&p)
+		products = append(products, p)
+	}
+
+	return products, nil
+}
 func ai(link string) string {
 
 	resp, err := http.Get(link)
@@ -201,19 +226,32 @@ func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	if rows.Err() != nil {
 		fmt.Println(rows.Err())
 	}
+	var topProducts []string
+	topProducts, err = getTopProducts(conn, hid.(int))
+
+	if err != nil {
+		panic(err)
+	}
 
 	data := gin.H{
 		"Title":       "Groceries",
 		"CurrentPath": c.Request.URL.Path,
 		"Data":        groceries,
+		"TopProducts": topProducts,
 	}
+
 	c.HTML(http.StatusOK, "groceries.html", data)
 }
 
 func GroceriesPickHandleFunc(c *gin.Context, conn *pgx.Conn) {
+	hid, ok := c.Get("household_id")
+	if !ok {
+		panic("failed to get household_id")
+	}
+
 	id := c.PostForm("id")
-	sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1;`
-	_, err := conn.Exec(context.Background(), sql, id)
+	sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1 AND household_id=$2;`
+	_, err := conn.Exec(context.Background(), sql, id, hid)
 	if err != nil {
 		panic(err)
 	}
@@ -239,64 +277,45 @@ func GroceriesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	}
 
 	sql := `INSERT INTO groceries 
-	(product, brand, amount, store, picked, household_id)
-	VALUES ($1, $2, $3, $4, $5, $6)`
+			(product, brand, amount, store, picked, household_id)
+			VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err := conn.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Store, grocery.Picked, grocery.Household_id)
+	tx, err := conn.Begin(context.Background())
+	defer tx.Rollback(context.Background())
+	_, err = tx.Exec(context.Background(), sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Store, grocery.Picked, grocery.Household_id)
+
+	err = AddToHistory(tx.Conn(), grocery)
 
 	if err != nil {
-		fmt.Println("noooooooooo bad input")
+		panic(err)
+	}
+
+	err = tx.Commit(context.Background())
+
+	if err != nil {
 		panic(err)
 	}
 
 	c.Redirect(302, "/groceries")
 }
 
-func GroceriesEditHandleFunc(c *gin.Context, conn *pgx.Conn) {
-
-	var groceries []Grocery
-	err := c.BindJSON(&groceries)
-	if err != nil {
-		panic(err)
-	}
-
-	tx, err := conn.Begin(context.Background())
-	if err != nil {
-		panic(err)
-	}
-	defer tx.Rollback(context.Background())
-
-	for _, g := range groceries {
-		sql := `UPDATE groceries
-		SET product=$1, amount=$2, brand=$3, store=$4
-		WHERE id=$5`
-		_, err = tx.Exec(context.Background(), sql, g.Product, g.Amount, g.Brand, g.Store, g.Id)
-
-		if err != nil {
-			panic(err)
-		}
-	}
-
-	err = tx.Commit(context.Background())
-	if err != nil {
-		panic(err)
-	}
-
-	// c.Redirect(302, "/groceries")
-	c.JSON(200, gin.H{"status": "ok"})
-}
-
 func GroceriesDeletePickedHandleFunc(c *gin.Context, conn *pgx.Conn) {
+
 	hid, ok := c.Get("household_id")
+
 	if !ok {
 		panic("failed to get household_id from context")
 	}
-	sql := `DELETE FROM groceries WHERE household_id=$1 AND picked=true`
+
+	sql := `DELETE FROM groceries
+			WHERE household_id = $1 AND picked IS TRUE;`
 
 	_, err := conn.Exec(context.Background(), sql, hid)
+
 	if err != nil {
 		panic(err)
 	}
+
 	c.Redirect(302, "/groceries")
 }
 
@@ -339,7 +358,7 @@ func findTags(resp *http.Response) string {
 
 	fmt.Printf("numb of potential: %v\n", len(potentialCandidates))
 	if len(potentialCandidates) == 0 {
-		processNode(doc,  "[iI]ngredien(ser|ts)")
+		processNode(doc, "[iI]ngredien(ser|ts)")
 		if len(potentialCandidates) == 0 {
 			return ""
 		}
@@ -360,7 +379,7 @@ func findTags(resp *http.Response) string {
 		var match bool
 		if n.Type == html.TextNode {
 			data := strings.TrimSpace(n.Data)
-			
+
 			match, err = regexp.MatchString("^[\\w\\såäöÅÄÖ\\.,]+$", data)
 			if err != nil {
 				panic(err)
@@ -460,12 +479,11 @@ func findTags(resp *http.Response) string {
 
 	// for i, v := range potentialCandidates {
 	//
-	// 	findText(v)	
+	// 	findText(v)
 	// 	fmt.Printf("candidate %d------------------------------\n", i)
 	// 	fmt.Println(text.String())
-	// 	text.Reset()	
+	// 	text.Reset()
 	// }
-
 
 	// var sb strings.Builder
 	//
@@ -475,4 +493,48 @@ func findTags(resp *http.Response) string {
 
 	fmt.Printf("Bytes: %v", text.Len())
 	return text.String()
+}
+
+func AddToHistory(conn *pgx.Conn, grocerie Grocery) error {
+	sql := `INSERT INTO groceries_history (household_id, product)
+	VALUES ($1, $2)
+	ON CONFLICT (household_id, product)
+	DO UPDATE SET times_added = groceries_history.times_added + 1;`
+
+	_, err := conn.Exec(context.Background(), sql, grocerie.Household_id, grocerie.Product)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func GroceriesEditHandleFunc(c *gin.Context, conn *pgx.Conn) {
+
+	var groceries []Grocery
+	err := c.BindJSON(&groceries)
+	if err != nil {
+		panic(err)
+	}
+	tx, err := conn.Begin(context.Background())
+	if err != nil {
+		panic(err)
+	}
+	defer tx.Rollback(context.Background())
+
+	for _, g := range groceries {
+		sql := `UPDATE groceries
+               SET product=$1, amount=$2, brand=$3, store=$4
+               WHERE id=$5`
+		_, err = tx.Exec(context.Background(), sql, g.Product, g.Amount, g.Brand, g.Store, g.Id)
+	}
+
+	err = tx.Commit(context.Background())
+
+	if err != nil {
+		panic(err)
+	}
+
+	c.Redirect(302, "/groceries")
 }

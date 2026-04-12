@@ -1,17 +1,15 @@
 package pages
 
 import (
-	_ "encoding/json"
-	_ "fmt"
-	"net/http"
-	"regexp"
-	"strings"
-
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/net/html"
+	"net/http"
+	"regexp"
 	"sort"
+	"strings"
 )
 
 type Recipe struct {
@@ -56,7 +54,7 @@ func RecipesHandleFunc(c *gin.Context, conn *pgx.Conn) {
 		if err != nil {
 			panic(err)
 		}
-		
+
 		recipes = append(recipes, r)
 	}
 
@@ -124,7 +122,7 @@ func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	findTitle(doc)
 
 	titleComponents := strings.Split(recipe.Title, " ")
-	matchFactor := len(titleComponents) / 2
+	matchFactor := len(titleComponents)
 
 	if matchFactor < 1 {
 		panic("Title not found")
@@ -196,7 +194,7 @@ func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 
 	sql := `INSERT INTO recipes 
 	(title, img_url, link, household_id)
-	VALUES ($1, $2, $3, $4)`
+	VALUES ($1, $2, $3, $4);`
 
 	_, err = conn.Exec(context.Background(), sql, recipe.Title, recipe.Img_url, recipe.Link, recipe.Household_id)
 
@@ -204,5 +202,9 @@ func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 		panic(err)
 	}
 
-	c.Redirect(302, "/groceries")
+	for _, a := range img_tags {
+		fmt.Printf("%v <-> %v\n", a.points, a.src)
+	}
+
+	c.Redirect(302, "/recipes")
 }

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "head" .}}
+
+<body>
+    {{template "header" .}}
+    <main>
+        <form class="todo-form" method="post" action="/todos/add">
+            <label class="glass" for="1">
+                <input placeholder="Add a new task..." id="1" type="text" name="todo" required>
+            </label>
+            <button class="padding-inline-24px" type="submit">+ Add</button>
+        </form>
+        <div>
+            <h2>Active Tasks ({{len .Todos}})</h2>
+            <ul>
+                {{range .Todos}}
+                <li class="todo glass">
+                    <p><strong>{{.Title}}</strong></p>
+                    <form method="POST" action="/todos/done">
+                        <button type="submit" name="id" value="{{.Id}}">Done</button>
+                    </form>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+        {{if gt (len .Completed) 0}}
+        <div>
+            <h2>Done ({{len .Completed}})</h2>
+            <p class="badge">Auto-clears after seven day</p>
+            <ul>
+                {{range .Completed}}
+                <li class="todo glass">
+                    <p><strong>{{.Title}}</strong></p>
+                    <form method="POST" action="/todos/undo">
+                        <button type="submit" name="id" value="{{.Id}}">Undo</button>
+                    </form>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+        {{end}}
+    </main>
+    {{template "footer" .}}
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

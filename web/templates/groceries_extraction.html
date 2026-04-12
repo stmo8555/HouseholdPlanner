@@ -6,15 +6,14 @@
 <body>
     {{template "header" .}}
     <main>
-        <!-- <div class="margin-block-end-24px"> -->
-        <!--     <button id="save-button">Save</button> -->
-        <!-- </div> -->
-        <!-- table start -->
-        <form action="/groceries/extracted" method="POST" class='glass margin-block-end-24px padding-inline-24px'>
+        <button type="submit" form="exractedForm" class="margin-block-end-24px">Save</button>
+        <form action="/groceries/extracted" id="exractedForm" method="POST"
+            class='glass margin-block-end-24px padding-inline-24px'>
             <h2>Extracted from recipe ({{ len .Groceries }} items)</h2>
             <table>
                 <thead>
                     <tr>
+                        <th></th>
                         <th>
                             Product
                         </th>
@@ -29,24 +28,22 @@
                         <th>
                             Store
                         </th>
-                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     {{if gt (len .Groceries) 0}}
                     {{range .Groceries}}
                     <tr>
+                        <td><button class="removeRowBtn">×</button></td>
                         <td><input name="product" value="{{.Product}}"></td>
                         <td><input name="amount" value="{{.Amount}}"></td>
                         <td><input name="brand" value="{{.Brand}}"></td>
                         <td><input name="store" value="{{.Store}}"></td>
-                        <td><button class="removeRowBtn">×</button></td>
                     </tr>
                     {{end}}
                     {{end}}
                 </tbody>
             </table>
-            <button type="submit">Save</button>
         </form>
     </main>
     <script src="/static/script.js"></script>

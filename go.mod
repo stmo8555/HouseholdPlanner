@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.9.1
 	github.com/openai/openai-go/v3 v3.30.0
+	github.com/robfig/cron/v3 v3.0.1
 	golang.org/x/crypto v0.48.0
 	golang.org/x/net v0.51.0
 )
