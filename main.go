@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"github.com/robfig/cron/v3"
+	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
+	"github.com/stmo8555/HouseholdPlanner/internal/todos"
 	"github.com/stmo8555/HouseholdPlanner/pages"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 type LayoutData struct {
@@ -39,11 +41,8 @@ func main() {
 
 	auth := r.Group("/")
 	auth.Use(pages.AuthMiddleware(sessions))
-	auth.GET("/todos", func(c *gin.Context) { pages.List(c, conn) })
-
-	auth.POST("/todos/done", func(c *gin.Context) { pages.Done(c, conn) })
-	auth.POST("/todos/undo", func(c *gin.Context) { pages.Undo(c, conn) })
-	auth.POST("/todos/add", func(c *gin.Context) { pages.Add(c, conn) })
+	setupTodos(conn, auth)
+	setupRecipes(conn, auth)
 	auth.GET("/groceries", func(c *gin.Context) { pages.GroceriesHandleFunc(c, conn) })
 	auth.POST("/groceries", func(c *gin.Context) { pages.GroceriesPickHandleFunc(c, conn) })
 	auth.POST("/groceries/add", func(c *gin.Context) { pages.GroceriesAddHandleFunc(c, conn) })
@@ -51,22 +50,38 @@ func main() {
 	auth.POST("/groceries/delete/picked", func(c *gin.Context) { pages.GroceriesDeletePickedHandleFunc(c, conn) })
 	auth.POST("/groceries/extract", func(c *gin.Context) { pages.GroceriesExtractFromRecipeHandleFunc(c) })
 	auth.POST("/groceries/extracted", func(c *gin.Context) { pages.HandleAcceptGroceries(c, conn) })
-	auth.GET("/recipes", func(c *gin.Context) { pages.RecipesHandleFunc(c, conn) })
-	auth.POST("/recipes/add", func(c *gin.Context) { pages.RecipesAddHandleFunc(c, conn) })
 	auth.GET("/", indexHandleFunc)
 	// setup()
 
-	c := cron.New()
-	c.AddFunc("0 * * * *", func() {
-		pages.RemoveTodos(conn)
-	})
-	c.Start()
+	
 
 	// err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
 	err = r.Run(":8080")
 	if err != nil {
 		panic(err)
 	}
+}
+
+func setupTodos(conn *pgx.Conn, r *gin.RouterGroup) {
+	repo := &todos.Repo{DB: conn}
+	service := &todos.Service{Repo: repo}
+	handler := &todos.Handler{Service: service}
+
+	r.GET("/todos", handler.List)
+	r.POST("/todos/add", handler.Add)
+	r.POST("/todos/done", handler.MarkDone)
+	r.POST("/todos/undo", handler.MarkUnDone)
+
+	todos.RunCleanup(context.Background(), service)
+}
+
+func setupRecipes(conn *pgx.Conn, r *gin.RouterGroup) {
+	repo := &recipes.Repo{DB: conn}
+	service := &recipes.Service{Repo: repo}
+	handler := &recipes.Handler{Service: service}
+
+	r.GET("/recipes", handler.List)
+	r.POST("/recipes/add", handler.Add)
 }
 
 func setup() {
@@ -171,8 +186,10 @@ func indexHandleFunc(c *gin.Context) {
 		panic(err)
 	}
 
+	repo := &todos.Repo{DB: conn}
+	service := &todos.Service{Repo: repo}
 	var todos int
-	todos, err = pages.AmountOfTodos(conn, hid.(int))
+	todos, err = service.Count(context.Background(), hid.(int))
 
 	if err != nil {
 		panic(err)

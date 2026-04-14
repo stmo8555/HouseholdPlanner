@@ -1,10 +1,8 @@
-package pages
+package recipes
 
 import (
 	"context"
-	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"errors"
 	"golang.org/x/net/html"
 	"net/http"
 	"regexp"
@@ -12,73 +10,21 @@ import (
 	"strings"
 )
 
-type Recipe struct {
-	Id           int
-	Title        string `json:"title"`
-	Img_url      string `json:"img_url"`
-	Link         string `json:"link"`
-	Household_id int
+type Service struct {
+	Repo *Repo
 }
 
-func RecipesHandleFunc(c *gin.Context, conn *pgx.Conn) {
-	hid, ok := c.Get("household_id")
-
-	if !ok {
-		panic("failed to get household id from context")
-	}
-
-	sql := `
-        SELECT id, title, img_url, link, household_id
-        FROM recipes
-        WHERE household_id = $1;
-    `
-
-	rows, err := conn.Query(context.Background(), sql, hid)
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
-
-	var recipes []Recipe
-
-	for rows.Next() {
-		var r Recipe
-		err := rows.Scan(
-			&r.Id,
-			&r.Title,
-			&r.Img_url,
-			&r.Link,
-			&r.Household_id,
-		)
-
-		if err != nil {
-			panic(err)
-		}
-
-		recipes = append(recipes, r)
-	}
-
-	if rows.Err() != nil {
-		panic(rows.Err())
-	}
-
-	data := gin.H{
-		"Title":       "Groceries",
-		"CurrentPath": c.Request.URL.Path,
-		"Data":        recipes,
-	}
-	c.HTML(http.StatusOK, "recipes.html", data)
+func (s *Service) List(ctx context.Context, hid int) ([]Recipe, error) {
+	return s.Repo.List(ctx, hid)
 }
-
-func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
-	link := c.PostForm("link")
-	hid, ok := c.Get("household_id")
-	if !ok {
-		panic("failed to get household_id")
+func (s *Service) Add(c context.Context, hid int, link string) error {
+	if !strings.HasPrefix(link, "http") {
+		return errors.New("Recipe: Not an URL")
 	}
+
 	resp, err := http.Get(link)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer resp.Body.Close()
 
@@ -86,13 +32,13 @@ func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	doc, err = html.Parse(resp.Body)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	var recipe Recipe
 
 	recipe.Link = link
-	recipe.Household_id = hid.(int)
+	recipe.Household_id = hid
 
 	var findTitle func(n *html.Node)
 	findTitle = func(n *html.Node) {
@@ -125,7 +71,7 @@ func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	matchFactor := len(titleComponents)
 
 	if matchFactor < 1 {
-		panic("Title not found")
+		return errors.New("Title not found")
 	}
 
 	type item struct {
@@ -183,7 +129,7 @@ func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	findImg(doc)
 
 	if len(img_tags) < 1 {
-		panic("Did not find match for recipes images url")
+		return errors.New("Failed to find recipe image")
 	}
 
 	sort.Slice(img_tags, func(i, j int) bool {
@@ -192,19 +138,5 @@ func RecipesAddHandleFunc(c *gin.Context, conn *pgx.Conn) {
 
 	recipe.Img_url = img_tags[len(img_tags)-1].src
 
-	sql := `INSERT INTO recipes 
-	(title, img_url, link, household_id)
-	VALUES ($1, $2, $3, $4);`
-
-	_, err = conn.Exec(context.Background(), sql, recipe.Title, recipe.Img_url, recipe.Link, recipe.Household_id)
-
-	if err != nil {
-		panic(err)
-	}
-
-	for _, a := range img_tags {
-		fmt.Printf("%v <-> %v\n", a.points, a.src)
-	}
-
-	c.Redirect(302, "/recipes")
+	return s.Repo.Add(c, hid, recipe)
 }

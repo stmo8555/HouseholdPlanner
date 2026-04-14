@@ -12,9 +12,9 @@
             <button class="padding-inline-24px" type="submit">+ Add</button>
         </form>
         <div>
-            <h2>Active Tasks ({{len .Todos}})</h2>
+            <h2>Active Tasks ({{len .Active}})</h2>
             <ul>
-                {{range .Todos}}
+                {{range .Active}}
                 <li class="todo glass">
                     <p><strong>{{.Title}}</strong></p>
                     <form method="POST" action="/todos/done">

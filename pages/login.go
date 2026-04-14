@@ -97,6 +97,7 @@ func AuthMiddleware(sessions map[string]*Session) gin.HandlerFunc {
 		}
 
 		c.Set("household_id", *session.household_id)
+		fmt.Printf("Household id is set to %v\n", *session.household_id)
 
 		c.Next()
 	}
