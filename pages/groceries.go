@@ -25,7 +25,7 @@ type Grocery struct {
 	Picked       bool
 }
 
-type groceries struct {
+type Groceries struct {
 	Picked, NotPicked []Grocery
 }
 
@@ -178,27 +178,21 @@ func HandleAcceptGroceries(c *gin.Context, conn *pgx.Conn) {
 	c.Redirect(302, "/groceries")
 }
 
-func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
-	hid, ok := c.Get("household_id")
-
-	if !ok {
-		panic("failed to get household id from context")
-	}
-
+func GetGroceries(conn *pgx.Conn, household_id int) (*Groceries, error) {
 	sql := `
         SELECT id, product, brand, store, amount, household_id, picked 
         FROM groceries
         WHERE household_id = $1
-        ORDER BY product;
-    `
+        ORDER BY product;`
 
-	rows, err := conn.Query(context.Background(), sql, hid)
+	rows, err := conn.Query(context.Background(), sql, household_id)
 	if err != nil {
-		fmt.Println(err)
+		return nil, err
 	}
+
 	defer rows.Close()
 
-	var groceries groceries
+	var groceries Groceries
 
 	for rows.Next() {
 		var g Grocery
@@ -213,7 +207,7 @@ func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
 		)
 
 		if err != nil {
-			panic(err)
+			return nil, err
 		}
 
 		if g.Picked == false {
@@ -226,6 +220,40 @@ func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
 	if rows.Err() != nil {
 		fmt.Println(rows.Err())
 	}
+
+	return &groceries, nil
+}
+
+func AmountOfUnpickedGroceries(ctx context.Context, conn *pgx.Conn, hid int) (int, error) {
+	sql := `
+        SELECT COUNT(*)
+        FROM groceries
+        WHERE household_id = $1 AND NOT picked;
+    `
+
+	var count int
+
+	err := conn.QueryRow(ctx, sql, hid).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
+func GroceriesHandleFunc(c *gin.Context, conn *pgx.Conn) {
+	hid, ok := c.Get("household_id")
+
+	if !ok {
+		panic("failed to get household id from context")
+	}
+
+	groceries, err := GetGroceries(conn, hid.(int))
+
+	if err != nil {
+		panic(err)
+	}
+
 	var topProducts []string
 	topProducts, err = getTopProducts(conn, hid.(int))
 

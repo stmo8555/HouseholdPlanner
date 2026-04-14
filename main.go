@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"github.com/robfig/cron/v3"
@@ -160,7 +159,31 @@ func deleteUser(conn *pgx.Conn) {
 }
 
 func indexHandleFunc(c *gin.Context) {
-	data := LayoutData{Title: "Home", CurrentPath: c.Request.URL.Path, Data: nil}
-	fmt.Println("-------------------- " + c.Request.URL.Path)
+	hid, ok := c.Get("household_id")
+
+	if !ok {
+		panic("failed to get household id from context")
+	}
+
+	groceries, err := pages.AmountOfUnpickedGroceries(context.Background(), conn, hid.(int))
+
+	if err != nil {
+		panic(err)
+	}
+
+	var todos int
+	todos, err = pages.AmountOfTodos(conn, hid.(int))
+
+	if err != nil {
+		panic(err)
+	}
+
+	data := gin.H{
+		"Title":       "Home",
+		"CurrentPath": c.Request.URL.Path,
+		"Todos":       todos,
+		"Groceries":   groceries,
+	}
+
 	c.HTML(http.StatusOK, "index.html", data)
 }

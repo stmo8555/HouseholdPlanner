@@ -17,6 +17,21 @@ type Todos struct {
 	Completed_at sql.NullTime
 }
 
+func AmountOfTodos(conn *pgx.Conn, hid int) (int, error) {
+	sql := `
+        SELECT COUNT (*)
+        FROM todos
+        WHERE household_id = $1;`
+
+	var count int
+
+	err := conn.QueryRow(context.Background(), sql, hid).Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	
+	return count, nil
+}
 func Done(c *gin.Context, conn *pgx.Conn) {
 	hid, ok := c.Get("household_id")
 

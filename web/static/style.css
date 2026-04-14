@@ -6,7 +6,7 @@
     --text-lightly-dimmed: rgba(255, 255, 255, 0.5);
     --text-dimmed: rgba(255, 255, 255, 0.2);
     --shadow: rgba(0, 0, 0, 0.1);
-    --td-input: rgba(25, 25, 255, 0.1);
+    --accent-light: rgba(25, 25, 255, 0.1);
     --input-contrast: rgba(0, 0, 0, 0.2);
     --placeholder: rgba(255, 255, 255, 0.8);
     --accent: hotpink;
@@ -22,10 +22,10 @@
         --text-lightly-dimmed: rgba(255, 255, 255, 0.5);
         --text-dimmed: rgba(255, 255, 255, 0.2);
         --shadow: rgba(255, 255, 255, 0.1);
-        --td-input: #0B8282;
         --input-contrast: rgba(255, 255, 255, 0.1);
         --placeholder: rgba(255, 255, 255, 0.8);
         --accent: #096C6C;
+        --accent-light: #0B8282;
         --accent-dark: #075656;
     }
 }
@@ -189,7 +189,7 @@ th:first-child {
     th:hover {
         border-start-start-radius: 10px;
         border-start-end-radius: 10px;
-        background: var(--td-input);
+        background: var(--accent-light);
         overflow: hidden;
     }
 
@@ -207,7 +207,7 @@ td input {
 }
 
 td input {
-    background: var(--td-input);
+    background: var(--accent-light);
     padding-block: 10px;
     padding-inline: 5px;
     border: none;
@@ -528,6 +528,28 @@ nav ul li a {
     }
 }
 
+.ai-prompt {
+    @media screen and (min-width: 500px) {
+        grid-column: span 2;
+    }
+}
+
+.home-wrapper {
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(1, 1fr);
+
+    @media screen and (min-width: 500px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.circle {
+    background: var(--accent-light);
+    border-radius: 100%;
+    padding: 5px;
+}
+
 /* Utilities */
 .margin-inline-24px {
     margin-inline: 24px;
@@ -539,4 +561,24 @@ nav ul li a {
 
 .padding-inline-24px {
     padding-inline: 24px;
+}
+
+.margin-block-end-12px {
+    margin-block-end: 12px;
+}
+
+.flex {
+    display: flex;
+}
+
+.space-between {
+    justify-content: space-between;
+}
+
+.align-items {
+    align-items: center;
+}
+
+.space-evenly {
+    justify-content: space-evenly;
 }

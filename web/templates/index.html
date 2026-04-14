@@ -6,28 +6,61 @@
 <body>
     {{template "header" .}}
     <main>
-        <h2>coool grid</h2>
-        <div class="glass padding-inline-24px margin-block-end-24px">
-            <h2>Your ai friend</h2>
-            <label>Text</label>
-            <input placeholder="e.g. Jag " type="search">
-            <button>groceries</button>
-            <button>chores</button>
-        </div>
-  
-        <div class="glass padding-inline-24px margin-block-end-24px">
-            <p>random recipe</p>
-        </div>
-        <div class="glass padding-inline-24px margin-block-end-24px">
-            <p>amount of groceries to be bought redirect???</p>
-            <p>amount of todos</p>
-        </div>
-        <div class="glass padding-inline-24px margin-block-end-24px">
-            <p>quick add grocery just product</p>
-            <p>quick add recipe from link</q>
-        </div>
+        <div class="home-wrapper margin-block-end-24px">
+            <div class="glass padding-inline-24px ai-prompt">
+                <h2>Your AI friend</h2>
+                <form class="todo-form margin-block-end-24px" method="post" action="/todos/add">
+                    <label class="glass" for="1">
+                        <!-- swap with textarea -->
+                        <input placeholder="What do you want me to add..." id="1" type="text" name="todo" required>
+                    </label>
+                    <button class="" type="submit"><img src="/static/assets/send.svg"></button>
+                </form>
+            </div>
 
-        <p>Add dejt page</p>
+            <div class="glass padding-inline-24px">
+                <h3>Recipe of the Day</h3>
+                <img style="height: 100px;"
+                    src="https://www.peelwithzeal.com/wp-content/uploads/2022/08/cajun-garlic-butter-sauce-4-1024x1536.jpg">
+                <p>random recipe</p>
+            </div>
+            <div class="glass padding-inline-24px">
+                <h3>Quick Overview</h3>
+                <div class="glass padding-inline-24px flex space-between align-items margin-block-end-12px">
+                    <div>
+                        <small>Active Tasks</small>
+                        <p><strong>{{.Todos}}</strong></p>
+                    </div>
+                    <img class="circle" src="/static/assets/check.svg">
+                </div>
+                <div class="glass padding-inline-24px flex space-between align-items margin-block-end-24px">
+                    <div>
+                        <small>Groceries to Buy</small>
+                        <p><strong>{{.Groceries}}</strong></p>
+                    </div>
+                    <img class="circle" src="/static/assets/shopping-cart.svg">
+                </div>
+
+            </div>
+            <div class="glass padding-inline-24px">
+                <h3>Quick Add Grocery</h3>
+                <form class="todo-form margin-block-end-24px" method="post" action="/todos/add">
+                    <label class="glass" for="1">
+                        <input placeholder="Enter product name..." id="1" type="text" name="todo" required>
+                    </label>
+                    <button class="" type="submit">+</button>
+                </form>
+            </div>
+            <div class="glass padding-inline-24px">
+                <h3>Quick Add Recipe</h3>
+                <form class="todo-form margin-block-end-24px" method="post" action="/todos/add">
+                    <label class="glass" for="1">
+                        <input placeholder="Paste recipe link..." id="1" type="text" name="todo" required>
+                    </label>
+                    <button class="" type="submit">+</button>
+                </form>
+            </div>
+        </div>
     </main>
     {{template "footer" .}}
     <script src="/static/script.js"></script>
