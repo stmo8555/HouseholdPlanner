@@ -2,14 +2,14 @@ package main
 
 import (
 	"context"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/stmo8555/HouseholdPlanner/internal/login"
 	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
 	"github.com/stmo8555/HouseholdPlanner/internal/todos"
 	"github.com/stmo8555/HouseholdPlanner/pages"
 	"golang.org/x/crypto/bcrypt"
+	"net/http"
 )
 
 type LayoutData struct {
@@ -30,17 +30,17 @@ func main() {
 
 	defer conn.Close(context.Background())
 
-	sessions := make(map[string]*pages.Session, 2)
 	r := gin.Default()
 	r.LoadHTMLGlob("web/templates/*.html")
-
 	r.Static("/static/", "web/static")
-	r.GET("/login", pages.LoginHandleFunc)
-	r.POST("/login", func(c *gin.Context) { pages.AuthHandleFunc(c, conn, sessions) })
-	r.GET("/logout", func(c *gin.Context) { pages.LogoutHandlerFunc(c, sessions) })
 
+	repo := &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}
+	service := &login.Service{Repo: repo}
+	handler := &login.Handler{Service: service}
+
+	setupLogin(conn, r, handler)
 	auth := r.Group("/")
-	auth.Use(pages.AuthMiddleware(sessions))
+	auth.Use(login.AuthMiddleware(service))
 	setupTodos(conn, auth)
 	setupRecipes(conn, auth)
 	auth.GET("/groceries", func(c *gin.Context) { pages.GroceriesHandleFunc(c, conn) })
@@ -53,13 +53,17 @@ func main() {
 	auth.GET("/", indexHandleFunc)
 	// setup()
 
-	
-
 	// err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
 	err = r.Run(":8080")
 	if err != nil {
 		panic(err)
 	}
+}
+
+func setupLogin(conn *pgx.Conn, r *gin.Engine, h *login.Handler) {
+	r.GET("/login", h.Login)
+	r.POST("/login", h.Authenticate)
+	r.GET("/logout", h.Logout)
 }
 
 func setupTodos(conn *pgx.Conn, r *gin.RouterGroup) {
@@ -174,13 +178,9 @@ func deleteUser(conn *pgx.Conn) {
 }
 
 func indexHandleFunc(c *gin.Context) {
-	hid, ok := c.Get("household_id")
+	hid := c.GetInt("household_id")
 
-	if !ok {
-		panic("failed to get household id from context")
-	}
-
-	groceries, err := pages.AmountOfUnpickedGroceries(context.Background(), conn, hid.(int))
+	groceries, err := pages.AmountOfUnpickedGroceries(context.Background(), conn, hid)
 
 	if err != nil {
 		panic(err)
@@ -189,7 +189,7 @@ func indexHandleFunc(c *gin.Context) {
 	repo := &todos.Repo{DB: conn}
 	service := &todos.Service{Repo: repo}
 	var todos int
-	todos, err = service.Count(context.Background(), hid.(int))
+	todos, err = service.Count(context.Background(), hid)
 
 	if err != nil {
 		panic(err)
