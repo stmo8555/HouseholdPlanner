@@ -6,6 +6,8 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+const fakeHash = "$2a$10$7EqJtq98hPqEX7fNZaFWoOePaWxn96p36C1p0uZ1tcHTTX3e8DqGa"
+
 type Service struct {
 	Repo *Repo
 }
@@ -18,10 +20,11 @@ func (s *Service) Authenticate(ctx context.Context, uname, pwd string) string {
 	user, err := s.Repo.SelectUser(ctx, uname)
 
 	if err != nil {
+		bcrypt.CompareHashAndPassword([]byte(fakeHash), []byte(pwd))
 		return ""
 	}
 
-	if !verifyPassword(pwd, user.Hash) {
+	if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(pwd)) != nil {
 		return ""
 	}
 
