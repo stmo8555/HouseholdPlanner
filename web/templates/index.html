@@ -10,9 +10,9 @@
             <div class="glass padding-inline-24px ai-prompt">
                 <h2>Your AI friend</h2>
                 <form class="todo-form margin-block-end-24px" method="post" action="/todos/add">
-                    <label class="glass" for="1">
+                    <label class="glass" for="ai">
                         <!-- swap with textarea -->
-                        <input placeholder="What do you want me to add..." id="1" type="text" name="todo" required>
+                        <input placeholder="What do you want me to add..." id="ai" type="text" name="todo" required>
                     </label>
                     <button class="" type="submit"><img src="/static/assets/send.svg"></button>
                 </form>
@@ -26,36 +26,36 @@
             </div>
             <div class="glass padding-inline-24px">
                 <h3>Quick Overview</h3>
-                <div class="glass padding-inline-24px flex space-between align-items margin-block-end-12px">
+                <a href="/todos" class="glass padding-inline-24px flex space-between align-items margin-block-end-12px">
                     <div>
                         <small>Active Tasks</small>
                         <p><strong>{{.Todos}}</strong></p>
                     </div>
                     <img class="circle" src="/static/assets/check.svg">
-                </div>
-                <div class="glass padding-inline-24px flex space-between align-items margin-block-end-24px">
+                </a>
+                <a href="/groceries" class="glass padding-inline-24px flex space-between align-items margin-block-end-24px">
                     <div>
                         <small>Groceries to Buy</small>
                         <p><strong>{{.Groceries}}</strong></p>
                     </div>
                     <img class="circle" src="/static/assets/shopping-cart.svg">
-                </div>
+                </a>
 
             </div>
             <div class="glass padding-inline-24px">
                 <h3>Quick Add Grocery</h3>
-                <form class="todo-form margin-block-end-24px" method="post" action="/todos/add">
-                    <label class="glass" for="1">
-                        <input placeholder="Enter product name..." id="1" type="text" name="todo" required>
+                <form class="todo-form margin-block-end-24px" method="post" action="/home/add/grocery">
+                    <label class="glass" for="grocery">
+                        <input placeholder="Enter product name..." id="grocery" type="text" name="product" required>
                     </label>
                     <button class="" type="submit">+</button>
                 </form>
             </div>
             <div class="glass padding-inline-24px">
                 <h3>Quick Add Recipe</h3>
-                <form class="todo-form margin-block-end-24px" method="post" action="/todos/add">
-                    <label class="glass" for="1">
-                        <input placeholder="Paste recipe link..." id="1" type="text" name="todo" required>
+                <form class="todo-form margin-block-end-24px" method="post" action="/home/add/recipe">
+                    <label class="glass" for="recipe">
+                        <input placeholder="Paste recipe link..." id="recipe" type="text" name="recipe" required>
                     </label>
                     <button class="" type="submit">+</button>
                 </form>

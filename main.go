@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
-	"net/http"
 
 	"github.com/stmo8555/HouseholdPlanner/internal/groceries"
+	"github.com/stmo8555/HouseholdPlanner/internal/home"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
 	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
 	"github.com/stmo8555/HouseholdPlanner/internal/todos"
@@ -36,24 +36,24 @@ func main() {
 
 	defer conn.Close(context.Background())
 
-	r := gin.Default()
-	r.LoadHTMLGlob("web/templates/*.html")
-	r.Static("/static/", "web/static")
-
 	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
 	todosService = &todos.Service{Repo: &todos.Repo{DB: conn}}
 	recipesService = &recipes.Service{Repo: &recipes.Repo{DB: conn}}
 	groceriesService = &groceries.Service{Repo: &groceries.Repo{DB: conn}}
 
+	r := gin.Default()
+	r.LoadHTMLGlob("web/templates/*.html")
+	r.Static("/static/", "web/static")
+	setupLogin(r)
+
 	auth := r.Group("/")
 	auth.Use(login.AuthMiddleware(loginService))
 
-	setupLogin(r)
 	setupTodos(auth)
 	setupRecipes(auth)
 	setupGroceries(auth)
-	auth.GET("/", indexHandleFunc)
-	 
+	setupHome(auth)
+
 	// setup()
 	// err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
 	err = r.Run(":8080")
@@ -97,6 +97,20 @@ func setupGroceries(r *gin.RouterGroup) {
 	r.POST("/groceries/delete/picked", handler.DeletePicked)
 	r.POST("/groceries/extract", handler.IngredientsFromRecipe)
 	r.POST("/groceries/extracted", handler.AcceptExtractedGroceries)
+}
+
+func setupHome(r *gin.RouterGroup) {
+	handler := &home.Handler{
+		GroceriesService: groceriesService,
+		LoginService:     loginService,
+		RecipesService:   recipesService,
+		TodosService:     todosService,
+	}
+
+	r.GET("/", handler.Index)
+	r.GET("/home", handler.Index)
+	r.POST("/home/add/grocery", handler.AddGrocery)
+	r.POST("/home/add/recipe", handler.AddRecipe)
 }
 
 func setup() {
@@ -187,32 +201,4 @@ func deleteUser(conn *pgx.Conn) {
 	if err != nil {
 		panic("Failed to to delete user: " + err.Error())
 	}
-}
-
-func indexHandleFunc(c *gin.Context) {
-	hid := c.GetInt("household_id")
-
-	groceries, err := groceriesService.CountUnpicked(c, hid)
-
-	if err != nil {
-		panic(err)
-	}
-
-	repo := &todos.Repo{DB: conn}
-	service := &todos.Service{Repo: repo}
-	var todos int
-	todos, err = service.Count(context.Background(), hid)
-
-	if err != nil {
-		panic(err)
-	}
-
-	data := gin.H{
-		"Title":       "Home",
-		"CurrentPath": c.Request.URL.Path,
-		"Todos":       todos,
-		"Groceries":   groceries,
-	}
-
-	c.HTML(http.StatusOK, "index.html", data)
 }

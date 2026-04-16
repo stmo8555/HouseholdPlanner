@@ -141,7 +141,7 @@ func (h *Handler) Edit(c *gin.Context) {
 		panic(err)
 	}
 
-	h.Service.Edit(c, groceries, c.GetInt("household_id") )
+	err = h.Service.Edit(c, groceries, c.GetInt("household_id") )
 
 	if err != nil {
 		c.AbortWithStatus(500)

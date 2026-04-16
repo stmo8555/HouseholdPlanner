@@ -10,7 +10,8 @@
     --input-contrast: rgba(0, 0, 0, 0.2);
     --placeholder: rgba(255, 255, 255, 0.8);
     --accent: hotpink;
-    --accent-dark: #4F0048;
+    --accent-light: #FF87C3;
+    --accent-dark: #FF0581;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -64,6 +65,10 @@ h1 {
 
 a {
     text-decoration: none;
+}
+
+input {
+    caret-color: var(--text);
 }
 
 ul {
