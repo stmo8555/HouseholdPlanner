@@ -4,12 +4,13 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"golang.org/x/crypto/bcrypt"
+	"net/http"
+
+	"github.com/stmo8555/HouseholdPlanner/internal/groceries"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
 	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
 	"github.com/stmo8555/HouseholdPlanner/internal/todos"
-	"github.com/stmo8555/HouseholdPlanner/pages"
-	"golang.org/x/crypto/bcrypt"
-	"net/http"
 )
 
 type LayoutData struct {
@@ -19,6 +20,11 @@ type LayoutData struct {
 }
 
 var conn *pgx.Conn
+
+var loginService *login.Service
+var todosService *todos.Service
+var recipesService *recipes.Service
+var groceriesService *groceries.Service
 
 func main() {
 	var err error
@@ -34,25 +40,21 @@ func main() {
 	r.LoadHTMLGlob("web/templates/*.html")
 	r.Static("/static/", "web/static")
 
-	repo := &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}
-	service := &login.Service{Repo: repo}
-	handler := &login.Handler{Service: service}
+	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
+	todosService = &todos.Service{Repo: &todos.Repo{DB: conn}}
+	recipesService = &recipes.Service{Repo: &recipes.Repo{DB: conn}}
+	groceriesService = &groceries.Service{Repo: &groceries.Repo{DB: conn}}
 
-	setupLogin(conn, r, handler)
 	auth := r.Group("/")
-	auth.Use(login.AuthMiddleware(service))
-	setupTodos(conn, auth)
-	setupRecipes(conn, auth)
-	auth.GET("/groceries", func(c *gin.Context) { pages.GroceriesHandleFunc(c, conn) })
-	auth.POST("/groceries", func(c *gin.Context) { pages.GroceriesPickHandleFunc(c, conn) })
-	auth.POST("/groceries/add", func(c *gin.Context) { pages.GroceriesAddHandleFunc(c, conn) })
-	auth.POST("/groceries/edit", func(c *gin.Context) { pages.GroceriesEditHandleFunc(c, conn) })
-	auth.POST("/groceries/delete/picked", func(c *gin.Context) { pages.GroceriesDeletePickedHandleFunc(c, conn) })
-	auth.POST("/groceries/extract", func(c *gin.Context) { pages.GroceriesExtractFromRecipeHandleFunc(c) })
-	auth.POST("/groceries/extracted", func(c *gin.Context) { pages.HandleAcceptGroceries(c, conn) })
-	auth.GET("/", indexHandleFunc)
-	// setup()
+	auth.Use(login.AuthMiddleware(loginService))
 
+	setupLogin(r)
+	setupTodos(auth)
+	setupRecipes(auth)
+	setupGroceries(auth)
+	auth.GET("/", indexHandleFunc)
+	 
+	// setup()
 	// err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
 	err = r.Run(":8080")
 	if err != nil {
@@ -60,32 +62,41 @@ func main() {
 	}
 }
 
-func setupLogin(conn *pgx.Conn, r *gin.Engine, h *login.Handler) {
-	r.GET("/login", h.Login)
-	r.POST("/login", h.Authenticate)
-	r.GET("/logout", h.Logout)
+func setupLogin(r *gin.Engine) {
+	handler := &login.Handler{Service: loginService}
+	r.GET("/login", handler.Login)
+	r.POST("/login", handler.Authenticate)
+	r.GET("/logout", handler.Logout)
 }
 
-func setupTodos(conn *pgx.Conn, r *gin.RouterGroup) {
-	repo := &todos.Repo{DB: conn}
-	service := &todos.Service{Repo: repo}
-	handler := &todos.Handler{Service: service}
+func setupTodos(r *gin.RouterGroup) {
+	handler := &todos.Handler{Service: todosService}
 
 	r.GET("/todos", handler.List)
 	r.POST("/todos/add", handler.Add)
 	r.POST("/todos/done", handler.MarkDone)
 	r.POST("/todos/undo", handler.MarkUnDone)
 
-	todos.RunCleanup(context.Background(), service)
+	todos.RunCleanup(context.Background(), todosService)
 }
 
-func setupRecipes(conn *pgx.Conn, r *gin.RouterGroup) {
-	repo := &recipes.Repo{DB: conn}
-	service := &recipes.Service{Repo: repo}
-	handler := &recipes.Handler{Service: service}
+func setupRecipes(r *gin.RouterGroup) {
+	handler := &recipes.Handler{Service: recipesService}
 
 	r.GET("/recipes", handler.List)
 	r.POST("/recipes/add", handler.Add)
+}
+
+func setupGroceries(r *gin.RouterGroup) {
+	handler := &groceries.Handler{Service: groceriesService}
+
+	r.GET("/groceries", handler.List)
+	r.POST("/groceries", handler.TogglePicked)
+	r.POST("/groceries/add", handler.Add)
+	r.POST("/groceries/edit", handler.Edit)
+	r.POST("/groceries/delete/picked", handler.DeletePicked)
+	r.POST("/groceries/extract", handler.IngredientsFromRecipe)
+	r.POST("/groceries/extracted", handler.AcceptExtractedGroceries)
 }
 
 func setup() {
@@ -93,21 +104,22 @@ func setup() {
 	hid := createHousehold(id, "la casa")
 	id = addUserRetreiveId("Anna", "gurk")
 	joinHousehold(id, hid)
-	g1 := pages.Grocery{Product: "skinka", Household_id: hid}
-	g2 := pages.Grocery{Product: "mjölk", Household_id: hid}
-	g3 := pages.Grocery{Product: "lök", Household_id: hid}
-	g4 := pages.Grocery{Product: "tomat", Household_id: hid}
-	g5 := pages.Grocery{Product: "vispgrädde", Household_id: hid}
-	g6 := pages.Grocery{Product: "bröd", Household_id: hid}
-	g7 := pages.Grocery{Product: "persilja", Household_id: hid}
-	g8 := pages.Grocery{Product: "linguini", Household_id: hid}
-	g9 := pages.Grocery{Product: "billys", Household_id: hid}
-	g10 := pages.Grocery{Product: "oatly", Household_id: hid}
-	g11 := pages.Grocery{Product: "bregott", Household_id: hid}
-	groceries := [...]pages.Grocery{g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11}
-	for _, g := range groceries {
-		for range 10 {
-			pages.AddToHistory(conn, g)
+	g1 := groceries.Grocery{Product: "skinka", HouseholdID: hid}
+	g2 := groceries.Grocery{Product: "mjölk", HouseholdID: hid}
+	g3 := groceries.Grocery{Product: "lök", HouseholdID: hid}
+	g4 := groceries.Grocery{Product: "tomat", HouseholdID: hid}
+	g5 := groceries.Grocery{Product: "vispgrädde", HouseholdID: hid}
+	g6 := groceries.Grocery{Product: "bröd", HouseholdID: hid}
+	g7 := groceries.Grocery{Product: "persilja", HouseholdID: hid}
+	g8 := groceries.Grocery{Product: "linguini", HouseholdID: hid}
+	g9 := groceries.Grocery{Product: "billys", HouseholdID: hid}
+	g10 := groceries.Grocery{Product: "oatly", HouseholdID: hid}
+	g11 := groceries.Grocery{Product: "bregott", HouseholdID: hid}
+	gs := [...]groceries.Grocery{g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11}
+
+	for _, g := range gs {
+		for range 5 {
+			groceries.AddToHistory(conn, context.Background(), g)
 		}
 	}
 }
@@ -180,7 +192,7 @@ func deleteUser(conn *pgx.Conn) {
 func indexHandleFunc(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceries, err := pages.AmountOfUnpickedGroceries(context.Background(), conn, hid)
+	groceries, err := groceriesService.CountUnpicked(c, hid)
 
 	if err != nil {
 		panic(err)
