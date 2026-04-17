@@ -9,9 +9,9 @@
     --accent-light: rgba(25, 25, 255, 0.1);
     --input-contrast: rgba(0, 0, 0, 0.2);
     --placeholder: rgba(255, 255, 255, 0.8);
-    --accent: hotpink;
-    --accent-light: #FF87C3;
-    --accent-dark: #FF0581;
+    --accent: #EEAECA;
+    --accent-light: #F7D7E5;
+    --accent-dark: #D485A6 ;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -555,6 +555,11 @@ nav ul li a {
     padding: 5px;
 }
 
+.grid-4{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
 /* Utilities */
 .margin-inline-24px {
     margin-inline: 24px;
@@ -562,6 +567,10 @@ nav ul li a {
 
 .margin-block-end-24px {
     margin-block-end: 24px;
+}
+
+.gap-6px {
+    gap: 6px;
 }
 
 .padding-inline-24px {
@@ -578,6 +587,10 @@ nav ul li a {
 
 .space-between {
     justify-content: space-between;
+}
+
+.text-align-center {
+    text-align: center;
 }
 
 .align-items {

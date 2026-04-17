@@ -2,17 +2,21 @@ package home
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
+	"github.com/stmo8555/HouseholdPlanner/internal/groceries"
+	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
+	"github.com/stmo8555/HouseholdPlanner/internal/todos"
 )
 
 type Service struct {
 }
 
 var (
-templatePrompt = `You are a structured data extraction engine.
+	templatePrompt = `You are a structured data extraction engine.
 
 Your task is to read a natural language input (primarily Swedish, but sometimes English) and convert it into a JSON array of typed objects.
 
@@ -85,9 +89,10 @@ LANGUAGE:
 Preserve original language (Swedish/English mix allowed).
 
 Convert the following input:
-%s`)
+%s`
+)
 
-func (s *Service) AI(ctx context.Context, question string) string {
+func (s *Service) AI(ctx context.Context, question string) Content {
 
 	client := openai.NewClient()
 
@@ -101,6 +106,30 @@ func (s *Service) AI(ctx context.Context, question string) string {
 		panic(ai_err)
 	}
 
-	return ai_resp.OutputText()
+	var envelopes []Envelope
 
+	json.Unmarshal([]byte(ai_resp.OutputText()), &envelopes)
+
+	gs := make([]groceries.Grocery, 0)
+	rs := make([]recipes.Recipe, 0)
+	ts := make([]todos.Todo, 0)
+
+	for _, e := range envelopes {
+		switch e.Type {
+		case "grocery":
+			var g groceries.Grocery
+			json.Unmarshal(e.Data, &g)
+			gs = append(gs, g)
+		case "todo":
+			var t todos.Todo
+			json.Unmarshal(e.Data, &t)
+			ts = append(ts, t)
+		case "recipe":
+			var r recipes.Recipe
+			json.Unmarshal(e.Data, &r)
+			rs = append(rs, r)
+		}
+	}
+
+	return Content{Groceries: gs, Todos: ts, Recipes: rs}
 }

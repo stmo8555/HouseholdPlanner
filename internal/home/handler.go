@@ -2,7 +2,6 @@ package home
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -18,7 +17,7 @@ type Handler struct {
 	LoginService     *login.Service
 	RecipesService   *recipes.Service
 	TodosService     *todos.Service
-	Service *Service
+	Service          *Service
 }
 
 func (h *Handler) Index(c *gin.Context) {
@@ -98,8 +97,13 @@ func (h *Handler) AI(c *gin.Context) {
 		return
 	}
 
-	answer := h.Service.AI(c, question)
+	content := h.Service.AI(c, question)
 
-	fmt.Println(answer)
+	data := gin.H{
+		"Groceries": content.Groceries,
+		"Todos":     content.Todos,
+		"Recipes":   content.Recipes,
+	}
+
+	c.HTML(200, "ai_extraction.html", data)
 }
-

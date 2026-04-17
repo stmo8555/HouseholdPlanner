@@ -6,7 +6,12 @@
 <body>
     {{template "header" .}}
     <main>
-        <button type="submit" form="exractedForm" class="margin-block-end-24px">Save</button>
+        <div class="margin-block-end-24px flex gap-6px">
+            <button type="submit" form="exractedForm">Save</button>
+            <form action="/groceries" method="GET">
+                <button type="submit">Cancel</button>
+            </form>
+        </div>
         <form action="/groceries/extracted" id="exractedForm" method="POST"
             class='glass margin-block-end-24px padding-inline-24px'>
             <h2>Extracted from recipe ({{ len .Groceries }} items)</h2>
