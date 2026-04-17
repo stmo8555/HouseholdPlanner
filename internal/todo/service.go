@@ -1,4 +1,4 @@
-package todos
+package todo
 
 import (
 	"context"

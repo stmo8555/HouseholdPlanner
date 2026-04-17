@@ -6,17 +6,17 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/stmo8555/HouseholdPlanner/internal/groceries"
+	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
-	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
-	"github.com/stmo8555/HouseholdPlanner/internal/todos"
+	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
+	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
 
 type Handler struct {
-	GroceriesService *groceries.Service
+	GroceriesService *grocery.Service
 	LoginService     *login.Service
-	RecipesService   *recipes.Service
-	TodosService     *todos.Service
+	RecipesService   *recipe.Service
+	TodosService     *todo.Service
 	Service          *Service
 }
 
@@ -56,8 +56,8 @@ func (h *Handler) AddGrocery(c *gin.Context) {
 		panic(errors.New("No product value in home add grocery"))
 	}
 
-	grocery := groceries.Grocery{Product: product, HouseholdID: hid}
-	err := h.GroceriesService.AddGroceries(c, []groceries.Grocery{grocery})
+	groceryItem := grocery.Grocery{Product: product, HouseholdID: hid}
+	err := h.GroceriesService.AddGroceries(c, []grocery.Grocery{groceryItem})
 
 	if err != nil {
 		c.AbortWithStatus(500)

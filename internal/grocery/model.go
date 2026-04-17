@@ -1,4 +1,4 @@
-package groceries
+package grocery
 
 type Grocery struct {
 	Id          int    `json:"id"`

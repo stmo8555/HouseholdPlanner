@@ -7,9 +7,9 @@ import (
 
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
-	"github.com/stmo8555/HouseholdPlanner/internal/groceries"
-	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
-	"github.com/stmo8555/HouseholdPlanner/internal/todos"
+	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
+	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
+	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
 
 type Service struct {
@@ -110,26 +110,26 @@ func (s *Service) AI(ctx context.Context, question string) Content {
 
 	json.Unmarshal([]byte(ai_resp.OutputText()), &envelopes)
 
-	gs := make([]groceries.Grocery, 0)
-	rs := make([]recipes.Recipe, 0)
-	ts := make([]todos.Todo, 0)
+	groceries := make([]grocery.Grocery, 0)
+	recipes := make([]recipe.Recipe, 0)
+	todos := make([]todo.Todo, 0)
 
 	for _, e := range envelopes {
 		switch e.Type {
 		case "grocery":
-			var g groceries.Grocery
+			var g grocery.Grocery
 			json.Unmarshal(e.Data, &g)
-			gs = append(gs, g)
+			groceries = append(groceries, g)
 		case "todo":
-			var t todos.Todo
+			var t todo.Todo
 			json.Unmarshal(e.Data, &t)
-			ts = append(ts, t)
+			todos = append(todos, t)
 		case "recipe":
-			var r recipes.Recipe
+			var r recipe.Recipe
 			json.Unmarshal(e.Data, &r)
-			rs = append(rs, r)
+			recipes = append(recipes, r)
 		}
 	}
 
-	return Content{Groceries: gs, Todos: ts, Recipes: rs}
+	return Content{Groceries: groceries, Todos: todos, Recipes: recipes}
 }

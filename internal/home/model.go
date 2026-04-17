@@ -2,9 +2,9 @@ package home
 
 import (
 	"encoding/json"
-	"github.com/stmo8555/HouseholdPlanner/internal/groceries"
-	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
-	"github.com/stmo8555/HouseholdPlanner/internal/todos"
+	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
+	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
+	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
 
 type Envelope struct {
@@ -13,7 +13,7 @@ type Envelope struct {
 }
 
 type Content struct {
-	Groceries []groceries.Grocery
-	Recipes   []recipes.Recipe
-	Todos     []todos.Todo
+	Groceries []grocery.Grocery
+	Recipes   []recipe.Recipe
+	Todos     []todo.Todo
 }

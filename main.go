@@ -6,11 +6,11 @@ import (
 	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/stmo8555/HouseholdPlanner/internal/groceries"
+	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
 	"github.com/stmo8555/HouseholdPlanner/internal/home"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
-	"github.com/stmo8555/HouseholdPlanner/internal/recipes"
-	"github.com/stmo8555/HouseholdPlanner/internal/todos"
+	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
+	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
 
 type LayoutData struct {
@@ -22,9 +22,9 @@ type LayoutData struct {
 var conn *pgx.Conn
 
 var loginService *login.Service
-var todosService *todos.Service
-var recipesService *recipes.Service
-var groceriesService *groceries.Service
+var todosService *todo.Service
+var recipesService *recipe.Service
+var groceriesService *grocery.Service
 
 func main() {
 	var err error
@@ -37,9 +37,9 @@ func main() {
 	defer conn.Close(context.Background())
 
 	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
-	todosService = &todos.Service{Repo: &todos.Repo{DB: conn}}
-	recipesService = &recipes.Service{Repo: &recipes.Repo{DB: conn}}
-	groceriesService = &groceries.Service{Repo: &groceries.Repo{DB: conn}}
+	todosService = &todo.Service{Repo: &todo.Repo{DB: conn}}
+	recipesService = &recipe.Service{Repo: &recipe.Repo{DB: conn}}
+	groceriesService = &grocery.Service{Repo: &grocery.Repo{DB: conn}}
 
 	r := gin.Default()
 	r.LoadHTMLGlob("web/templates/*.html")
@@ -70,25 +70,25 @@ func setupLogin(r *gin.Engine) {
 }
 
 func setupTodos(r *gin.RouterGroup) {
-	handler := &todos.Handler{Service: todosService}
+	handler := &todo.Handler{Service: todosService}
 
 	r.GET("/todos", handler.List)
 	r.POST("/todos/add", handler.Add)
 	r.POST("/todos/done", handler.MarkDone)
 	r.POST("/todos/undo", handler.MarkUnDone)
 
-	todos.RunCleanup(context.Background(), todosService)
+	todo.RunCleanup(context.Background(), todosService)
 }
 
 func setupRecipes(r *gin.RouterGroup) {
-	handler := &recipes.Handler{Service: recipesService}
+	handler := &recipe.Handler{Service: recipesService}
 
 	r.GET("/recipes", handler.List)
 	r.POST("/recipes/add", handler.Add)
 }
 
 func setupGroceries(r *gin.RouterGroup) {
-	handler := &groceries.Handler{Service: groceriesService}
+	handler := &grocery.Handler{Service: groceriesService}
 
 	r.GET("/groceries", handler.List)
 	r.POST("/groceries", handler.TogglePicked)
@@ -119,22 +119,22 @@ func setup() {
 	hid := createHousehold(id, "la casa")
 	id = addUserRetreiveId("Anna", "gurk")
 	joinHousehold(id, hid)
-	g1 := groceries.Grocery{Product: "skinka", HouseholdID: hid}
-	g2 := groceries.Grocery{Product: "mjölk", HouseholdID: hid}
-	g3 := groceries.Grocery{Product: "lök", HouseholdID: hid}
-	g4 := groceries.Grocery{Product: "tomat", HouseholdID: hid}
-	g5 := groceries.Grocery{Product: "vispgrädde", HouseholdID: hid}
-	g6 := groceries.Grocery{Product: "bröd", HouseholdID: hid}
-	g7 := groceries.Grocery{Product: "persilja", HouseholdID: hid}
-	g8 := groceries.Grocery{Product: "linguini", HouseholdID: hid}
-	g9 := groceries.Grocery{Product: "billys", HouseholdID: hid}
-	g10 := groceries.Grocery{Product: "oatly", HouseholdID: hid}
-	g11 := groceries.Grocery{Product: "bregott", HouseholdID: hid}
-	gs := [...]groceries.Grocery{g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11}
+	g1 := grocery.Grocery{Product: "skinka", HouseholdID: hid}
+	g2 := grocery.Grocery{Product: "mjölk", HouseholdID: hid}
+	g3 := grocery.Grocery{Product: "lök", HouseholdID: hid}
+	g4 := grocery.Grocery{Product: "tomat", HouseholdID: hid}
+	g5 := grocery.Grocery{Product: "vispgrädde", HouseholdID: hid}
+	g6 := grocery.Grocery{Product: "bröd", HouseholdID: hid}
+	g7 := grocery.Grocery{Product: "persilja", HouseholdID: hid}
+	g8 := grocery.Grocery{Product: "linguini", HouseholdID: hid}
+	g9 := grocery.Grocery{Product: "billys", HouseholdID: hid}
+	g10 := grocery.Grocery{Product: "oatly", HouseholdID: hid}
+	g11 := grocery.Grocery{Product: "bregott", HouseholdID: hid}
+	gs := [...]grocery.Grocery{g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11}
 
 	for _, g := range gs {
 		for range 5 {
-			groceries.AddToHistory(conn, context.Background(), g)
+			grocery.AddToHistory(conn, context.Background(), g)
 		}
 	}
 }

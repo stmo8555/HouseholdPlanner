@@ -1,4 +1,4 @@
-package groceries
+package grocery
 
 import (
 	"strings"

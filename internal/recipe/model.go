@@ -1,4 +1,4 @@
-package recipes
+package recipe
 
 type Recipe struct {
 	Id           int
