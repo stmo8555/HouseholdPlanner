@@ -2,6 +2,7 @@ package home
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -17,6 +18,7 @@ type Handler struct {
 	LoginService     *login.Service
 	RecipesService   *recipes.Service
 	TodosService     *todos.Service
+	Service *Service
 }
 
 func (h *Handler) Index(c *gin.Context) {
@@ -85,3 +87,19 @@ func (h *Handler) AddRecipe(c *gin.Context) {
 
 	c.Redirect(302, "/home")
 }
+
+func (h *Handler) AI(c *gin.Context) {
+	// hid := c.GetInt("household_id")
+	question := c.PostForm("question")
+
+	if strings.TrimSpace(question) == "" {
+		c.AbortWithStatus(500)
+		c.String(500, errors.New("Not a valid question").Error())
+		return
+	}
+
+	answer := h.Service.AI(c, question)
+
+	fmt.Println(answer)
+}
+

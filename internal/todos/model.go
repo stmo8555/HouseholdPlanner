@@ -4,7 +4,7 @@ import "database/sql"
 
 type Todo struct {
 	Id           int
-	Title        string
+	Title        string `json:"title"`
 	Household_id int
 	Completed_at sql.NullTime
 }

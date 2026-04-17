@@ -19,7 +19,7 @@ func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
 		return
 	}
 
-	groceries := h.Service.IngredientsFromRecipe(link)
+	groceries := h.Service.IngredientsFromRecipe(c, link)
 
 	data := gin.H{
 		"Title":     "Extracted Groceries",

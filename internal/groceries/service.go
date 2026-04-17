@@ -22,7 +22,7 @@ func (s *Service) GetTopProducts(ctx context.Context, householdID int) ([]string
 	return s.Repo.getTopProducts(ctx, householdID)
 }
 
-func ai(link string) string {
+func ai(ctx context.Context, link string) string {
 
 	resp, err := http.Get(link)
 	if err != nil {
@@ -39,7 +39,6 @@ func ai(link string) string {
 
 	// fmt.Println("Parsed: " + tags)
 
-	ctx := context.Background()
 	client := openai.NewClient()
 
 	templatePrompt := `Extract ingredients from the text.
@@ -75,8 +74,8 @@ Text:
 	return ai_resp.OutputText()
 }
 
-func (s *Service) IngredientsFromRecipe(url string) []Grocery {
-	received := ai(url)
+func (s *Service) IngredientsFromRecipe(ctx context.Context, url string) []Grocery {
+	received := ai(ctx, url)
 	// 	received := `[
 	//   { "Product": "olivolja", "Amount": "till stekning" },
 	//   { "Product": "vitlök", "Amount": "3 klyftor" },

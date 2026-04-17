@@ -111,6 +111,7 @@ func setupHome(r *gin.RouterGroup) {
 	r.GET("/home", handler.Index)
 	r.POST("/home/add/grocery", handler.AddGrocery)
 	r.POST("/home/add/recipe", handler.AddRecipe)
+	r.POST("/home/ai", handler.AI)
 }
 
 func setup() {
