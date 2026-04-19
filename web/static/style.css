@@ -1,35 +1,117 @@
 :root {
-    --bg: #94BBE9;
+    /* Background */
+    --bg: #B5C7EB;
+    --bg-soft: #D6E0F5; /* lighter top gradient */
     --bg-image: url(assets/background.jpg);
     --bg-image-mobile: url(assets/background-mobile.jpg);
-    --text: white;
-    --text-lightly-dimmed: rgba(255, 255, 255, 0.5);
-    --text-dimmed: rgba(255, 255, 255, 0.2);
-    --shadow: rgba(0, 0, 0, 0.1);
-    --accent-light: rgba(25, 25, 255, 0.1);
-    --input-contrast: rgba(0, 0, 0, 0.2);
-    --placeholder: rgba(255, 255, 255, 0.8);
-    --accent: #EEAECA;
-    --accent-light: #F7D7E5;
-    --accent-dark: #D485A6 ;
+
+    /* Glass surfaces */
+    --surface: rgba(255, 255, 255, 0.40);
+    --surface-strong: rgba(255, 255, 255, 0.60);
+    --border: rgba(255, 255, 255, 0.50);
+
+    /* Text (slightly cooler to match bg) */
+    --text: #2E4369;
+    --text-lightly-dimmed: rgba(46, 67, 105, 0.7);
+    --text-dimmed: rgba(46, 67, 105, 0.4);
+
+    /* Inputs */
+    --input-bg: rgba(255, 255, 255, 0.85);
+    --input-border: rgba(255, 255, 255, 0.7);
+    --input-shadow: 0 6px 18px rgba(90, 110, 160, 0.12);
+    --placeholder: rgba(46, 67, 105, 0.5);
+
+    /* Accent (soft pink) */
+    --accent: #F3A8C5;
+    --accent-light: #FAD3E2;
+    --accent-dark: #E58AB0;
+
+    /* Shadows */
+    --shadow: rgba(70, 90, 140, 0.18);
+    --shadow-accent: rgba(243, 168, 197, 0.25);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --bg: #222;
+        /* Background */
+        --bg: #0F172A;
+        --bg-soft: #162033;
         --bg-image: url(assets/background-dark.jpg);
         --bg-image-mobile: url(assets/background-dark.jpg);
-        --text: white;
-        --text-lightly-dimmed: rgba(255, 255, 255, 0.5);
-        --text-dimmed: rgba(255, 255, 255, 0.2);
-        --shadow: rgba(255, 255, 255, 0.1);
-        --input-contrast: rgba(255, 255, 255, 0.1);
-        --placeholder: rgba(255, 255, 255, 0.8);
-        --accent: #096C6C;
-        --accent-light: #0B8282;
-        --accent-dark: #075656;
+
+        /* Glass surfaces */
+        --surface: rgba(255, 255, 255, 0.045);
+        --surface-strong: rgba(255, 255, 255, 0.075);
+        --border: rgba(255, 255, 255, 0.12);
+
+        /* Text */
+        --text: #F8FBFF;
+        --text-lightly-dimmed: rgba(255, 255, 255, 0.7);
+        --text-dimmed: rgba(255, 255, 255, 0.4);
+
+        /* Inputs */
+        --input-bg: rgba(255, 255, 255, 0.06);
+        --input-border: rgba(255, 255, 255, 0.08);
+        --input-shadow: none;
+        --placeholder: rgba(255, 255, 255, 0.5);
+
+        /* Accent (teal) */
+        --accent: #0E8C8C;
+        --accent-light: #49AEB5;
+        --accent-dark: #096C6C;
+
+        /* Shadows */
+        --shadow: rgba(0, 0, 0, 0.4);
+        --shadow-accent: rgba(14, 140, 140, 0.25);
     }
 }
+
+.glass {
+    position: relative;
+    border-radius: 24px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+
+    background: linear-gradient(135deg,
+            var(--surface-strong),
+            var(--surface));
+
+    border: 1px solid var(--border);
+
+    box-shadow:
+        0 10px 30px var(--shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+
+.glass::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.25),
+            rgba(255, 255, 255, 0.08) 45%,
+            transparent 65%);
+
+    pointer-events: none;
+}
+
+.glass-strong {
+    background: linear-gradient(135deg,
+            color-mix(in srgb, var(--surface-strong) 100%, white 10%),
+            var(--surface));
+}
+
+.glass-inner {
+    background: var(--input-bg);
+    border-radius: 18px;
+    border: 1px solid var(--input-border);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        var(--input-shadow);
+}
+
 
 * {
     box-sizing: border-box;
@@ -49,7 +131,18 @@ body {
 }
 
 body {
-    background: var(--bg);
+    background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.6), transparent 30%),
+        linear-gradient(180deg, var(--bg-soft), var(--bg));
+}
+
+@media (prefers-color-scheme: dark) {
+    body {
+        background:
+            radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 25%),
+            radial-gradient(circle at bottom right, rgba(20, 40, 80, 0.25), transparent 40%),
+            linear-gradient(180deg, #0d1630 0%, #091226 60%, #070e1a 100%);
+    }
 }
 
 img {
@@ -63,12 +156,13 @@ h1 {
     text-align: left;
 }
 
-a {
-    text-decoration: none;
+input {
+    outline: unset;
+    border: unset;
 }
 
-input {
-    caret-color: var(--text);
+a {
+    text-decoration: none;
 }
 
 ul {
@@ -119,9 +213,19 @@ main {
 }
 
 header {
-    background: var(--bg);
-    padding-block-start: 5px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     margin-block-end: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+    header {
+        background: rgba(255, 255, 255, 0.04);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
 }
 
 .header-items {
@@ -152,15 +256,6 @@ header {
     .header-items button {
         display: none;
     }
-}
-
-.glass {
-    background: var(--text-dimmed);
-    border-radius: 16px;
-    box-shadow: 0 4px 30px var(--shadow);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid var(--text)
 }
 
 table {
@@ -265,16 +360,19 @@ tr.divider-top td {
 
 .grid-recipe {
     display: grid;
-    align-items: center;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
     gap: 10px;
-}
 
-@media screen and (min-width: 500px) {
-    .grid-recipe {
-        grid-template-columns: 1fr 1fr 1fr 1fr;
+    @media screen and (min-width: 500px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media screen and (min-width: 900px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
+
+
 
 .group {
     margin-inline: auto;
@@ -283,21 +381,29 @@ tr.divider-top td {
 }
 
 .recipe-card {
-    flex-direction: column;
-    padding: 10px;
-}
-
-.recipe-card h2 {
-    margin: unset;
-    margin-block-end: 10px;
+    overflow: hidden;
 }
 
 .recipe-card img {
     display: block;
-    border-radius: 5px;
-    min-inline-size: 100px;
-    max-inline-size: 100%;
-    aspect-ratio: 1 / 1;
+    inline-size: 100%;
+    block-size: 100%;
+}
+
+.recipe-card .image-wrapper {
+    height: 180px;
+    overflow: hidden;
+}
+
+.title {
+    padding: 16px;
+    text-align: center;
+}
+
+.title p {
+    margin: 0 0 12px;
+    font-size: 1rem;
+    line-height: 1.4;
 }
 
 .logout {
@@ -345,7 +451,6 @@ tr.divider-top td {
 .login-form input {
     display: inline-block;
     font-size: 1rem;
-    background: var(--input-contrast);
     outline: unset;
     border: unset;
     border-radius: 5px;
@@ -387,8 +492,6 @@ tr.divider-top td {
     font-size: 1rem;
     font-weight: bold;
     background: transparent;
-    outline: unset;
-    border: unset;
     margin: 12px 12px;
     flex: 1;
 }
@@ -423,6 +526,7 @@ button {
     font-size: 1rem;
     font-weight: bold;
     border: unset;
+    color: white;
     background: var(--accent);
     border-radius: 16px;
     padding: 5px 10px;
@@ -555,7 +659,7 @@ nav ul li a {
     padding: 5px;
 }
 
-.grid-4{
+.grid-4 {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
 }

@@ -26,10 +26,14 @@
 
         <div class="grid-recipe">
             {{range .Data}}
-            <div class="glass recipe-card flex center-horizontal center-vertical">
-                <img src="{{.Img_url}}" alt="{{.Title}}">
-                <h2>{{.Title}}</h2>
-                <a href="{{.Link}}" class="button-styling">Visit</a>
+            <div class="glass recipe-card">
+                <div class="image-wrapper">
+                    <img src="{{.Img_url}}" alt="{{.Title}}">
+                </div>
+                <div class="title">
+                    <p>{{.Title}}</p>
+                    <a href="{{.Link}}" class="button-styling">Visit</a>
+                </div>
             </div>
             {{end}}
         </div>

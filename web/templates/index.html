@@ -7,33 +7,41 @@
     {{template "header" .}}
     <main>
         <div class="home-wrapper margin-block-end-24px">
-            <div class="glass padding-inline-24px ai-prompt">
+            <div class="glass glass-strong padding-inline-24px ai-prompt">
                 <h2>Your AI friend</h2>
                 <form class="todo-form margin-block-end-24px" method="post" action="/home/ai">
-                    <label class="glass" for="ai">
+                    <label class="glass-inner" for="ai">
                         <!-- swap with textarea -->
-                        <input placeholder="What do you want me to add..." id="ai" type="text" name="question" required>
+                        <input class="" placeholder="What do you want me to add..." id="ai" type="text" name="question" required>
                     </label>
-                    <button class="" type="submit"><img src="/static/assets/send.svg"></button>
+                    <button class="icon-button send-button" type="submit">
+                        <img src="/static/assets/send.svg" alt="Send">
+                    </button>
                 </form>
             </div>
 
-            <div class="glass padding-inline-24px">
-                <h3>Recipe of the Day</h3>
-                <img style="height: 100px;"
-                    src="https://www.peelwithzeal.com/wp-content/uploads/2022/08/cajun-garlic-butter-sauce-4-1024x1536.jpg">
-                <p>random recipe</p>
+            <div class="glass recipe-card featured-recipe">
+                <div class="image-wrapper">
+                    <img src="https://images.mathem.se/prod/oppskrifter/14abe335-1029-4fc7-b218-8d688b0da666?fit=bounds&format=auto&optimize=medium&quality=75&width=2000&s=0x1395fdc22824cb0ca9e2f76e5d9b77ce2c09f945"
+                        alt="">
+                </div>
+                <div class="title">
+                    <p>Currykyckling med ris</p>
+                    <a href="https://www.mathem.se/se/recipes/2626-mari-bergman-currykyckling-med-ris/"
+                        class="button-styling">Visit</a>
+                </div>
             </div>
-            <div class="glass padding-inline-24px">
+            <div class="glass quick-overview padding-inline-24px">
                 <h3>Quick Overview</h3>
-                <a href="/todos" class="glass padding-inline-24px flex space-between align-items margin-block-end-12px">
+                <a href="/todos" class="glass-inner padding-inline-24px flex space-between align-items margin-block-end-12px">
                     <div>
                         <small>Active Tasks</small>
                         <p><strong>{{.Todos}}</strong></p>
                     </div>
                     <img class="circle" src="/static/assets/check.svg">
                 </a>
-                <a href="/groceries" class="glass padding-inline-24px flex space-between align-items margin-block-end-24px">
+                <a href="/groceries"
+                    class="glass-inner padding-inline-24px flex space-between align-items margin-block-end-24px">
                     <div>
                         <small>Groceries to Buy</small>
                         <p><strong>{{.Groceries}}</strong></p>
@@ -42,22 +50,22 @@
                 </a>
 
             </div>
-            <div class="glass padding-inline-24px">
+            <div class="glass quick-add padding-inline-24px">
                 <h3>Quick Add Grocery</h3>
                 <form class="todo-form margin-block-end-24px" method="post" action="/home/add/grocery">
-                    <label class="glass" for="grocery">
+                    <label class="glass-inner" for="grocery">
                         <input placeholder="Enter product name..." id="grocery" type="text" name="product" required>
                     </label>
                     <button class="" type="submit">+</button>
                 </form>
             </div>
-            <div class="glass padding-inline-24px">
+            <div class="glass quick-add padding-inline-24px">
                 <h3>Quick Add Recipe</h3>
                 <form class="todo-form margin-block-end-24px" method="post" action="/home/add/recipe">
-                    <label class="glass" for="recipe">
+                    <label class="glass-inner" for="recipe">
                         <input placeholder="Paste recipe link..." id="recipe" type="text" name="recipe" required>
                     </label>
-                    <button class="" type="submit">+</button>
+                    <button class="icon-button plus-button" type="submit">+</button>
                 </form>
             </div>
         </div>
