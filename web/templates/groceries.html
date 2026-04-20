@@ -204,6 +204,7 @@
                         const input = document.createElement('input');
                         input.name = cell.dataset.field;
                         input.value = cell.innerText;
+                        input.classList.add("glass-inner")
                         cell.innerHTML = '';
                         cell.appendChild(input);
                     });

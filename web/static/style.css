@@ -1,34 +1,32 @@
 :root {
     /* Background */
-    --bg: #B5C7EB;
-    --bg-soft: #D6E0F5; /* lighter top gradient */
-    --bg-image: url(assets/background.jpg);
-    --bg-image-mobile: url(assets/background-mobile.jpg);
+    --bg: #94BBE9;
+    --bg-soft: #BFD4F2;
 
-    /* Glass surfaces */
-    --surface: rgba(255, 255, 255, 0.40);
-    --surface-strong: rgba(255, 255, 255, 0.60);
-    --border: rgba(255, 255, 255, 0.50);
+    /* Glass */
+    --surface: rgba(255, 255, 255, 0.22);
+    --surface-strong: rgba(255, 255, 255, 0.34);
+    --border: rgba(255, 255, 255, 0.38);
 
-    /* Text (slightly cooler to match bg) */
-    --text: #2E4369;
-    --text-lightly-dimmed: rgba(46, 67, 105, 0.7);
-    --text-dimmed: rgba(46, 67, 105, 0.4);
+    /* Text */
+    --text: #243B5E;
+    --text-lightly-dimmed: rgba(36, 59, 94, 0.72);
+    --text-dimmed: rgba(36, 59, 94, 0.42);
 
     /* Inputs */
-    --input-bg: rgba(255, 255, 255, 0.85);
-    --input-border: rgba(255, 255, 255, 0.7);
-    --input-shadow: 0 6px 18px rgba(90, 110, 160, 0.12);
-    --placeholder: rgba(46, 67, 105, 0.5);
+    --input-bg: rgba(255, 255, 255, 0.72);
+    --input-border: rgba(255, 255, 255, 0.6);
+    --input-shadow: 0 8px 24px rgba(70, 90, 140, 0.12);
+    --placeholder: rgba(36, 59, 94, 0.5);
 
     /* Accent (soft pink) */
-    --accent: #F3A8C5;
-    --accent-light: #FAD3E2;
-    --accent-dark: #E58AB0;
+    --accent: #F2A8C7;
+    --accent-light: #F8D1E1;
+    --accent-dark: #DE8FB1;
 
     /* Shadows */
-    --shadow: rgba(70, 90, 140, 0.18);
-    --shadow-accent: rgba(243, 168, 197, 0.25);
+    --shadow: rgba(70, 90, 140, 0.14);
+    --shadow-accent: rgba(242, 168, 199, 0.25);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -214,8 +212,6 @@ main {
 
 header {
     background: rgba(255, 255, 255, 0.25);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     margin-block-end: 24px;
@@ -307,13 +303,17 @@ td input {
 }
 
 td input {
-    background: var(--accent-light);
-    padding-block: 10px;
-    padding-inline: 5px;
-    border: none;
+    padding-block: 10px; padding-inline: 5px; border: none;
     outline: none;
 }
-
+.glass-inner input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    width: 100%;
+    padding: 10px 12px;
+}
 tr {
     border-radius: 16px;
     overflow: hidden;
