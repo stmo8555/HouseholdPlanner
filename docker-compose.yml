@@ -7,17 +7,24 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+
   db:
     image: postgres:18
     container_name: household-planner-db
     env_file:
       - .env
     volumes:
-      - household_planner_db_data:/var/lib/postgresql    # <-- mount here instead
-      - ./db-init:/docker-entrypoint-initdb.d
+      - household_planner_db_data:/var/lib/postgresql
+      - ./household-db/db-init:/docker-entrypoint-initdb.d:ro
     ports:
       - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
 
 volumes:
   household_planner_db_data:

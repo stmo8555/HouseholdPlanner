@@ -170,20 +170,20 @@ BEGIN
 
   -- Users
   INSERT INTO users (username, pwd)
-  VALUES ('Steffe', '$2a$10$tHNLBeYQ/Z6d7m0k6nhPs.ScJuSIJxG1HRtv0Iq4a96965fbSIqHS')
+  VALUES ('steffe', '$2a$10$tHNLBeYQ/Z6d7m0k6nhPs.ScJuSIJxG1HRtv0Iq4a96965fbSIqHS')
   ON CONFLICT (username) DO NOTHING;
 
   INSERT INTO users (username, pwd)
-  VALUES ('Anna', '$2a$10$PPgWdyzzwAn9j/uuk44NiuIXebdkh0MtyyC1CtXqcS8Mc7bQdDB9.')
+  VALUES ('anna', '$2a$10$PPgWdyzzwAn9j/uuk44NiuIXebdkh0MtyyC1CtXqcS8Mc7bQdDB9.')
   ON CONFLICT (username) DO NOTHING;
 
   SELECT id INTO steffo_id
   FROM users
-  WHERE username = 'Steffo';
+  WHERE username = 'steffe';
 
   SELECT id INTO anna_id
   FROM users
-  WHERE username = 'Anna';
+  WHERE username = 'anna';
 
   -- Household
   SELECT id INTO hid

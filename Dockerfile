@@ -4,12 +4,12 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o HouseholdPlanner .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o HouseholdPlanner .
 
 # Final stage
 FROM alpine:latest
-RUN apk add --no-cache ca-certificates
 WORKDIR /root/
 COPY --from=build /app/HouseholdPlanner .
+COPY --from=build /app/web ./web
 EXPOSE 8080
 CMD ["./HouseholdPlanner"]

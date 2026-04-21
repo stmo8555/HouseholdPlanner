@@ -29,7 +29,7 @@ var groceriesService *grocery.Service
 func main() {
 	var err error
 
-	conn, err = pgx.Connect(context.Background(), "postgres://Admin:Admin@localhost:5432/db?sslmode=disable")
+	conn, err = pgx.Connect(context.Background(), "postgres://Admin:Admin@db:5432/db?sslmode=disable")
 	if err != nil {
 		panic(err)
 	}
