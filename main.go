@@ -2,9 +2,11 @@ package main
 
 import (
 	"context"
+	"fmt"
+	"os"
+
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
-	"golang.org/x/crypto/bcrypt"
 
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
 	"github.com/stmo8555/HouseholdPlanner/internal/home"
@@ -13,11 +15,6 @@ import (
 	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
 
-type LayoutData struct {
-	Title       string
-	CurrentPath string
-	Data        any
-}
 
 var conn *pgx.Conn
 
@@ -29,7 +26,7 @@ var groceriesService *grocery.Service
 func main() {
 	var err error
 
-	conn, err = pgx.Connect(context.Background(), "postgres://Admin:Admin@db:5432/db?sslmode=disable")
+	conn, err = pgx.Connect(context.Background(), dbDSN())
 	if err != nil {
 		panic(err)
 	}
@@ -54,8 +51,6 @@ func main() {
 	setupGroceries(auth)
 	setupHome(auth)
 
-	// setup()
-	// err = r.RunTLS(":8443", "raspis.crt", "raspis.key")
 	err = r.Run(":8080")
 	if err != nil {
 		panic(err)
@@ -114,92 +109,24 @@ func setupHome(r *gin.RouterGroup) {
 	r.POST("/home/ai", handler.AI)
 }
 
-func setup() {
-	id := addUserRetreiveId("Steffo", "apa")
-	hid := createHousehold(id, "la casa")
-	id = addUserRetreiveId("Anna", "gurk")
-	joinHousehold(id, hid)
-	g1 := grocery.Grocery{Product: "skinka", HouseholdID: hid}
-	g2 := grocery.Grocery{Product: "mjölk", HouseholdID: hid}
-	g3 := grocery.Grocery{Product: "lök", HouseholdID: hid}
-	g4 := grocery.Grocery{Product: "tomat", HouseholdID: hid}
-	g5 := grocery.Grocery{Product: "vispgrädde", HouseholdID: hid}
-	g6 := grocery.Grocery{Product: "bröd", HouseholdID: hid}
-	g7 := grocery.Grocery{Product: "persilja", HouseholdID: hid}
-	g8 := grocery.Grocery{Product: "linguini", HouseholdID: hid}
-	g9 := grocery.Grocery{Product: "billys", HouseholdID: hid}
-	g10 := grocery.Grocery{Product: "oatly", HouseholdID: hid}
-	g11 := grocery.Grocery{Product: "bregott", HouseholdID: hid}
-	gs := [...]grocery.Grocery{g1, g2, g3, g4, g5, g6, g7, g8, g9, g10, g11}
-
-	for _, g := range gs {
-		for range 5 {
-			grocery.AddToHistory(conn, context.Background(), g)
-		}
+func getenv(key, fallback string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		return fallback
 	}
+	return v
 }
 
-func joinHousehold(user_id, hid int) {
-	_, err := conn.Exec(context.Background(),
-		`INSERT INTO household_members (user_id, household_id, role)
-     VALUES ($1,$2,'guru')`,
-		user_id, hid,
+func dbDSN() string {
+	user := getenv("POSTGRES_USER", "Admin")
+	password := getenv("POSTGRES_PASSWORD", "Admin")
+	host := getenv("POSTGRES_HOST", "localhost")
+	port := getenv("POSTGRES_PORT", "5432")
+	name := getenv("POSTGRES_DB", "db")
+	sslmode := getenv("POSTGRES_SSLMODE", "disable")
+
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
+		user, password, host, port, name, sslmode,
 	)
-
-	if err != nil {
-		panic(err)
-	}
-}
-
-func createHousehold(owner int, name string) int {
-	tx, err := conn.Begin(context.Background())
-	if err != nil {
-		panic(err)
-	}
-
-	defer tx.Rollback(context.Background()) // safe even after commit
-	var hid int
-
-	err = tx.QueryRow(context.Background(),
-		`INSERT INTO households (name, created_by)
-     VALUES ($1,$2)
-     RETURNING id`,
-		name, owner,
-	).Scan(&hid)
-
-	_, err = tx.Exec(context.Background(),
-		`INSERT INTO household_members (user_id, household_id, role)
-     VALUES ($1,$2,'owner')`,
-		owner, hid,
-	)
-
-	err = tx.Commit(context.Background())
-
-	if err != nil {
-		panic(err)
-	}
-
-	return hid
-}
-
-func addUserRetreiveId(uname, pwd string) int {
-	sql := `INSERT INTO users (username,pwd) VALUES ($1,$2) RETURNING id;`
-	hashedPassword, _ := bcrypt.GenerateFromPassword([]byte(pwd), bcrypt.DefaultCost)
-	var id int
-	err := conn.QueryRow(context.Background(), sql, uname, hashedPassword).Scan(&id)
-
-	if err != nil {
-		panic("failed to create user: " + err.Error())
-	}
-
-	return id
-}
-
-func deleteUser(conn *pgx.Conn) {
-	sql := `DELETE FROM users WHERE username=$1;`
-	_, err := conn.Exec(context.Background(), sql, "Steffo")
-
-	if err != nil {
-		panic("Failed to to delete user: " + err.Error())
-	}
 }

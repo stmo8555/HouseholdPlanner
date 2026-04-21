@@ -6,7 +6,7 @@ services:
       - .env
     volumes:
       - household_planner_db_data:/var/lib/postgresql    # <-- mount here instead
-      - ./household-db/db-init:/docker-entrypoint-initdb.d
+      - ./db-init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 
