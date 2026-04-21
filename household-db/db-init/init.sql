@@ -153,3 +153,76 @@ AFTER INSERT OR DELETE
 ON restaurants
 FOR EACH ROW
 EXECUTE FUNCTION bump_household_version();
+
+
+
+-- ---------------------------------------
+-- Setup defaults
+--
+-- ---------------------------------------
+
+DO $$
+DECLARE
+  steffo_id INT;
+  anna_id INT;
+  hid INT;
+BEGIN
+
+  -- Users
+  INSERT INTO users (username, pwd)
+  VALUES ('Steffe', '$2a$10$tHNLBeYQ/Z6d7m0k6nhPs.ScJuSIJxG1HRtv0Iq4a96965fbSIqHS')
+  ON CONFLICT (username) DO NOTHING;
+
+  INSERT INTO users (username, pwd)
+  VALUES ('Anna', '$2a$10$PPgWdyzzwAn9j/uuk44NiuIXebdkh0MtyyC1CtXqcS8Mc7bQdDB9.')
+  ON CONFLICT (username) DO NOTHING;
+
+  SELECT id INTO steffo_id
+  FROM users
+  WHERE username = 'Steffo';
+
+  SELECT id INTO anna_id
+  FROM users
+  WHERE username = 'Anna';
+
+  -- Household
+  SELECT id INTO hid
+  FROM households
+  WHERE name = 'la casa' AND created_by = steffo_id
+  LIMIT 1;
+
+  IF hid IS NULL THEN
+    INSERT INTO households (name, created_by)
+    VALUES ('la casa', steffo_id)
+    RETURNING id INTO hid;
+  END IF;
+
+  -- Memberships
+  INSERT INTO household_members (user_id, household_id, role)
+  VALUES (steffo_id, hid, 'owner')
+  ON CONFLICT (user_id, household_id) DO NOTHING;
+
+  INSERT INTO household_members (user_id, household_id, role)
+  VALUES (anna_id, hid, 'guru')
+  ON CONFLICT (user_id, household_id) DO NOTHING;
+
+  -- Grocery history
+  -- Your Go code adds each product 5 times.
+  -- Since your SQL schema stores a counter, seed each product once with times_added = 5.
+  INSERT INTO groceries_history (household_id, product, times_added)
+  VALUES
+    (hid, 'skinka', 5),
+    (hid, 'mjölk', 5),
+    (hid, 'lök', 5),
+    (hid, 'tomat', 5),
+    (hid, 'vispgrädde', 5),
+    (hid, 'bröd', 5),
+    (hid, 'persilja', 5),
+    (hid, 'linguini', 5),
+    (hid, 'billys', 5),
+    (hid, 'oatly', 5),
+    (hid, 'bregott', 5)
+  ON CONFLICT (household_id, product)
+  DO UPDATE SET times_added = EXCLUDED.times_added;
+END
+$$;
