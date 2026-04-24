@@ -1,4 +1,4 @@
-:root {
+:joot {
     /* Background */
     --bg: #94BBE9;
     --bg-soft: #BFD4F2;
@@ -110,12 +110,38 @@
         var(--input-shadow);
 }
 
+select,
+::picker(select) {
+    appearance: base-select;
+}
+
+/* Chrome, Safari, Edge */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Firefox */
+input[type="number"] {
+    appearance: textfield;
+}
 
 * {
     box-sizing: border-box;
     font-family: "Roboto", sans-serif;
     /* outline: 1px solid red; */
     color: var(--text);
+}
+
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+legend {
+    padding: 0;
 }
 
 html {
@@ -237,21 +263,15 @@ header {
     z-index: 200;
     background: inherit;
     padding: 0;
+
+    @media screen and (min-width: 700px) {
+        display: none;
+    }
 }
 
 .header-items a.active {
     background-position: 100% 100%;
     background-size: 100% 2px;
-}
-
-@media screen and (min-width: 500px) {
-    header {
-        background: transparent;
-    }
-
-    .header-items button {
-        display: none;
-    }
 }
 
 table {
@@ -303,9 +323,12 @@ td input {
 }
 
 td input {
-    padding-block: 10px; padding-inline: 5px; border: none;
+    padding-block: 10px;
+    padding-inline: 5px;
+    border: none;
     outline: none;
 }
+
 .glass-inner input {
     background: transparent;
     border: none;
@@ -314,6 +337,7 @@ td input {
     width: 100%;
     padding: 10px 12px;
 }
+
 tr {
     border-radius: 16px;
     overflow: hidden;
@@ -479,25 +503,161 @@ tr.divider-top td {
 }
 
 .todo-form {
+    padding-inline: 24px;
+
+}
+
+.todo-form button {
+    display: block;
+    max-inline-size: 500px;
+    margin-inline: auto;
+}
+
+.todo-form input[type="text"] {
+    display: block;
+    padding: 12px;
+    inline-size: 100%;
+    font-size: inherit;
+}
+
+.todo-form input[type="radio"] {
+    display: none;
+}
+
+.todo-form input[type="radio"]+label {
+    opacity: 0.5;
+}
+
+.todo-form input[type="radio"]:checked+label {
+    opacity: 1;
+}
+
+.todo-form input[type="date"] {
+    width: 100%;
+    padding: 12px;
+    font: inherit;
+}
+
+.todo-form input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.todo-form input[type="date"]:focus {
+    border-color: white;
+}
+
+.todo-form select {
+    padding: 12px 24px;
+    transition: 0.4s;
+}
+
+.todo-form select:hover,
+.todo-form select:focus {
+    cursor: pointer;
+}
+
+.todo-form select::picker-icon {
+    transition: 0.4s rotate;
+}
+
+.todo-form select:open::picker-icon {
+    rotate: 180deg;
+}
+
+.todo-form select option {
+    background: var(--bg-soft);
+    padding: 10px;
+    transition: 0.4s;
+}
+
+.todo-form select option::checkmark {
+    display: none;
+}
+
+.todo-form select option:hover {
+    background: var(--bg);
+    cursor: pointer;
+}
+
+.todo-form .repeat-interval-container {
     display: flex;
-    gap: 10px;
+    gap: 5px;
+    align-items: center;
+    justify-content: left;
 }
 
-.todo-form label {
+.todo-form .repeat-interval-container input {
+    display: inline-block;
+    text-align: center;
+    font-size: inherit;
+    padding: 6px 12px;
+}
+
+.todo-form .repeat-interval-container button {
+    width: 1.5em;
+    aspect-ratio: 1;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.todo-form .repeat-interval-container button {
+    width: 1.5em;
+    aspect-ratio: 1;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.smart-add-form textarea {
+    inline-size: 100%;
+    outline: none;
+    padding: 1ch 1em;
+    resize: none;
+}
+
+.smart-add-form button {
+    display: block;
+    max-inline-size: 500px;
+    margin-inline: auto;
+}
+
+.todo-filter {
+    overflow: hidden;
     display: flex;
-    flex: 1;
 }
 
-.todo-form input {
-    font-size: 1rem;
-    font-weight: bold;
-    background: transparent;
-    margin: 12px 12px;
-    flex: 1;
+.todo-filter input[type="radio"] {
+    display: none;
 }
 
-.todo-form input::placeholder {
-    color: var(--placeholder);
+.todo-filter input[type="radio"]:checked+label {
+    opacity: 1;
+    border-block-end: 3px solid var(--accent);
+}
+
+.todo-filter label {
+    display: flex;
+    opacity: 0.5;
+
+    flex: 1;
+    font-size: clamp(0.7rem, 1dvw, 1rem);
+    justify-content: center;
+    align-items: center;
+    border-inline-end: 1px solid var(--border);
+    padding: 1ch 3ch;
+    gap: 1ch;
+}
+
+.todo-filter label:hover {
+    cursor: pointer;
+}
+
+.todo-filter span {
+    display: inline-block;
 }
 
 .badge {
@@ -578,15 +738,13 @@ nav ul li {
     border-block-end: solid rgba(255, 255, 255, 0.2) 1px;
 }
 
-@media screen and (max-width: 500px) {
-    .mobile-nav-chosen::after {
-        content: "·";
-        font-size: 4em;
-        line-height: 0;
-        margin-inline-start: 5px;
-        color: var(--accent);
-        vertical-align: middle;
-    }
+.mobile-nav-chosen::after {
+    content: "·";
+    font-size: 4em;
+    line-height: 0;
+    margin-inline-start: 5px;
+    color: var(--accent);
+    vertical-align: middle;
 }
 
 nav ul li a {
@@ -594,7 +752,7 @@ nav ul li a {
     padding: 15px;
 }
 
-@media screen and (min-width: 500px) {
+@media screen and (min-width: 700px) {
     nav {
         display: block;
         position: static;
@@ -634,6 +792,10 @@ nav ul li a {
         background-position: 100% 100%;
         /*OR bottom right*/
         background-size: 100% 2px;
+    }
+
+    .mobile-nav-chosen::after {
+        display: none;
     }
 }
 
@@ -703,4 +865,28 @@ nav ul li a {
 
 .space-evenly {
     justify-content: space-evenly;
+}
+
+.block {
+    display: block;
+}
+
+.inline-size-full {
+    inline-size: 100%;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }

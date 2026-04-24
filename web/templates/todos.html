@@ -5,16 +5,89 @@
 <body>
     {{template "header" .}}
     <main>
-        <form class="todo-form" method="post" action="/todos/add">
-            <label class="glass" for="1">
-                <input placeholder="Add a new task..." id="1" type="text" name="todo" required>
-            </label>
-            <button class="padding-inline-24px" type="submit">+ Add</button>
+        <div class="margin-block-end-24px">
+            <button id="todo-form-toggler">Add</button>
+            <button id="smart-add-toggler">Smart Add</button>
+        </div>
+        <form class="glass glass-strong todo-form hidden margin-block-end-24px" method="post" action="/todos/add">
+            <h2>Add Task</h2>
+            <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
+                name="todo" required>
+            <fieldset class="">
+                <legend class="block margin-block-end-12px">Due</legend>
+                <div class="flex gap-6px margin-block-end-12px">
+                    <input type="radio" id="today" name="due" value="today" checked="true" class="">
+                    <label for="today" class="button-styling">Today</label>
+
+                    <input type="radio" id="tomorrow" name="due" value="tomorrow" class="">
+                    <label for="tomorrow" class="button-styling">Tomorrow</label>
+
+                    <input type="radio" id="unspecified" name="due" value="unspecified" class="">
+                    <label for="unspecified" class="button-styling">Unspecified</label>
+
+                    <input type="radio" id="custom" name="due" value="custom" class="">
+                    <label for="custom" class="button-styling">Custom</label>
+                </div>
+                <input type="date" id="datepicker" class="glass-inner margin-block-end-12px hidden">
+            </fieldset>
+
+            <fieldset id="repeat-field" class="margin-block-end-24px">
+                <legend class="block margin-block-end-12px">Repeat</legend>
+
+                <div class="flex space-between">
+                    <select id="repeat-dropdown" name="repeat" class="glass-inner">
+                        <option value="never">Never</option>
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="yearly">Yearly</option>
+                    </select>
+                    <div class="repeat-interval-container hidden">
+                        <span>Every</span>
+                        <button type="button" value="-1">-</button>
+                        <input class="glass-inner" type="number" name="repeat-interval" value="1" min="1" max="99">
+                        <button type="button" value="1">+</button>
+                        <span id="repeat-unit"></span>
+                    </div>
+                </div>
+            </fieldset>
+            <button class="inline-size-full margin-block-end-24px" type="submit">Add</button>
         </form>
-        <div>
-            <h2>Active Tasks ({{len .Active}})</h2>
+
+
+        <form class="smart-add-form glass padding-inline-24px margin-block-end-24px hidden" method="post"
+            action="/todos/smartadd">
+            <h2><label for="smart-add">Smart Add</label></h2>
+
+            <textarea id="smart-add" class="glass-inner margin-block-end-12px"
+                placeholder='Add a task... (try: "clean window every sunday"' rows="1" name="todo" required></textarea>
+            <button class="inline-size-full margin-block-end-24px" type="submit">Add</button></div>
+        </form>
+
+        <!--    filter -->
+        <fieldset class="todo-filter glass">
+            <legend class="sr-only">Filter todos</legend>
+
+            <input type="radio" id="allFilter" name="filter" value="all" checked>
+            <label for="allFilter">All</label>
+
+            <input type="radio" id="todayFilter" name="filter" value="today">
+            <label for="todayFilter">Today</label>
+
+            <input type="radio" id="soonFilter" name="filter" value="soon">
+            <label for="soonFilter">Soon</label>
+
+            <input type="radio" id="overdueFilter" name="filter" value="overdue">
+            <label for="overdueFilter">Overdue</label>
+
+            <input type="radio" id="completedFilter" name="filter" value="completed">
+            <label for="completedFilter">Completed</label>
+        </fieldset>
+        <!-- end of filter -->
+
+        <section class="todo-overdue" data-filter-section="overdue">
+            <h2>Overdue 2</h2>
             <ul>
-                {{range .Active}}
+                {{range .Overdue}}
                 <li class="todo glass">
                     <p><strong>{{.Title}}</strong></p>
                     <form method="POST" action="/todos/done">
@@ -23,10 +96,36 @@
                 </li>
                 {{end}}
             </ul>
-        </div>
+        </section>
+        <section data-filter-section="today">
+            <h2>Today</h2>
+            <ul>
+                {{range .Today}}
+                <li class="todo glass">
+                    <p><strong>{{.Title}}</strong></p>
+                    <form method="POST" action="/todos/done">
+                        <button type="submit" name="id" value="{{.Id}}">Done</button>
+                    </form>
+                </li>
+                {{end}}
+            </ul>
+        </section>
+        <section data-filter-section="soon">
+            <h2>Soon</h2>
+            <ul>
+                {{range .Soon}}
+                <li class="todo glass">
+                    <p><strong>{{.Title}}</strong></p>
+                    <form method="POST" action="/todos/done">
+                        <button type="submit" name="id" value="{{.Id}}">Done</button>
+                    </form>
+                </li>
+                {{end}}
+            </ul>
+        </section>
         {{if gt (len .Completed) 0}}
-        <div>
-            <h2>Done ({{len .Completed}})</h2>
+        <section data-filter-section="completed">
+            <h2>Completed ({{len .Completed}})</h2>
             <p class="badge">Auto-clears after seven day</p>
             <ul>
                 {{range .Completed}}
@@ -38,11 +137,115 @@
                 </li>
                 {{end}}
             </ul>
-        </div>
+        </section>
         {{end}}
     </main>
     {{template "footer" .}}
     <script src="/static/script.js"></script>
+    <script>
+        document.getElementById("todo-form-toggler").addEventListener("click", toggleTodoForm)
+        document.getElementById("smart-add-toggler").addEventListener("click", toggleSmartAdd)
+
+        const radios = document.querySelectorAll('input[name="due"]');
+        const datepicker = document.getElementById('datepicker');
+        const textArea = document.getElementById('smart-add');
+
+        function toggleTodoForm() {
+            document.querySelector(".todo-form").classList.toggle("hidden");
+        }
+
+        function toggleSmartAdd() {
+            document.querySelector(".smart-add-form").classList.toggle("hidden");
+            textArea.style.height = textArea.scrollHeight + "px";
+            textArea.style.overflowY = "hidden";
+        }
+
+
+        function formatDate(date) {
+            return date.toISOString().split('T')[0];
+        }
+
+        // set default (today)
+        const today = new Date();
+        datepicker.value = formatDate(today);
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                const now = new Date();
+
+                switch (radio.value) {
+                    case 'today':
+                        datepicker.value = formatDate(now);
+                        datepicker.classList.add("hidden");
+                        break;
+
+                    case 'tomorrow':
+                        now.setDate(now.getDate() + 1);
+                        datepicker.value = formatDate(now);
+                        datepicker.classList.add("hidden");
+                        break;
+
+                    case 'unspecified':
+                        datepicker.value = "";
+                        datepicker.classList.add("hidden");
+                        break;
+
+                    case 'custom':
+                        datepicker.classList.remove("hidden");
+                        datepicker.focus();
+                        break;
+
+                    default:
+                        throw "Value not supported";
+                }
+            });
+        });
+
+        const repeatDropdown = document.getElementById("repeat-dropdown");
+        const repeatIntervalContainer = document.querySelector(".repeat-interval-container");
+        const repeatBtns = repeatIntervalContainer.querySelectorAll("button");
+        const repeatInterval = repeatIntervalContainer.querySelector("input");
+        const repeatUnit = document.getElementById("repeat-unit");
+
+        repeatDropdown.addEventListener('change', () => {
+            const isNever = repeatDropdown.value === 'never';
+            repeatIntervalContainer.classList.toggle("hidden", isNever);
+        });
+
+        repeatBtns.forEach(btn => {
+            btn.addEventListener("click", () => {
+                console.log("clicked")
+                if (btn.value === "1") {
+                    repeatInterval.stepUp();
+                } else {
+                    repeatInterval.stepDown();
+                }
+            });
+        });
+
+        textArea.addEventListener("input", function () {
+            this.style.height = "auto";
+            this.style.height = this.scrollHeight + "px";
+        });
+
+        const filterRadios = document.querySelectorAll('input[name="filter"]');
+        const todoSections = document.querySelectorAll("[data-filter-section]");
+
+        filterRadios.forEach(radio => {
+            radio.addEventListener("change", () => {
+                const selectedFilter = radio.value;
+
+                todoSections.forEach(section => {
+                    const sectionFilter = section.dataset.filterSection;
+
+                    const shouldShow =
+                        selectedFilter === "all" || selectedFilter === sectionFilter;
+
+                    section.classList.toggle("hidden", !shouldShow);
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

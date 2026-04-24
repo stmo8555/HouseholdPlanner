@@ -20,7 +20,7 @@ func (h *Handler) Logout(c *gin.Context) {
 		h.Service.Logout(cookie)
 	}
 
-	c.SetCookie("session_id", "", -1, "/", "", true, true)
+	c.SetCookie("session_id", "", -1, "/", "", false, true)
 	c.Redirect(302, "/login")
 }
 
@@ -32,7 +32,7 @@ func (h *Handler) Authenticate(c *gin.Context) {
 
 	if uuid != "" {
 		c.SetSameSite(http.SameSiteStrictMode)
-		c.SetCookie("session_id", uuid, 0, "/", "", true, true)
+		c.SetCookie("session_id", uuid, 0, "/", "", false, true)
 		c.Redirect(302, "/")
 	} else {
 		c.Redirect(302, "/login")
