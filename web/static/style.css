@@ -155,19 +155,22 @@ body {
 }
 
 body {
+    background: var(--bg);
+}
+
+.background {
     background:
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.6), transparent 30%),
         linear-gradient(180deg, var(--bg-soft), var(--bg));
-}
 
-@media (prefers-color-scheme: dark) {
-    body {
+    @media (prefers-color-scheme: dark) {
         background:
             radial-gradient(circle at top left, rgba(255, 255, 255, 0.18), transparent 25%),
             radial-gradient(circle at bottom right, rgba(20, 40, 80, 0.25), transparent 40%),
-            linear-gradient(180deg, #0d1630 0%, #091226 60%, #070e1a 100%);
+            linear-gradient(180deg, var(--bg-soft), var(--bg));
     }
 }
+
 
 img {
     display: block;

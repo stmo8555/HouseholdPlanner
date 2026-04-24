@@ -4,67 +4,69 @@
 {{template "head" .}}
 
 <body>
-    {{template "header" .}}
-    <main>
-        <div class="margin-block-end-24px flex gap-6px">
-            <button type="submit" form="exractedForm">Save</button>
-            <form action="/groceries" method="GET">
-                <button type="submit">Cancel</button>
+    <div class="background">
+        {{template "header" .}}
+        <main>
+            <div class="margin-block-end-24px flex gap-6px">
+                <button type="submit" form="exractedForm">Save</button>
+                <form action="/groceries" method="GET">
+                    <button type="submit">Cancel</button>
+                </form>
+            </div>
+            <form action="/groceries/extracted" id="exractedForm" method="POST" class="">
+                <div class="glass padding-inline-24px">
+                    <h2>Groceries ({{len .Groceries}})</h2>
+                    <div class="grid-4 text-align-center">
+                        <p>Product</p>
+                        <p>Amount</p>
+                        <p>Brand</p>
+                        <p>Store</p>
+                    </div>
+                    {{range .Groceries}}
+                    <div class="grid-4 glass text-align-center margin-block-end-24px">
+                        <div data-field="product">
+                            <p>{{.Product}}</p>
+                        </div>
+                        <div data-field="amount">
+                            <p>{{.Amount}}</p>
+                        </div>
+                        <div data-field="brand">
+                            <p>{{.Brand}}</p>
+                        </div>
+                        <div data-field="store">
+                            <p>{{.Store}}</p>
+                        </div>
+                    </div>
+                    {{end}}
+                </div>
+                {{if gt (len .Recipes) 0}}
+                <h2>Recipes ({{len .Recipes}})</h2>
+                {{range .Recipes}}
+                <div class="glass padding-inline-24px margin-block-end-24px flex">
+                    <p>recipe card</p>
+                </div>
+                {{end}}
+                {{end}}
+                <h2>Todos ({{len .Todos}})</h2>
+                {{range .Todos}}
+                <div class="glass padding-inline-24px margin-block-end-24px flex">
+                    <p>{{.Title}}</p>
+                </div>
+                {{end}}
             </form>
-        </div>
-        <form action="/groceries/extracted" id="exractedForm" method="POST" class="">
-            <div class="glass padding-inline-24px">
-                <h2>Groceries ({{len .Groceries}})</h2>
-                <div class="grid-4 text-align-center">
-                    <p>Product</p>
-                    <p>Amount</p>
-                    <p>Brand</p>
-                    <p>Store</p>
-                </div>
-                {{range .Groceries}}
-                <div class="grid-4 glass text-align-center margin-block-end-24px">
-                    <div data-field="product">
-                        <p>{{.Product}}</p>
-                    </div>
-                    <div data-field="amount">
-                        <p>{{.Amount}}</p>
-                    </div>
-                    <div data-field="brand">
-                        <p>{{.Brand}}</p>
-                    </div>
-                    <div data-field="store">
-                        <p>{{.Store}}</p>
-                    </div>
-                </div>
-            {{end}}
-            </div>
-            {{if gt (len .Recipes) 0}}
-            <h2>Recipes ({{len .Recipes}})</h2>
-            {{range .Recipes}}
-            <div class="glass padding-inline-24px margin-block-end-24px flex">
-                <p>recipe card</p>
-            </div>
-            {{end}}
-            {{end}}
-            <h2>Todos ({{len .Todos}})</h2>
-            {{range .Todos}}
-            <div class="glass padding-inline-24px margin-block-end-24px flex">
-                <p>{{.Title}}</p>
-            </div>
-            {{end}}
-        </form>
-    </main>
-    <script src="/static/script.js"></script>
-    <script>
-        const btns = document.querySelectorAll(".removeRowBtn");
-        btns.forEach((btn) => {
-            const parentRow = btn.closest("tr");
-            btn.addEventListener("click", () => {
-                console.log("remove")
-                parentRow.remove();
+        </main>
+        <script src="/static/script.js"></script>
+        <script>
+            const btns = document.querySelectorAll(".removeRowBtn");
+            btns.forEach((btn) => {
+                const parentRow = btn.closest("tr");
+                btn.addEventListener("click", () => {
+                    console.log("remove")
+                    parentRow.remove();
+                });
             });
-        });
-    </script>
+        </script>
+    </div>
 </body>
 
 </html>

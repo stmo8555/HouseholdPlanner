@@ -4,246 +4,248 @@
 {{template "head" .}}
 
 <body>
-    {{template "header" .}}
-    <!-- modal1 -->
-    <div id="extract" class="overlay">
-        <div id="extractModal" class="glass fixed-center modal">
-            <h2 class="margin-inline-24px">Extract Ingredients From Recipe</h2>
-            <form class="add-grocery-form" method="POST" action="/groceries/extract">
-                <div class="margin-inline-24px">
-                    <label for="1">Link</label>
-                    <input class="glass-inner focus" id="1" type="text" name="link" required>
-                    <div class="text-align-center">
-                        <button type="submit">Add</button>
+    <div class="background">
+        {{template "header" .}}
+        <!-- modal1 -->
+        <div id="extract" class="overlay">
+            <div id="extractModal" class="glass fixed-center modal">
+                <h2 class="margin-inline-24px">Extract Ingredients From Recipe</h2>
+                <form class="add-grocery-form" method="POST" action="/groceries/extract">
+                    <div class="margin-inline-24px">
+                        <label for="1">Link</label>
+                        <input class="glass-inner focus" id="1" type="text" name="link" required>
+                        <div class="text-align-center">
+                            <button type="submit">Add</button>
+                        </div>
                     </div>
-                </div>
-            </form>
-        </div>
-    </div>
-    <!-- modal2 -->
-    <div id="add" class="overlay">
-        <div id="addModal" class="glass fixed-center">
-            <h2 class="margin-inline-24px">Add Grocery</h2>
-            <p class="margin-inline-24px"><strong>Quick Select</strong></p>
-            <div class="margin-inline-24px quick-select margin-block-end-24px">
-                {{range .TopProducts}}
-                <button class="quick-btn">{{.}}</button>
-                {{end}}
+                </form>
             </div>
-            <form class="add-grocery-form" method="POST" action="/groceries/add">
-                <ul class="margin-inline-24px">
-                    <li>
-                        <label for="product-input">Product <small>(required)</small></label>
-                        <input class="glass-inner focus" id="product-input" type="text" name="product" required>
-                    </li>
-                    <li>
-                        <label for="3">Amount</label>
-                        <input class="glass-inner" id="3" type="text" name="amount">
-                    </li>
-                    <li>
-                        <label for="2">Brand</label>
-                        <input class="glass-inner" id="2" type="text" name="brand">
-                    </li>
-                    <li>
-                        <label for="4">Store</label>
-                        <input class="glass-inner" id="4" type="text" name="store">
-                    </li>
-                    <button class="text-align-center" type="submit">Add</button>
-                </ul>
-            </form>
         </div>
-    </div>
-    <main>
-        <div class="margin-block-end-24px">
-            <button id="add-button">Add Grocery</button>
-            <button id="edit-button">Edit</button>
-            <button id="extract-button">Import</button>
+        <!-- modal2 -->
+        <div id="add" class="overlay">
+            <div id="addModal" class="glass fixed-center">
+                <h2 class="margin-inline-24px">Add Grocery</h2>
+                <p class="margin-inline-24px"><strong>Quick Select</strong></p>
+                <div class="margin-inline-24px quick-select margin-block-end-24px">
+                    {{range .TopProducts}}
+                    <button class="quick-btn">{{.}}</button>
+                    {{end}}
+                </div>
+                <form class="add-grocery-form" method="POST" action="/groceries/add">
+                    <ul class="margin-inline-24px">
+                        <li>
+                            <label for="product-input">Product <small>(required)</small></label>
+                            <input class="glass-inner focus" id="product-input" type="text" name="product" required>
+                        </li>
+                        <li>
+                            <label for="3">Amount</label>
+                            <input class="glass-inner" id="3" type="text" name="amount">
+                        </li>
+                        <li>
+                            <label for="2">Brand</label>
+                            <input class="glass-inner" id="2" type="text" name="brand">
+                        </li>
+                        <li>
+                            <label for="4">Store</label>
+                            <input class="glass-inner" id="4" type="text" name="store">
+                        </li>
+                        <button class="text-align-center" type="submit">Add</button>
+                    </ul>
+                </form>
+            </div>
         </div>
-        <!-- table start -->
-        <div class='glass margin-block-end-24px padding-inline-24px'>
-            <h2>Shopping ({{ len .Data.NotPicked }})</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th>
-                        </th>
-                        <th>
-                            <a href="/groceries?sort=product">Product</a>
-                        </th>
+        <main>
+            <div class="margin-block-end-24px">
+                <button id="add-button">Add Grocery</button>
+                <button id="edit-button">Edit</button>
+                <button id="extract-button">Import</button>
+            </div>
+            <!-- table start -->
+            <div class='glass margin-block-end-24px padding-inline-24px'>
+                <h2>Shopping ({{ len .Data.NotPicked }})</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>
+                            </th>
+                            <th>
+                                <a href="/groceries?sort=product">Product</a>
+                            </th>
 
-                        <th>
-                            <a href="/groceries?sort=amount"> Amount </a>
-                        </th>
+                            <th>
+                                <a href="/groceries?sort=amount"> Amount </a>
+                            </th>
 
-                        <th>
-                            <a href="/groceries?sort=brand"> Brand </a>
-                        </th>
-                        <th>
-                            <a href="/groceries?sort=store"> Store </a>
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{if gt (len .Data.NotPicked) 0}}
-                    {{range .Data.NotPicked}}
-                    <tr data-id="{{.Id}}" class="changable">
-                        <td>
-                            <form method="POST" action="/groceries">
-                                <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
-                            </form>
-                        </td>
-                        <td data-field="product">
-                            <p>{{.Product}}</p>
-                        </td>
-                        <td data-field="amount">
-                            <p>{{.Amount}}</p>
-                        </td>
-                        <td data-field="brand">
-                            <p>{{.Brand}}</p>
-                        </td>
-                        <td data-field="store">
-                            <p>{{.Store}}</p>
-                        </td>
-                    </tr>
-                    {{end}}
-                    {{end}}
+                            <th>
+                                <a href="/groceries?sort=brand"> Brand </a>
+                            </th>
+                            <th>
+                                <a href="/groceries?sort=store"> Store </a>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if gt (len .Data.NotPicked) 0}}
+                        {{range .Data.NotPicked}}
+                        <tr data-id="{{.Id}}" class="changable">
+                            <td>
+                                <form method="POST" action="/groceries">
+                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                                </form>
+                            </td>
+                            <td data-field="product">
+                                <p>{{.Product}}</p>
+                            </td>
+                            <td data-field="amount">
+                                <p>{{.Amount}}</p>
+                            </td>
+                            <td data-field="brand">
+                                <p>{{.Brand}}</p>
+                            </td>
+                            <td data-field="store">
+                                <p>{{.Store}}</p>
+                            </td>
+                        </tr>
+                        {{end}}
+                        {{end}}
 
-                    <!-- Picked section starts -->
-                    {{if gt (len .Data.Picked) 0}}
-                    <tr class="divider-top">
-                        <td colspan="4">
-                            <strong>Picked ({{len .Data.Picked}})</strong>
-                        </td>
-                        <td>
-                            <form action="/groceries/delete/picked" method="POST">
-                                <button type="submit">Remove</button>
-                            </form>
-                        </td>
+                        <!-- Picked section starts -->
+                        {{if gt (len .Data.Picked) 0}}
+                        <tr class="divider-top">
+                            <td colspan="4">
+                                <strong>Picked ({{len .Data.Picked}})</strong>
+                            </td>
+                            <td>
+                                <form action="/groceries/delete/picked" method="POST">
+                                    <button type="submit">Remove</button>
+                                </form>
+                            </td>
 
-                    </tr>
-                    {{range .Data.Picked}}
-                    <tr>
-                        <td>
-                            <form method="POST" action="/groceries">
-                                <button class="checkbox checked" type="submit" name="id" value="{{.Id}}"></button>
-                            </form>
-                        </td>
-                        <td class="line-through">{{.Product}}</td>
-                        <td class="line-through">{{.Amount}}</td>
-                        <td class="line-through">{{.Brand}}</td>
-                        <td class="line-through">{{.Store}}</td>
-                    </tr>
-                    {{end}}
-                    {{end}}
-                </tbody>
-            </table>
-        </div>
-    </main>
-    {{template "footer" .}}
-    <script src="/static/script.js"></script>
-    <script>
-        const add_btn = document.getElementById('add-button');
-        const extraxt_btn = document.getElementById('extract-button');
-        const main = document.querySelector("main")
-        const overlay = document.getElementById("add");
-        const overlayExtract = document.getElementById("extract");
-        const addModal = document.getElementById("addModal"); // the inner modal content
-        const extractModal = document.getElementById("extractModal"); // the inner modal content
-        const focusables = document.querySelectorAll(".focus");
-        var notMobile = window.matchMedia("(min-width: 500px)")
+                        </tr>
+                        {{range .Data.Picked}}
+                        <tr>
+                            <td>
+                                <form method="POST" action="/groceries">
+                                    <button class="checkbox checked" type="submit" name="id" value="{{.Id}}"></button>
+                                </form>
+                            </td>
+                            <td class="line-through">{{.Product}}</td>
+                            <td class="line-through">{{.Amount}}</td>
+                            <td class="line-through">{{.Brand}}</td>
+                            <td class="line-through">{{.Store}}</td>
+                        </tr>
+                        {{end}}
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        </main>
+        {{template "footer" .}}
+        <script src="/static/script.js"></script>
+        <script>
+            const add_btn = document.getElementById('add-button');
+            const extraxt_btn = document.getElementById('extract-button');
+            const main = document.querySelector("main")
+            const overlay = document.getElementById("add");
+            const overlayExtract = document.getElementById("extract");
+            const addModal = document.getElementById("addModal"); // the inner modal content
+            const extractModal = document.getElementById("extractModal"); // the inner modal content
+            const focusables = document.querySelectorAll(".focus");
+            var notMobile = window.matchMedia("(min-width: 500px)")
 
-        // Show modal
-        extraxt_btn.addEventListener("click", () => {
-            overlayExtract.style.display = "block";
-            main.style.display = "none"
-            overlayExtract.style.cursor = "pointer"
-            extractModal.style.cursor = "default"
-            focusables.forEach(e => {
-                e.focus();
-            });
-        });
-
-        overlayExtract.addEventListener("click", (e) => {
-            if (!extractModal.contains(e.target)) {
-                overlayExtract.style.display = "none";
-                main.style.display = "block";
-            }
-        });
-
-        // Show modal
-        add_btn.addEventListener("click", () => {
-            overlay.style.display = "block";
-            main.style.display = "none"
-            overlay.style.cursor = "pointer"
-            addModal.style.cursor = "default"
-            if (notMobile.matches || false) {
+            // Show modal
+            extraxt_btn.addEventListener("click", () => {
+                overlayExtract.style.display = "block";
+                main.style.display = "none"
+                overlayExtract.style.cursor = "pointer"
+                extractModal.style.cursor = "default"
                 focusables.forEach(e => {
                     e.focus();
                 });
-            }
-        });
-
-        overlay.addEventListener("click", (e) => {
-            if (!addModal.contains(e.target)) {
-                overlay.style.display = "none";
-                main.style.display = "block"
-            }
-        });
-
-        const edit_btn = document.getElementById('edit-button');
-        let editing = false;
-
-        edit_btn.addEventListener("click", () => {
-            const changables = document.querySelectorAll(".changable");
-
-            if (!editing) {
-                // ENTER EDIT MODE
-                changables.forEach(row => {
-                    row.querySelectorAll('td[data-field]').forEach(cell => {
-                        const input = document.createElement('input');
-                        input.name = cell.dataset.field;
-                        input.value = cell.innerText;
-                        input.classList.add("glass-inner")
-                        cell.innerHTML = '';
-                        cell.appendChild(input);
-                    });
-                });
-
-                edit_btn.textContent = "Save";
-                editing = true;
-
-            } else {
-                // SAVE MODE
-                const changes = [];
-
-                changables.forEach(row => {
-                    const data = {id: parseInt(row.dataset.id)};
-                    row.querySelectorAll('input').forEach(input => {
-                        data[input.name] = input.value;
-                    });
-                    changes.push(data);
-                });
-
-                // Send JSON to backend
-                fetch('/groceries/edit', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(changes)
-                })
-                    .then(res => {
-                        if (res.ok) {
-                            window.location.href = "/groceries"; // manual redirect
-                        }
-                    })
-                    .catch(console.error);
-            }
-        });
-        document.querySelectorAll(".quick-btn").forEach(btn => {
-            btn.addEventListener("click", () => {
-                document.getElementById("product-input").value = btn.textContent;
             });
-        });
-    </script>
+
+            overlayExtract.addEventListener("click", (e) => {
+                if (!extractModal.contains(e.target)) {
+                    overlayExtract.style.display = "none";
+                    main.style.display = "block";
+                }
+            });
+
+            // Show modal
+            add_btn.addEventListener("click", () => {
+                overlay.style.display = "block";
+                main.style.display = "none"
+                overlay.style.cursor = "pointer"
+                addModal.style.cursor = "default"
+                if (notMobile.matches || false) {
+                    focusables.forEach(e => {
+                        e.focus();
+                    });
+                }
+            });
+
+            overlay.addEventListener("click", (e) => {
+                if (!addModal.contains(e.target)) {
+                    overlay.style.display = "none";
+                    main.style.display = "block"
+                }
+            });
+
+            const edit_btn = document.getElementById('edit-button');
+            let editing = false;
+
+            edit_btn.addEventListener("click", () => {
+                const changables = document.querySelectorAll(".changable");
+
+                if (!editing) {
+                    // ENTER EDIT MODE
+                    changables.forEach(row => {
+                        row.querySelectorAll('td[data-field]').forEach(cell => {
+                            const input = document.createElement('input');
+                            input.name = cell.dataset.field;
+                            input.value = cell.innerText;
+                            input.classList.add("glass-inner")
+                            cell.innerHTML = '';
+                            cell.appendChild(input);
+                        });
+                    });
+
+                    edit_btn.textContent = "Save";
+                    editing = true;
+
+                } else {
+                    // SAVE MODE
+                    const changes = [];
+
+                    changables.forEach(row => {
+                        const data = {id: parseInt(row.dataset.id)};
+                        row.querySelectorAll('input').forEach(input => {
+                            data[input.name] = input.value;
+                        });
+                        changes.push(data);
+                    });
+
+                    // Send JSON to backend
+                    fetch('/groceries/edit', {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify(changes)
+                    })
+                        .then(res => {
+                            if (res.ok) {
+                                window.location.href = "/groceries"; // manual redirect
+                            }
+                        })
+                        .catch(console.error);
+                }
+            });
+            document.querySelectorAll(".quick-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    document.getElementById("product-input").value = btn.textContent;
+                });
+            });
+        </script>
+    </div>
 </body>
 
 </html>

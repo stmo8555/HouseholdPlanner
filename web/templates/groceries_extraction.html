@@ -4,64 +4,66 @@
 {{template "head" .}}
 
 <body>
-    {{template "header" .}}
-    <main>
-        <div class="margin-block-end-24px flex gap-6px">
-            <button type="submit" form="exractedForm">Save</button>
-            <form action="/groceries" method="GET">
-                <button type="submit">Cancel</button>
+    <div class="background">
+        {{template "header" .}}
+        <main>
+            <div class="margin-block-end-24px flex gap-6px">
+                <button type="submit" form="exractedForm">Save</button>
+                <form action="/groceries" method="GET">
+                    <button type="submit">Cancel</button>
+                </form>
+            </div>
+            <form action="/groceries/extracted" id="exractedForm" method="POST"
+                class='glass margin-block-end-24px padding-inline-24px'>
+                <h2>Extracted from recipe ({{ len .Groceries }} items)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>
+                                Product
+                            </th>
+
+                            <th>
+                                Amount
+                            </th>
+
+                            <th>
+                                Brand
+                            </th>
+                            <th>
+                                Store
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{if gt (len .Groceries) 0}}
+                        {{range .Groceries}}
+                        <tr>
+                            <td><button class="removeRowBtn">×</button></td>
+                            <td><input name="product" value="{{.Product}}"></td>
+                            <td><input name="amount" value="{{.Amount}}"></td>
+                            <td><input name="brand" value="{{.Brand}}"></td>
+                            <td><input name="store" value="{{.Store}}"></td>
+                        </tr>
+                        {{end}}
+                        {{end}}
+                    </tbody>
+                </table>
             </form>
-        </div>
-        <form action="/groceries/extracted" id="exractedForm" method="POST"
-            class='glass margin-block-end-24px padding-inline-24px'>
-            <h2>Extracted from recipe ({{ len .Groceries }} items)</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>
-                            Product
-                        </th>
-
-                        <th>
-                            Amount
-                        </th>
-
-                        <th>
-                            Brand
-                        </th>
-                        <th>
-                            Store
-                        </th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {{if gt (len .Groceries) 0}}
-                    {{range .Groceries}}
-                    <tr>
-                        <td><button class="removeRowBtn">×</button></td>
-                        <td><input name="product" value="{{.Product}}"></td>
-                        <td><input name="amount" value="{{.Amount}}"></td>
-                        <td><input name="brand" value="{{.Brand}}"></td>
-                        <td><input name="store" value="{{.Store}}"></td>
-                    </tr>
-                    {{end}}
-                    {{end}}
-                </tbody>
-            </table>
-        </form>
-    </main>
-    <script src="/static/script.js"></script>
-    <script>
-        const btns = document.querySelectorAll(".removeRowBtn");
-        btns.forEach((btn) => {
-            const parentRow = btn.closest("tr");
-            btn.addEventListener("click", () => {
-                console.log("remove")
-                parentRow.remove();
+        </main>
+        <script src="/static/script.js"></script>
+        <script>
+            const btns = document.querySelectorAll(".removeRowBtn");
+            btns.forEach((btn) => {
+                const parentRow = btn.closest("tr");
+                btn.addEventListener("click", () => {
+                    console.log("remove")
+                    parentRow.remove();
+                });
             });
-        });
-    </script>
+        </script>
+    </div>
 </body>
 
 </html>
