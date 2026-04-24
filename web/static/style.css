@@ -159,6 +159,7 @@ body {
 }
 
 .background {
+    min-block-size: 100dvh;
     background:
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.6), transparent 30%),
         linear-gradient(180deg, var(--bg-soft), var(--bg));
