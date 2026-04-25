@@ -537,7 +537,8 @@ tr.divider-top td {
 }
 
 .todo-form input[type="date"] {
-    width: 100%;
+    display: inline-block;
+    max-inline-size: 100%;
     padding: 12px;
     font: inherit;
 }
@@ -621,6 +622,7 @@ tr.divider-top td {
     outline: none;
     padding: 1ch 1em;
     resize: none;
+    font: inherit;
 }
 
 .smart-add-form button {
@@ -652,7 +654,7 @@ tr.divider-top td {
     justify-content: center;
     align-items: center;
     border-inline-end: 1px solid var(--border);
-    padding: 1ch 3ch;
+    padding: 1ch;
     gap: 1ch;
 }
 
