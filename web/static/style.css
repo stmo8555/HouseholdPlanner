@@ -1,4 +1,4 @@
-:joot {
+:root {
     /* Background */
     --bg: #94BBE9;
     --bg-soft: #BFD4F2;
@@ -110,9 +110,22 @@
         var(--input-shadow);
 }
 
+input::placeholder,
+textarea::placeholder {
+    color: var(--placeholder);
+}
+
 select,
 ::picker(select) {
     appearance: base-select;
+}
+
+input[type="password"],
+input[type="text"] {
+    display: block;
+    padding: 12px;
+    inline-size: 100%;
+    font-size: inherit;
 }
 
 /* Chrome, Safari, Edge */
@@ -199,17 +212,10 @@ ul {
     margin: unset;
 }
 
-.overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 999;
-}
-
 body.flower-power::before {
     content: "";
     position: fixed;
+
     inset: 0;
 
     background-image: var(--bg-image-mobile);
@@ -440,24 +446,42 @@ tr.divider-top td {
 }
 
 .add-grocery-form {
-    inline-size: 95dvw;
+    padding-inline: 24px;
     padding-block-end: 24px;
+    margin-block-end: 24px;
 
     @media screen and (min-width: 500px) {
         inline-size: auto;
     }
 }
 
-.quick-select {
+.add-grocery-form li {
+    display: flex;
+    flex-direction: column;
+    gap: 1ch;
+    margin-block-end: 12px;
+}
+
+.add-grocery-form .quick-select {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
 }
 
-.add-grocery-form button {
-    margin-inline-end: auto;
-    margin-block-start: 12px;
-    width: 100%;
+.extract-grocery-form {
+    padding-inline: 24px;
+    padding-block-end: 24px;
+    margin-block-end: 24px;
+}
+
+.extract-grocery-form input {
+    font-size: inherit;
+}
+
+.grocery-list {
+    padding-inline: 24px;
+    padding-block-end: 24px;
+    margin-block-end: 24px;
 }
 
 .login-form {
@@ -471,19 +495,15 @@ tr.divider-top td {
     }
 }
 
-.add-grocery-form li {
-    margin-block-end: 5px;
-}
-
-.add-grocery-form input,
-.login-form input {
-    display: inline-block;
-    font-size: 1rem;
-    outline: unset;
-    border: unset;
-    border-radius: 5px;
-    inline-size: 100%;
-}
+/* .add-grocery-form input, */
+/* .login-form input { */
+/*     display: inline-block; */
+/*     font-size: 1rem; */
+/*     outline: unset; */
+/*     border: unset; */
+/*     border-radius: 5px; */
+/*     inline-size: 100%; */
+/* } */
 
 .add-grocery-form input {
     padding: 5px;
@@ -508,12 +528,12 @@ tr.divider-top td {
 
 .todo-form {
     padding-inline: 24px;
-
+    padding-block-end: 24px;
+    margin-block-end: 24px;
 }
 
 .todo-form button {
     display: block;
-    max-inline-size: 500px;
     margin-inline: auto;
 }
 
@@ -530,6 +550,7 @@ tr.divider-top td {
 
 .todo-form input[type="radio"]+label {
     opacity: 0.5;
+    font-size: clamp(0.7rem, 1dvw, 1rem);
 }
 
 .todo-form input[type="radio"]:checked+label {
@@ -538,7 +559,6 @@ tr.divider-top td {
 
 .todo-form input[type="date"] {
     display: inline-block;
-    max-inline-size: 100%;
     padding: 12px;
     font: inherit;
 }
@@ -608,13 +628,10 @@ tr.divider-top td {
     justify-content: center;
 }
 
-.todo-form .repeat-interval-container button {
-    width: 1.5em;
-    aspect-ratio: 1;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+.smart-add-form {
+    padding-inline: 24px;
+    padding-block-end: 24px;
+    margin-block-end: 24px;
 }
 
 .smart-add-form textarea {
@@ -623,12 +640,6 @@ tr.divider-top td {
     padding: 1ch 1em;
     resize: none;
     font: inherit;
-}
-
-.smart-add-form button {
-    display: block;
-    max-inline-size: 500px;
-    margin-inline: auto;
 }
 
 .todo-filter {
@@ -650,7 +661,7 @@ tr.divider-top td {
     opacity: 0.5;
 
     flex: 1;
-    font-size: clamp(0.7rem, 1dvw, 1rem);
+    font-size: clamp(0.7rem, 2dvw, 1rem);
     justify-content: center;
     align-items: center;
     border-inline-end: 1px solid var(--border);
@@ -696,6 +707,7 @@ button {
     background: var(--accent);
     border-radius: 16px;
     padding: 5px 10px;
+    max-inline-size: 500px;
 }
 
 @media screen and (min-width: 500px) {
@@ -883,6 +895,10 @@ nav ul li a {
 
 .hidden {
     display: none !important;
+}
+
+.margin-inline-auto {
+    margin-inline: auto;
 }
 
 .sr-only {

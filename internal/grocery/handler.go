@@ -1,9 +1,9 @@
 package grocery
 
 import (
-	"strings"
-	"strconv"
 	"github.com/gin-gonic/gin"
+	"strconv"
+	"strings"
 )
 
 type Handler struct {
@@ -61,7 +61,19 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 func (h *Handler) List(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceries, err := h.Service.List(c, hid)
+	sortBy := c.DefaultQuery("sort", "product")
+	order := c.DefaultQuery("order", "asc")
+
+	if order != "desc" {
+		order = "asc"
+	}
+
+	nextOrder := "asc"
+	if order == "asc" {
+		nextOrder = "desc"
+	}
+
+	groceries, err := h.Service.List(c, sortBy, order, hid)
 	if err != nil {
 		c.AbortWithStatus(500)
 		c.String(500, err.Error())
@@ -82,13 +94,16 @@ func (h *Handler) List(c *gin.Context) {
 		"CurrentPath": c.Request.URL.Path,
 		"Data":        groceries,
 		"TopProducts": topProducts,
+		"Sort": sortBy,
+		"Order": order,
+		"NextOrder": nextOrder,
 	}
 
 	c.HTML(200, "groceries.html", data)
 }
 
 func (h *Handler) TogglePicked(c *gin.Context) {
-	hid := c.GetInt("household_id")	
+	hid := c.GetInt("household_id")
 	idStr := c.PostForm("id")
 
 	id, err := strconv.Atoi(idStr)
@@ -103,11 +118,11 @@ func (h *Handler) TogglePicked(c *gin.Context) {
 
 func (h *Handler) Add(c *gin.Context) {
 	grocery := Grocery{
-		Product:      c.PostForm("product"),
-		Brand:        c.PostForm("brand"),
-		Amount:       c.PostForm("amount"),
-		Store:        c.PostForm("store"),
-		Picked:       false,
+		Product:     c.PostForm("product"),
+		Brand:       c.PostForm("brand"),
+		Amount:      c.PostForm("amount"),
+		Store:       c.PostForm("store"),
+		Picked:      false,
 		HouseholdID: c.GetInt("household_id"),
 	}
 
@@ -141,7 +156,7 @@ func (h *Handler) Edit(c *gin.Context) {
 		panic(err)
 	}
 
-	err = h.Service.Edit(c, groceries, c.GetInt("household_id") )
+	err = h.Service.Edit(c, groceries, c.GetInt("household_id"))
 
 	if err != nil {
 		c.AbortWithStatus(500)

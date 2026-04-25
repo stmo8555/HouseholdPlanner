@@ -7,10 +7,10 @@
         {{template "header" .}}
         <main>
             <div class="margin-block-end-24px">
-                <button id="todo-form-toggler">Add</button>
-                <button id="smart-add-toggler">Smart Add</button>
+                <button class="add-toggler">Add</button>
+                <button class="smart-add-toggler">Smart Add</button>
             </div>
-            <form class="glass glass-strong todo-form hidden margin-block-end-24px" method="post" action="/todos/add">
+            <form class="glass glass-strong add-form todo-form hidden" method="post" action="/todos/add">
                 <h2>Add Task</h2>
                 <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
                     name="todo" required>
@@ -29,7 +29,7 @@
                         <input type="radio" id="custom" name="due" value="custom" class="">
                         <label for="custom" class="button-styling">Custom</label>
                     </div>
-                    <input type="date" id="datepicker" class="glass-inner margin-block-end-12px hidden">
+                    <input type="date" id="datepicker" class="glass-inner hidden">
                 </fieldset>
 
                 <fieldset id="repeat-field" class="margin-block-end-24px">
@@ -60,8 +60,7 @@
                 <h2><label for="smart-add">Smart Add</label></h2>
 
                 <textarea id="smart-add" class="glass-inner margin-block-end-12px"
-                    placeholder='Add a task... (try: "clean window every sunday"' rows="1" name="todo"
-                    required></textarea>
+                    placeholder='Add a task... (try: "clean window every sunday"' name="todo" required></textarea>
                 <button class="inline-size-full margin-block-end-24px" type="submit">Add</button>
             </form>
 
@@ -145,23 +144,8 @@
         {{template "footer" .}}
         <script src="/static/script.js"></script>
         <script>
-            document.getElementById("todo-form-toggler").addEventListener("click", toggleTodoForm)
-            document.getElementById("smart-add-toggler").addEventListener("click", toggleSmartAdd)
-
             const radios = document.querySelectorAll('input[name="due"]');
             const datepicker = document.getElementById('datepicker');
-            const textArea = document.getElementById('smart-add');
-
-            function toggleTodoForm() {
-                document.querySelector(".todo-form").classList.toggle("hidden");
-            }
-
-            function toggleSmartAdd() {
-                document.querySelector(".smart-add-form").classList.toggle("hidden");
-                textArea.style.height = textArea.scrollHeight + "px";
-                textArea.style.overflowY = "hidden";
-            }
-
 
             function formatDate(date) {
                 return date.toISOString().split('T')[0];
@@ -225,6 +209,7 @@
                 });
             });
 
+            const textArea = document.getElementById('smart-add');
             textArea.addEventListener("input", function () {
                 this.style.height = "auto";
                 this.style.height = this.scrollHeight + "px";

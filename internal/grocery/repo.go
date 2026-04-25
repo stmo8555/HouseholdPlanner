@@ -2,6 +2,8 @@ package grocery
 
 import (
 	"context"
+	"fmt"
+
 	"github.com/jackc/pgx/v5"
 )
 
@@ -64,20 +66,20 @@ func (r *Repo) AddGroceries(ctx context.Context, groceries []Grocery) error {
 		}
 
 		err = AddToHistory(tx.Conn(), ctx, grocery)
-		
+
 		if err != nil {
 			return err
 		}
 	}
 
-	return  tx.Commit(ctx)
+	return tx.Commit(ctx)
 }
-func (r *Repo) List(ctx context.Context, householdID int) ([]Grocery, error) {
-	sql := `
+func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) ([]Grocery, error) {
+	sql := fmt.Sprintf(`
         SELECT id, product, brand, store, amount, household_id, picked 
         FROM groceries
         WHERE household_id = $1
-        ORDER BY product;`
+        ORDER BY %s %s;`, sortBy, order)
 
 	rows, err := r.DB.Query(ctx, sql, householdID)
 	if err != nil {
@@ -127,12 +129,12 @@ func (r *Repo) AmountOfUnpickedGroceries(ctx context.Context, hid int) (int, err
 	return count, nil
 }
 
-func (r *Repo) TogglePicked(ctx context.Context,id, householdID int) error {
+func (r *Repo) TogglePicked(ctx context.Context, id, householdID int) error {
 	sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1 AND household_id=$2;`
 	_, err := r.DB.Exec(ctx, sql, id, householdID)
 
 	return err
-} 
+}
 
 func (r *Repo) DeletePicked(ctx context.Context, householdId int) error {
 	sql := `DELETE FROM groceries

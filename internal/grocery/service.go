@@ -107,8 +107,20 @@ func (s *Service) AddGroceries(ctx context.Context, groceries []Grocery) error {
 	return s.Repo.AddGroceries(ctx, groceries)
 }
 
-func (s *Service) List(ctx context.Context, householdID int) (Groceries, error) {
-	groceries, err := s.Repo.List(ctx, householdID)
+func (s *Service) List(ctx context.Context, sortBy, order string, householdID int) (Groceries, error) {
+	allowedSorts := map[string]string{
+		"product": "product",
+		"amount":  "amount",
+		"brand":   "brand",
+		"store":   "store",
+	}
+
+	column, ok := allowedSorts[sortBy]
+	if !ok {
+		column = "product"
+	}
+
+	groceries, err := s.Repo.List(ctx, column, order, householdID)
 
 	if err != nil {
 		return Groceries{}, err

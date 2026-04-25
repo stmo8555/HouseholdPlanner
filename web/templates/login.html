@@ -6,17 +6,16 @@
     <div class="background">
         {{template "header" .}}
         <main>
-            <div class="login-form">
-                <form method="POST" action="/login">
-                    <label for="uname">Username</label>
-                    <input class="glass-inner" type="text" id="uname" name="uname" required>
+            
+            <form class="login-form" method="POST" action="/login">
+                <label for="uname">Username</label>
+                <input class="glass-inner" type="text" id="uname" name="uname" required>
 
-                    <label for="pwd">Password</label>
-                    <input class="glass-inner" type="password" id="pwd" name="pwd" required>
+                <label for="pwd">Password</label>
+                <input class="glass-inner" type="password" id="pwd" name="pwd" required>
 
-                    <button class="login-button" type="submit">Login</button>
-                </form>
-            </div>
+                <button class="login-button" type="submit">Login</button>
+            </form>
         </main>
         {{template "footer" .}}
         <script src="/static/script.js"></script>
