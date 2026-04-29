@@ -14,7 +14,7 @@
                 </form>
             </div>
             <form action="/groceries/extracted" id="exractedForm" method="POST"
-                class='glass margin-block-end-24px padding-inline-24px'>
+                class='glass glass-strong margin-block-end-24px padding-inline-24px'>
                 <h2>Extracted from recipe ({{ len .Groceries }} items)</h2>
                 <table>
                     <thead>
@@ -41,10 +41,10 @@
                         {{range .Groceries}}
                         <tr>
                             <td><button class="removeRowBtn">×</button></td>
-                            <td><input name="product" value="{{.Product}}"></td>
-                            <td><input name="amount" value="{{.Amount}}"></td>
-                            <td><input name="brand" value="{{.Brand}}"></td>
-                            <td><input name="store" value="{{.Store}}"></td>
+                            <td><input class="glass-inner" name="product" value="{{.Product}}"></td>
+                            <td><input class="glass-inner" name="amount" value="{{.Amount}}"></td>
+                            <td><input class="glass-inner" name="brand" value="{{.Brand}}"></td>
+                            <td><input class="glass-inner" name="store" value="{{.Store}}"></td>
                         </tr>
                         {{end}}
                         {{end}}

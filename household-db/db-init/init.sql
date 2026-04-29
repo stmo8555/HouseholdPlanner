@@ -37,6 +37,7 @@ CREATE TABLE "groceries" (
     "brand" varchar,
     "amount" varchar,
     "store" varchar,
+    "category" varchar,
     "household_id" int NOT NULL,
     "created_at" timestamp DEFAULT (now()),
     "updated_at" timestamp,

@@ -70,24 +70,33 @@
                             <th>
                             </th>
                             <th>
-                                <a href="/groceries?sort=product&order={{.NextOrder}}">Product {{if eq .Sort "product"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=product&order={{.NextOrder}}">Product {{if eq .Sort
+                                    "product"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
 
                             <th>
-                                <a href="/groceries?sort=amount&order={{.NextOrder}}">Amount {{if eq .Sort "amount"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=amount&order={{.NextOrder}}">Amount {{if eq .Sort
+                                    "amount"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
 
                             <th>
-                                <a href="/groceries?sort=brand&order={{.NextOrder}}">Brand {{if eq .Sort "brand"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=brand&order={{.NextOrder}}">Brand {{if eq .Sort "brand"}}{{if
+                                    eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
                             <th>
-                                <a href="/groceries?sort=store&order={{.NextOrder}}">Store {{if eq .Sort "store"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=store&order={{.NextOrder}}">Store {{if eq .Sort "store"}}{{if
+                                    eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
                         </tr>
                     </thead>
                     <tbody>
-                        {{if gt (len .Data.NotPicked) 0}}
-                        {{range .Data.NotPicked}}
+                        {{if gt (len .Data.Dairy) 0}}
+                        <tr class="divider-top">
+                            <td colspan="5">
+                                <strong>Dairy ({{len .Data.Dairy}})</strong>
+                            </td>
+                        </tr>
+                        {{range .Data.Dairy}}
                         <tr data-id="{{.Id}}" class="changable">
                             <td>
                                 <form method="POST" action="/groceries">
@@ -110,15 +119,127 @@
                         {{end}}
                         {{end}}
 
+                        {{if gt (len .Data.FruitAndVegetables) 0}}
+                        <tr class="divider-top">
+                            <td colspan="5">
+                                <strong>Fruit & Vegetables ({{len .Data.FruitAndVegetables}})</strong>
+                            </td>
+                        </tr>
+                        {{range .Data.FruitAndVegetables}}
+                        <tr data-id="{{.Id}}" class="changable">
+                            <td>
+                                <form method="POST" action="/groceries">
+                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                                </form>
+                            </td>
+                            <td data-field="product">
+                                <p>{{.Product}}</p>
+                            </td>
+                            <td data-field="amount">
+                                <p>{{.Amount}}</p>
+                            </td>
+                            <td data-field="brand">
+                                <p>{{.Brand}}</p>
+                            </td>
+                            <td data-field="store">
+                                <p>{{.Store}}</p>
+                            </td>
+                        </tr>
+                        {{end}}
+                        {{end}}
+
+                        {{if gt (len .Data.MeatAndFish) 0}}
+                        <tr class="divider-top">
+                            <td colspan="5">
+                                <strong>Meat & Fish ({{len .Data.MeatAndFish}})</strong>
+                            </td>
+                        </tr>
+                        {{range .Data.MeatAndFish}}
+                        <tr data-id="{{.Id}}" class="changable">
+                            <td>
+                                <form method="POST" action="/groceries">
+                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                                </form>
+                            </td>
+                            <td data-field="product">
+                                <p>{{.Product}}</p>
+                            </td>
+                            <td data-field="amount">
+                                <p>{{.Amount}}</p>
+                            </td>
+                            <td data-field="brand">
+                                <p>{{.Brand}}</p>
+                            </td>
+                            <td data-field="store">
+                                <p>{{.Store}}</p>
+                            </td>
+                        </tr>
+                        {{end}}
+                        {{end}}
+
+                        {{if gt (len .Data.Pantry) 0}}
+                        <tr class="divider-top">
+                            <td colspan="5">
+                                <strong>Pantry ({{len .Data.Pantry}})</strong>
+                            </td>
+                        </tr>
+                        {{range .Data.Pantry}}
+                        <tr data-id="{{.Id}}" class="changable">
+                            <td>
+                                <form method="POST" action="/groceries">
+                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                                </form>
+                            </td>
+                            <td data-field="product">
+                                <p>{{.Product}}</p>
+                            </td>
+                            <td data-field="amount">
+                                <p>{{.Amount}}</p>
+                            </td>
+                            <td data-field="brand">
+                                <p>{{.Brand}}</p>
+                            </td>
+                            <td data-field="store">
+                                <p>{{.Store}}</p>
+                            </td>
+                        </tr>
+                        {{end}}
+                        {{end}}
+
+                        {{if gt (len .Data.Other) 0}}
+                        <tr class="divider-top">
+                            <td colspan="5">
+                                <strong>Other ({{len .Data.Other}})</strong>
+                            </td>
+                        </tr>
+                        {{range .Data.Other}}
+                        <tr data-id="{{.Id}}" class="changable">
+                            <td>
+                                <form method="POST" action="/groceries">
+                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
+                                </form>
+                            </td>
+                            <td data-field="product">
+                                <p>{{.Product}}</p>
+                            </td>
+                            <td data-field="amount">
+                                <p>{{.Amount}}</p>
+                            </td>
+                            <td data-field="brand">
+                                <p>{{.Brand}}</p>
+                            </td>
+                            <td data-field="store">
+                                <p>{{.Store}}</p>
+                            </td>
+                        </tr>
+                        {{end}}
+                        {{end}}
                         <!-- Picked section starts -->
                         {{if gt (len .Data.Picked) 0}}
                         <tr class="divider-top">
-                            <td colspan="4">
+                            <td colspan="5">
                                 <strong>Picked ({{len .Data.Picked}})</strong>
                             </td>
-                            <td>
-                            </td>
-
                         </tr>
                         {{range .Data.Picked}}
                         <tr>

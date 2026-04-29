@@ -113,13 +113,13 @@ func (h *Handler) List(c *gin.Context) {
 	}
 
 	data := gin.H{
-		"Title":       "Todos",
+		"Title": "Todos",
 		"CurrentPath": c.Request.URL.Path,
-		"Overdue":     todoList.Overdue,
-		"Today":       todoList.Today,
-		"Soon":        todoList.Soon,
-		"Completed":   todoList.Completed,
-		"TheRest":     todoList.TheRest,
+		"Overdue": todoList.Overdue,
+		"Today": todoList.Today,
+		"Soon": todoList.Soon,
+		"Completed": todoList.Completed,
+		"TheRest": todoList.TheRest,
 	}
 
 	c.HTML(200, "todos.html", data)

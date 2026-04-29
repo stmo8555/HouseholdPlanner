@@ -15,7 +15,8 @@ import (
 )
 
 type Service struct {
-	Repo *Repo
+	Repo           *Repo
+	FoodCategories map[string]string
 }
 
 func (s *Service) GetTopProducts(ctx context.Context, householdID int) ([]string, error) {
@@ -104,10 +105,20 @@ func (s *Service) IngredientsFromRecipe(ctx context.Context, url string) []Groce
 }
 
 func (s *Service) AddGroceries(ctx context.Context, groceries []Grocery) error {
+	for i, g := range groceries {
+		key := strings.ToLower(strings.TrimSpace(g.Product))
+
+		if cat, ok := s.FoodCategories[key]; ok {
+			groceries[i].Category = cat
+		} else {
+			groceries[i].Category = "other"
+		}
+	}
+
 	return s.Repo.AddGroceries(ctx, groceries)
 }
 
-func (s *Service) List(ctx context.Context, sortBy, order string, householdID int) (Groceries, error) {
+func (s *Service) List(ctx context.Context, sortBy, order string, householdID int) (GroceriesView, error) {
 	allowedSorts := map[string]string{
 		"product": "product",
 		"amount":  "amount",
@@ -123,16 +134,25 @@ func (s *Service) List(ctx context.Context, sortBy, order string, householdID in
 	groceries, err := s.Repo.List(ctx, column, order, householdID)
 
 	if err != nil {
-		return Groceries{}, err
+		return GroceriesView{}, err
 	}
 
-	var sortedGroceries Groceries
+	var sortedGroceries GroceriesView
 
 	for _, g := range groceries {
 		if g.Picked {
 			sortedGroceries.Picked = append(sortedGroceries.Picked, g)
 		} else {
-			sortedGroceries.NotPicked = append(sortedGroceries.NotPicked, g)
+			switch g.Category {
+			case "pantry":
+				sortedGroceries.Pantry = append(sortedGroceries.Pantry, g)
+			case "fruit & vegetables":
+				sortedGroceries.FruitAndVegetables = append(sortedGroceries.Pantry, g)
+			case "meat and fish":
+				sortedGroceries.MeatAndFish = append(sortedGroceries.MeatAndFish, g)
+			default:
+				sortedGroceries.Other = append(sortedGroceries.Other, g)
+			}
 		}
 	}
 

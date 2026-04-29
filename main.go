@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
 	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
-
 
 var conn *pgx.Conn
 
@@ -31,12 +31,17 @@ func main() {
 		panic(err)
 	}
 
+	foodMap, err := loadFoodMap("food_category_lookup.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	defer conn.Close(context.Background())
 
 	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
 	todosService = &todo.Service{Repo: &todo.Repo{DB: conn}}
 	recipesService = &recipe.Service{Repo: &recipe.Repo{DB: conn}}
-	groceriesService = &grocery.Service{Repo: &grocery.Repo{DB: conn}}
+	groceriesService = &grocery.Service{Repo: &grocery.Repo{DB: conn}, lookUp map[string]string}
 
 	r := gin.Default()
 	r.LoadHTMLGlob("web/templates/*.html")
@@ -129,4 +134,18 @@ func dbDSN() string {
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		user, password, host, port, name, sslmode,
 	)
+}
+
+func loadFoodMap(path string) (map[string]string, error) {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return nil, err
+	}
+
+	var m map[string]string
+	if err := json.Unmarshal(data, &m); err != nil {
+		return nil, err
+	}
+
+	return m, nil
 }

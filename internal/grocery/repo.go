@@ -50,8 +50,8 @@ func AddToHistory(conn *pgx.Conn, ctx context.Context, grocerie Grocery) error {
 func (r *Repo) AddGroceries(ctx context.Context, groceries []Grocery) error {
 
 	sql := `INSERT INTO groceries 
-	(product, brand, amount, store, picked, household_id)
-	VALUES ($1, $2, $3, $4, FALSE, $5)`
+	(product, brand, amount, store, picked, category, household_id)
+	VALUES ($1, $2, $3, $4, FALSE, $5, $6)`
 
 	tx, err := r.DB.Begin(ctx)
 	if err != nil {
@@ -60,7 +60,7 @@ func (r *Repo) AddGroceries(ctx context.Context, groceries []Grocery) error {
 	defer tx.Rollback(ctx)
 
 	for _, grocery := range groceries {
-		_, err = tx.Exec(ctx, sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Store, grocery.HouseholdID)
+		_, err = tx.Exec(ctx, sql, grocery.Product, grocery.Brand, grocery.Amount, grocery.Store, grocery.Category, grocery.HouseholdID)
 		if err != nil {
 			return err
 		}
@@ -76,7 +76,7 @@ func (r *Repo) AddGroceries(ctx context.Context, groceries []Grocery) error {
 }
 func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) ([]Grocery, error) {
 	sql := fmt.Sprintf(`
-        SELECT id, product, brand, store, amount, household_id, picked 
+        SELECT id, product, brand, store, amount, household_id, picked, category 
         FROM groceries
         WHERE household_id = $1
         ORDER BY %s %s;`, sortBy, order)
@@ -100,6 +100,7 @@ func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) 
 			&g.Amount,
 			&g.HouseholdID,
 			&g.Picked,
+			&g.Category,
 		)
 
 		if err != nil {
