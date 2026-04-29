@@ -10,10 +10,15 @@ type Repo struct {
 	DB *pgx.Conn
 }
 
-func (r *Repo) Add(ctx context.Context, title string, hid int) error {
+func (r *Repo) Add(ctx context.Context, t Todo) error {
 	_, err := r.DB.Exec(ctx,
-		`INSERT INTO todos (title, household_id) VALUES ($1, $2)`,
-		title, hid,
+		`INSERT INTO todos (task, due, repeat, frequency, household_id)
+		VALUES ($1, $2, $3, $4, $5)`,
+		t.Task,
+		t.Due,
+		t.Repeat,
+		t.Frequency,
+		t.HouseholdID,
 	)
 	return err
 }
@@ -55,7 +60,7 @@ func (r *Repo) RemoveCompletedOlderThan(ctx context.Context, cutoff time.Time) e
 }
 
 func (r *Repo) List(ctx context.Context, hid int) ([]Todo, error) {
-	sql := `SELECT id, title, household_id, completed_at 
+	sql := `SELECT id, task, due, repeat, frequency, completed_at, household_id
         FROM todos WHERE household_id = $1;`
 
 	rows, err := r.DB.Query(ctx, sql, hid)
@@ -71,9 +76,12 @@ func (r *Repo) List(ctx context.Context, hid int) ([]Todo, error) {
 		var t Todo
 		err := rows.Scan(
 			&t.Id,
-			&t.Title,
-			&t.Household_id,
-			&t.Completed_at,
+			&t.Task,
+			&t.Due,
+			&t.Repeat,
+			&t.Frequency,
+			&t.CompletedAt,
+			&t.HouseholdID,
 		)
 
 		if err != nil {
@@ -82,6 +90,6 @@ func (r *Repo) List(ctx context.Context, hid int) ([]Todo, error) {
 
 		todos = append(todos, t)
 	}
-	
+
 	return todos, err
 }

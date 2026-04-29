@@ -6,24 +6,19 @@
 <body>
     <div class="background">
         {{template "header" .}}
-        <div id="add-recipe-overlay" class="overlay">
-            <div id="add-recipe-modal" class="glass fixed-center">
-                <h2 class="margin-inline-24px">Add Recipe</h2>
-                <form class="add-grocery-form" method="post" action="/recipes/add">
-                    <div class="margin-inline-24px">
-                        <label for="1">Link</label>
-                        <input class="focus" id="1" type="text" name="link" required>
-                        <div class="text-align-center">
-                            <button type="submit">add</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
         <main>
-            <div class="margin-block-end-24px">
-                <button id="add-recipe">Add Recipe</button>
-            </div>
+            <fieldset class="margin-block-end-24px">
+                <legend class="sr-only">Action buttons</legend>
+                <button class="add-toggler">Add Recipe</button>
+                <!-- <button class="smart-add-toggler">Smart Add</button> -->
+            </fieldset>
+
+            <form class="glass add-form add-recipe-form hidden" method="post" action="/recipes/add">
+                <h2>Add Recipe</h2>
+                <input class="inline-size-full glass-inner focus margin-block-end-24px"
+                    placeholder="Add link to recipe..." id="1" type="text" name="link" required>
+                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+            </form>
 
             <div class="grid-recipe">
                 {{range .Data}}

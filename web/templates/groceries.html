@@ -56,7 +56,7 @@
             <form class="glass extract-grocery-form hidden" method="POST" action="/groceries/extract">
                 <h2>Extract Ingredients From Recipe</h2>
                 <input class="inline-size-full glass-inner focus margin-block-end-24px"
-                    placeholder="Add link to recipe..." id="1" type="text" name="link" required>
+                    placeholder="Add link to recipe..." type="text" name="link" required>
                 <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
@@ -70,18 +70,18 @@
                             <th>
                             </th>
                             <th>
-                                <a href="/groceries?sort=product&order={{.NextOrder}}">Product{{if eq .Sort "product"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=product&order={{.NextOrder}}">Product {{if eq .Sort "product"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
 
                             <th>
-                                <a href="/groceries?sort=amount&order={{.NextOrder}}">Amount{{if eq .Sort "amount"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=amount&order={{.NextOrder}}">Amount {{if eq .Sort "amount"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
 
                             <th>
-                                <a href="/groceries?sort=brand&order={{.NextOrder}}">Brand{{if eq .Sort "brand"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=brand&order={{.NextOrder}}">Brand {{if eq .Sort "brand"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
                             <th>
-                                <a href="/groceries?sort=store&order={{.NextOrder}}">Store{{if eq .Sort "store"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
+                                <a href="/groceries?sort=store&order={{.NextOrder}}">Store {{if eq .Sort "store"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}} {{end}}</a>
                             </th>
                         </tr>
                     </thead>
@@ -136,14 +136,16 @@
                         {{end}}
                     </tbody>
                 </table>
+                {{if gt (len .Data.Picked) 0}}
                 <form action="/groceries/delete/picked" method="POST">
                     <button class="block margin-inline-auto inline-size-full" type="submit">Done</button>
                 </form>
+                {{end}}
             </section>
         </main>
         <script src="/static/script.js"></script>
         <script>
-            var notMobile = window.matchMedia("(min-width: 500px)")
+            const notMobile = window.matchMedia("(min-width: 500px)")
 
             document.getElementById('extract-button').addEventListener("click", () => {
                 document.querySelector(".extract-grocery-form").classList.toggle("hidden");

@@ -2,6 +2,8 @@ package todo
 
 import (
 	"context"
+	"errors"
+	"strings"
 	"time"
 )
 
@@ -9,8 +11,16 @@ type Service struct {
 	Repo *Repo
 }
 
-func (s *Service) AddTodo(ctx context.Context, title string, hid int) error {
-	return s.Repo.Add(ctx, title, hid)
+func (s *Service) AddTodo(ctx context.Context, todo Todo) error {
+	task := strings.TrimSpace(todo.Task)
+
+	if task == "" {
+		return errors.New("Task have no name")
+	}
+
+	todo.Task = strings.ToUpper(task[:1]) + strings.ToLower(task[1:])
+
+	return s.Repo.Add(ctx, todo)
 }
 
 func (s *Service) Count(ctx context.Context, hid int) (int, error) {
@@ -30,22 +40,48 @@ func (s *Service) RemoveOldCompleted(ctx context.Context) error {
 	return s.Repo.RemoveCompletedOlderThan(ctx, cutoff)
 }
 
-func (s *Service) List(ctx context.Context, hid int) (TodoList, error) {
+func (s *Service) List(ctx context.Context, hid int) (TodosCategorized, error) {
 	todos, err := s.Repo.List(ctx, hid)
 
 	if err != nil {
-		return TodoList{}, err
+		return TodosCategorized{}, err
 	}
 
-	var todolist TodoList
+	now := time.Now()
+	today := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	soon := today.AddDate(0, 0, 4)
+
+	var todosCategorized TodosCategorized
 
 	for _, t := range todos {
-		if t.Completed_at.Valid {
-			todolist.Completed = append(todolist.Completed, t)
-		} else {
-			todolist.Active = append(todolist.Active, t)
+		due := t.Due.Time
+
+		dueDate := time.Date(
+			due.Year(), due.Month(), due.Day(),
+			0, 0, 0, 0,
+			today.Location(),
+		)
+
+		switch {
+		case t.CompletedAt.Valid:
+			todosCategorized.Completed = append(todosCategorized.Completed, t)
+
+		case !t.Due.Valid:
+			todosCategorized.TheRest = append(todosCategorized.TheRest, t)
+
+		case dueDate.Before(today):
+			todosCategorized.Overdue = append(todosCategorized.Overdue, t)
+
+		case dueDate.Equal(today):
+			todosCategorized.Today = append(todosCategorized.Today, t)
+
+		case dueDate.After(today) && !dueDate.After(soon):
+			todosCategorized.Soon = append(todosCategorized.Soon, t)
+
+		default:
+			todosCategorized.TheRest = append(todosCategorized.TheRest, t)
 		}
 	}
 
-	return todolist, nil
+	return todosCategorized, nil
 }

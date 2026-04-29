@@ -1,8 +1,10 @@
 package todo
 
 import (
+	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,15 +16,38 @@ type Handler struct {
 func (h *Handler) Add(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	todo := strings.TrimSpace(c.PostForm("todo"))
+	task := c.PostForm("task")
+	due := c.PostForm("due")
+	repeat := c.PostForm("repeat")
+	frequency := c.PostForm("frequency")
 
-	if todo == "" {
-		c.AbortWithStatus(400)
-		c.String(500, "no todo")
+	task = strings.TrimSpace(c.PostForm("task"))
+	if task == "" {
+		c.Redirect(http.StatusSeeOther, "/todos")
 		return
 	}
 
-	err := h.Service.AddTodo(c, todo, hid)
+	freqInt, err := strconv.Atoi(frequency)
+
+	if err != nil {
+		c.AbortWithStatus(500)
+		c.String(500, err.Error())
+		return
+	}
+
+	todo := Todo{Task: task, Repeat: repeat, Frequency: freqInt, HouseholdID: hid}
+	if due != "" {
+		todo.Due.Time, err = time.Parse("2006-01-02", due)
+		todo.Due.Valid = true
+	}
+
+	if err != nil {
+		c.AbortWithStatus(500)
+		c.String(500, err.Error())
+		return
+	}
+
+	err = h.Service.AddTodo(c, todo)
 	if err != nil {
 		c.AbortWithStatus(500)
 		c.String(500, err.Error())
@@ -90,8 +115,11 @@ func (h *Handler) List(c *gin.Context) {
 	data := gin.H{
 		"Title":       "Todos",
 		"CurrentPath": c.Request.URL.Path,
-		"Active":       todoList.Active,
+		"Overdue":     todoList.Overdue,
+		"Today":       todoList.Today,
+		"Soon":        todoList.Soon,
 		"Completed":   todoList.Completed,
+		"TheRest":     todoList.TheRest,
 	}
 
 	c.HTML(200, "todos.html", data)

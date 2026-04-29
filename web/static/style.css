@@ -301,8 +301,10 @@ thead {
 
 th,
 td {
-    /* padding: 10px; */
     text-align: left;
+}
+
+td {
     padding-block: 10px;
 }
 
@@ -390,6 +392,12 @@ tr.divider-top td {
     .checkbox:hover {
         cursor: pointer;
     }
+}
+
+.add-recipe-form {
+    padding-inline: 24px;
+    padding-block-end: 24px;
+    margin-block-end: 24px;
 }
 
 .grid-recipe {
@@ -550,7 +558,7 @@ tr.divider-top td {
 
 .todo-form input[type="radio"]+label {
     opacity: 0.5;
-    font-size: clamp(0.7rem, 1dvw, 1rem);
+    font-size: clamp(0.7rem, 2dvw, 1rem);
 }
 
 .todo-form input[type="radio"]:checked+label {
@@ -731,7 +739,7 @@ button {
     justify-content: space-between;
     align-items: center;
     padding-inline: 10px;
-    margin-block: 5px;
+    margin-block: 6px;
 }
 
 /* nav styling */

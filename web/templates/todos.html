@@ -10,26 +10,26 @@
                 <button class="add-toggler">Add</button>
                 <button class="smart-add-toggler">Smart Add</button>
             </div>
-            <form class="glass glass-strong add-form todo-form hidden" method="post" action="/todos/add">
+            <form class="glass add-form todo-form hidden" method="post" action="/todos/add">
                 <h2>Add Task</h2>
                 <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
-                    name="todo" required>
-                <fieldset class="">
+                    name="task" required>
+                <fieldset>
                     <legend class="block margin-block-end-12px">Due</legend>
                     <div class="flex gap-6px margin-block-end-12px">
-                        <input type="radio" id="today" name="due" value="today" checked="true" class="">
+                        <input type="radio" id="today" name="due-choices" value="today" checked="true" class="">
                         <label for="today" class="button-styling">Today</label>
 
-                        <input type="radio" id="tomorrow" name="due" value="tomorrow" class="">
+                        <input type="radio" id="tomorrow" name="due-choices" value="tomorrow" class="">
                         <label for="tomorrow" class="button-styling">Tomorrow</label>
 
-                        <input type="radio" id="unspecified" name="due" value="unspecified" class="">
+                        <input type="radio" id="unspecified" name="due-choices" value="unspecified" class="">
                         <label for="unspecified" class="button-styling">Unspecified</label>
 
-                        <input type="radio" id="custom" name="due" value="custom" class="">
+                        <input type="radio" id="custom" name="due-choices" value="custom" class="">
                         <label for="custom" class="button-styling">Custom</label>
                     </div>
-                    <input type="date" id="datepicker" class="glass-inner hidden">
+                    <input name="due" type="date" id="datepicker" class="glass-inner hidden margin-block-end-12px">
                 </fieldset>
 
                 <fieldset id="repeat-field" class="margin-block-end-24px">
@@ -42,16 +42,16 @@
                             <option value="weekly">Weekly</option>
                             <option value="yearly">Yearly</option>
                         </select>
-                        <div class="repeat-interval-container hidden">
+                        <div class="repeat-frequency-container hidden">
                             <span>Every</span>
                             <button type="button" value="-1">-</button>
-                            <input class="glass-inner" type="number" name="repeat-interval" value="1" min="1" max="99">
+                            <input class="glass-inner" type="number" name="frequency" value="1" min="1" max="99">
                             <button type="button" value="1">+</button>
                             <span id="repeat-unit"></span>
                         </div>
                     </div>
                 </fieldset>
-                <button class="inline-size-full margin-block-end-24px" type="submit">Add</button>
+                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
 
@@ -60,12 +60,12 @@
                 <h2><label for="smart-add">Smart Add</label></h2>
 
                 <textarea id="smart-add" class="glass-inner margin-block-end-12px"
-                    placeholder='Add a task... (try: "clean window every sunday"' name="todo" required></textarea>
-                <button class="inline-size-full margin-block-end-24px" type="submit">Add</button>
+                    placeholder='Add a task... (try: "clean window every sunday")' name="todo" required></textarea>
+                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
             <!--    filter -->
-            <fieldset class="todo-filter glass">
+            <fieldset class="todo-filter glass glass-strong">
                 <legend class="sr-only">Filter todos</legend>
 
                 <input type="radio" id="allFilter" name="filter" value="all" checked>
@@ -86,65 +86,104 @@
             <!-- end of filter -->
 
             <section class="todo-overdue" data-filter-section="overdue">
-                <h2>Overdue 2</h2>
+                {{if gt (len .Overdue) 0}}
+                <h2>Overdue {{len .Overdue}}</h2>
                 <ul>
                     {{range .Overdue}}
-                    <li class="todo glass">
-                        <p><strong>{{.Title}}</strong></p>
+                    <li class="todo">
+                        <div>
+                            <p><strong>{{.Task}}</strong></p>
+                            <p>Was due {{if eq .DueIn 1}}yesterday{{else}}{{.DueIn}} days ago{{end}}
+                        </div>
                         <form method="POST" action="/todos/done">
                             <button type="submit" name="id" value="{{.Id}}">Done</button>
                         </form>
                     </li>
                     {{end}}
                 </ul>
+                {{end}}
             </section>
+
             <section data-filter-section="today">
-                <h2>Today</h2>
-                <ul>
+                {{if gt (len .Today) 0}}
+                <h2>Today {{len .Today}}</h2>
+                <ul class="glass">
                     {{range .Today}}
-                    <li class="todo glass">
-                        <p><strong>{{.Title}}</strong></p>
+                    <li class="todo">
+                        <div>
+                            <p><strong>{{.Task}}</strong></p>
+                            <small>Today</small>
+                        </div>
                         <form method="POST" action="/todos/done">
                             <button type="submit" name="id" value="{{.Id}}">Done</button>
                         </form>
                     </li>
                     {{end}}
                 </ul>
+                {{end}}
             </section>
+
             <section data-filter-section="soon">
-                <h2>Soon</h2>
-                <ul>
+                {{if gt (len .Soon) 0}}
+                <h2>Soon {{len .Soon}}</h2>
+                <ul class="glass">
                     {{range .Soon}}
-                    <li class="todo glass">
-                        <p><strong>{{.Title}}</strong></p>
+                    <li class="todo">
+                        <div>
+                            <p><strong>{{.Task}}</strong></p>
+                            <p>Was due {{if eq .DueIn 1}}Tomorrow{{else}}{{.DueIn}} days ago{{end}}
+                        </div>
                         <form method="POST" action="/todos/done">
                             <button type="submit" name="id" value="{{.Id}}">Done</button>
                         </form>
                     </li>
                     {{end}}
                 </ul>
+                {{end}}
             </section>
-            {{if gt (len .Completed) 0}}
+
             <section data-filter-section="completed">
-                <h2>Completed ({{len .Completed}})</h2>
-                <p class="badge">Auto-clears after seven day</p>
-                <ul>
+                {{if gt (len .Completed) 0}}
+                <div class="flex space-between align-items">
+                    <h2>Completed ({{len .Completed}})</h2>
+                    <p class="badge">Auto-clears after seven day</p>
+                </div>
+                <ul class="glass">
                     {{range .Completed}}
-                    <li class="todo glass">
-                        <p><strong>{{.Title}}</strong></p>
+                    <li class="todo">
+                        <p><strong>{{.Task}}</strong></p>
                         <form method="POST" action="/todos/undo">
                             <button type="submit" name="id" value="{{.Id}}">Undo</button>
                         </form>
                     </li>
                     {{end}}
                 </ul>
+                {{end}}
             </section>
-            {{end}}
+
+            <section data-filter-section="Later">
+                {{if gt (len .TheRest) 0}}
+                <h2>Later ({{len .TheRest}})</h2>
+                <ul class="glass">
+                    {{range .TheRest}}
+                    <li class="todo">
+                        <div>
+                            <p><strong>{{.Task}}</strong></p>
+                            <p>Was due {{if eq .DueIn 1}}yesterday{{else}}{{.DueIn}} days ago{{end}}
+                        </div>
+                        <form method="POST" action="/todos/undo">
+                            <button type="submit" name="id" value="{{.Id}}">Undo</button>
+                        </form>
+                    </li>
+                    {{end}}
+                </ul>
+                {{end}}
+            </section>
         </main>
         {{template "footer" .}}
         <script src="/static/script.js"></script>
         <script>
-            const radios = document.querySelectorAll('input[name="due"]');
+            const radios = document.querySelectorAll('input[name="due-choices"]');
             const datepicker = document.getElementById('datepicker');
 
             function formatDate(date) {
@@ -188,7 +227,7 @@
             });
 
             const repeatDropdown = document.getElementById("repeat-dropdown");
-            const repeatIntervalContainer = document.querySelector(".repeat-interval-container");
+            const repeatIntervalContainer = document.querySelector(".repeat-frequency-container");
             const repeatBtns = repeatIntervalContainer.querySelectorAll("button");
             const repeatInterval = repeatIntervalContainer.querySelector("input");
             const repeatUnit = document.getElementById("repeat-unit");
