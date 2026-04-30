@@ -31,9 +31,10 @@ func main() {
 		panic(err)
 	}
 
-	foodMap, err := loadFoodMap("food_category_lookup.json")
+	foodMap, err := loadFoodMap("./food_category_lookup.json")
+
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	defer conn.Close(context.Background())
@@ -41,7 +42,10 @@ func main() {
 	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
 	todosService = &todo.Service{Repo: &todo.Repo{DB: conn}}
 	recipesService = &recipe.Service{Repo: &recipe.Repo{DB: conn}}
-	groceriesService = &grocery.Service{Repo: &grocery.Repo{DB: conn}, lookUp map[string]string}
+	groceriesService = &grocery.Service{
+		Repo: &grocery.Repo{DB: conn},
+		FoodCategories: foodMap,
+	}
 
 	r := gin.Default()
 	r.LoadHTMLGlob("web/templates/*.html")

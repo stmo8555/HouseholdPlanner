@@ -13,7 +13,7 @@
                 <!-- <button class="smart-add-toggler">Smart Add</button> -->
             </fieldset>
 
-            <form class="glass add-form add-recipe-form hidden" method="post" action="/recipes/add">
+            <form class="glass container add-form add-recipe-form hidden" method="post" action="/recipes/add">
                 <h2>Add Recipe</h2>
                 <input class="inline-size-full glass-inner focus margin-block-end-24px"
                     placeholder="Add link to recipe..." id="1" type="text" name="link" required>
@@ -22,7 +22,7 @@
 
             <div class="grid-recipe">
                 {{range .Data}}
-                <div class="glass recipe-card">
+                <div class="glass container recipe-card">
                     <div class="image-wrapper">
                         <img src="{{.Img_url}}" alt="{{.Title}}">
                     </div>

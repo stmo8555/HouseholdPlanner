@@ -93,10 +93,15 @@ func (h *Handler) List(c *gin.Context) {
 		"Title":       "Groceries",
 		"CurrentPath": c.Request.URL.Path,
 		"Data":        groceries,
+		"Total": len(groceries.Pantry) +
+			len(groceries.FruitAndVegetables) +
+			len(groceries.MeatAndFish) +
+			len(groceries.Dairy) +
+			len(groceries.Other),
 		"TopProducts": topProducts,
-		"Sort": sortBy,
-		"Order": order,
-		"NextOrder": nextOrder,
+		"Sort":        sortBy,
+		"Order":       order,
+		"NextOrder":   nextOrder,
 	}
 
 	c.HTML(200, "groceries.html", data)

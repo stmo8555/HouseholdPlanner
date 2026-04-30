@@ -109,8 +109,10 @@ func (s *Service) AddGroceries(ctx context.Context, groceries []Grocery) error {
 		key := strings.ToLower(strings.TrimSpace(g.Product))
 
 		if cat, ok := s.FoodCategories[key]; ok {
+			fmt.Println("Found")
 			groceries[i].Category = cat
 		} else {
+			fmt.Println("NotFound")
 			groceries[i].Category = "other"
 		}
 	}
@@ -144,10 +146,12 @@ func (s *Service) List(ctx context.Context, sortBy, order string, householdID in
 			sortedGroceries.Picked = append(sortedGroceries.Picked, g)
 		} else {
 			switch g.Category {
+			case "dairy":
+				sortedGroceries.Dairy = append(sortedGroceries.Dairy, g)
 			case "pantry":
 				sortedGroceries.Pantry = append(sortedGroceries.Pantry, g)
 			case "fruit & vegetables":
-				sortedGroceries.FruitAndVegetables = append(sortedGroceries.Pantry, g)
+				sortedGroceries.FruitAndVegetables = append(sortedGroceries.FruitAndVegetables, g)
 			case "meat and fish":
 				sortedGroceries.MeatAndFish = append(sortedGroceries.MeatAndFish, g)
 			default:

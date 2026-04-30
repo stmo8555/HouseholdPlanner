@@ -15,7 +15,7 @@
                 <button id="edit-button">Edit</button>
             </fieldset>
 
-            <form class="glass add-form add-grocery-form hidden" method="POST" action="/groceries/add">
+            <form class="glass container add-form add-grocery-form hidden" method="POST" action="/groceries/add">
                 <h2>Add Grocery</h2>
                 <p class="margin-block-end-12px"><strong>Quick Select</strong></p>
                 <div class="quick-select margin-block-end-24px">
@@ -44,7 +44,7 @@
                 <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
-            <form class="smart-add-form glass hidden" method="post" action="/groceries/smartadd">
+            <form class="smart-add-form glass container hidden" method="post" action="/groceries/smartadd">
                 <h2><label for="smart-add">Smart Add</label></h2>
 
                 <textarea id="smart-add" class="glass-inner margin-block-end-24px"
@@ -53,17 +53,16 @@
                 <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
-            <form class="glass extract-grocery-form hidden" method="POST" action="/groceries/extract">
+            <form class="glass container extract-grocery-form hidden" method="POST" action="/groceries/extract">
                 <h2>Extract Ingredients From Recipe</h2>
                 <input class="inline-size-full glass-inner focus margin-block-end-24px"
                     placeholder="Add link to recipe..." type="text" name="link" required>
                 <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
-
             <!-- table start -->
-            <section class='glass glass-strong grocery-list'>
-                <h2>Shopping ({{ len .Data.NotPicked }})</h2>
+            <section class='glass container glass-strong grocery-list'>
+                <h2>Shopping ({{.Total}})</h2>
                 <table>
                     <thead>
                         <tr>
@@ -93,7 +92,7 @@
                         {{if gt (len .Data.Dairy) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
-                                <strong>Dairy ({{len .Data.Dairy}})</strong>
+                                <strong class="dairy">Dairy ({{len .Data.Dairy}})</strong>
                             </td>
                         </tr>
                         {{range .Data.Dairy}}
@@ -122,7 +121,7 @@
                         {{if gt (len .Data.FruitAndVegetables) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
-                                <strong>Fruit & Vegetables ({{len .Data.FruitAndVegetables}})</strong>
+                                <strong class="fruit">Fruit & Vegetables ({{len .Data.FruitAndVegetables}})</strong>
                             </td>
                         </tr>
                         {{range .Data.FruitAndVegetables}}
@@ -151,7 +150,7 @@
                         {{if gt (len .Data.MeatAndFish) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
-                                <strong>Meat & Fish ({{len .Data.MeatAndFish}})</strong>
+                                <strong class="meat">Meat & Fish ({{len .Data.MeatAndFish}})</strong>
                             </td>
                         </tr>
                         {{range .Data.MeatAndFish}}
@@ -180,7 +179,7 @@
                         {{if gt (len .Data.Pantry) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
-                                <strong>Pantry ({{len .Data.Pantry}})</strong>
+                                <strong class="pantry">Pantry ({{len .Data.Pantry}})</strong>
                             </td>
                         </tr>
                         {{range .Data.Pantry}}
@@ -209,7 +208,7 @@
                         {{if gt (len .Data.Other) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
-                                <strong>Other ({{len .Data.Other}})</strong>
+                                <strong class="other">Other ({{len .Data.Other}})</strong>
                             </td>
                         </tr>
                         {{range .Data.Other}}
@@ -238,7 +237,7 @@
                         {{if gt (len .Data.Picked) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
-                                <strong>Picked ({{len .Data.Picked}})</strong>
+                                <strong class="picked">Picked ({{len .Data.Picked}})</strong>
                             </td>
                         </tr>
                         {{range .Data.Picked}}

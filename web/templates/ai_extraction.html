@@ -14,7 +14,7 @@
                 </form>
             </div>
             <form action="/groceries/extracted" id="exractedForm" method="POST" class="">
-                <div class="glass padding-inline-24px">
+                <div class="glass container">
                     <h2>Groceries ({{len .Groceries}})</h2>
                     <div class="grid-4 text-align-center">
                         <p>Product</p>
@@ -23,7 +23,7 @@
                         <p>Store</p>
                     </div>
                     {{range .Groceries}}
-                    <div class="grid-4 glass text-align-center margin-block-end-24px">
+                    <div class="grid-4 glass container text-align-center margin-block-end-24px">
                         <div data-field="product">
                             <p>{{.Product}}</p>
                         </div>
@@ -42,14 +42,14 @@
                 {{if gt (len .Recipes) 0}}
                 <h2>Recipes ({{len .Recipes}})</h2>
                 {{range .Recipes}}
-                <div class="glass padding-inline-24px margin-block-end-24px flex">
+                <div class="glass container padding-inline-24px margin-block-end-24px flex">
                     <p>recipe card</p>
                 </div>
                 {{end}}
                 {{end}}
                 <h2>Todos ({{len .Todos}})</h2>
                 {{range .Todos}}
-                <div class="glass padding-inline-24px margin-block-end-24px flex">
+                <div class="glass container padding-inline-24px margin-block-end-24px flex">
                     <p>{{.Title}}</p>
                 </div>
                 {{end}}
