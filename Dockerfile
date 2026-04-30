@@ -11,5 +11,6 @@ FROM alpine:latest
 WORKDIR /root/
 COPY --from=build /app/HouseholdPlanner .
 COPY --from=build /app/web ./web
+COPY --from=build /app/food_category_lookup.json .
 EXPOSE 8080
 CMD ["./HouseholdPlanner"]
