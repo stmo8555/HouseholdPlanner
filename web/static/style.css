@@ -27,6 +27,17 @@
     /* Shadows */
     --shadow: rgba(70, 90, 140, 0.14);
     --shadow-accent: rgba(242, 168, 199, 0.25);
+
+    /* Padding */
+    --padding-inline: 12px;
+    --padding-block: 12px;
+    --margin-block: 12px;
+
+    @media screen and (min-width: 500px) {
+        --padding-inline: 24px;
+        --padding-block: 24px;
+        --margin-block: 24px;
+    }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -65,15 +76,9 @@
 }
 
 .container {
-    padding-inline: 12px;
-    padding-block-end: 12px;
-    margin-block-end: 12px;
-
-    @media screen and (min-width: 500px) {
-        padding-inline: 24px;
-        padding-block-end: 24px;
-        margin-block-end: 24px;
-    }
+    padding-inline: var(--padding-inline);
+    padding-block-end: var(--padding-block);
+    margin-block-end: var(--margin-block);
 }
 
 .glass {
@@ -184,6 +189,7 @@ body {
 
 .background {
     min-block-size: 100dvh;
+    padding-block-end: var(--padding-block);
     background:
         radial-gradient(circle at top left, rgba(255, 255, 255, 0.6), transparent 30%),
         linear-gradient(180deg, var(--bg-soft), var(--bg));
@@ -381,6 +387,10 @@ tr.divider-top {
     border-block-start: solid var(--text-lightly-dimmed) 2px;
 }
 
+tr:last-of-type {
+    border-block-end: 24px;
+}
+
 
 .divider-top .dairy {
     color: #38bdf8;
@@ -556,11 +566,6 @@ tr.divider-top td {
     margin-inline: auto;
     padding-block: 10px;
     inline-size: 60%;
-}
-
-.todo-form button {
-    display: block;
-    margin-inline: auto;
 }
 
 .todo-form input[type="text"] {
@@ -751,10 +756,36 @@ button {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-block-end: 1px solid var(--text-dimmed);
+    padding-inline: var(--padding-inline);
+    padding-block: var(--padding-block);
+}
+
+.todo form {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    justify-content: center;
+    gap: 6px;
+}
+
+.todo form small {
+    color: white;
+}
+
+.todo strong {
+    display: block;
+}
+
+.todo:last-of-type {
+    border-block-end: 0;
 }
 
 .todo small {
-    color: var(--accent-light);
+    color: var(--text-dimmed);
+    @media (prefers-color-scheme: dark) {
+        color: var(--accent-light);
+    }
 }
 
 /* nav styling */

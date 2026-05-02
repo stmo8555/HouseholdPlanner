@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
-	"regexp"
-	"strings"
-	"time"
-
+	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
 	"golang.org/x/net/html"
+	"net/http"
+	"regexp"
+	"strings"
 )
 
 type Service struct {
@@ -23,101 +22,98 @@ func (s *Service) GetTopProducts(ctx context.Context, householdID int) ([]string
 	return s.Repo.getTopProducts(ctx, householdID)
 }
 
-func ai(ctx context.Context, link string) string {
+var client = openai.NewClient()
+var schema = GenerateSchema[GroceriesAI]()
 
-	resp, err := http.Get(link)
+func ai(ctx context.Context, text string) []Grocery {
+	prompt := `Extract groceries from text.
+				Rules:
+				- Do not guess or infer.
+				- Missing amount, brand, or store = "".
+				- Product is the grocery name only.
+
+				Text:
+				` + text
+
+	response, err := client.Responses.New(ctx, responses.ResponseNewParams{
+		Model: openai.ChatModelGPT4_1Nano,
+		Input: responses.ResponseNewParamsInputUnion{
+			OfString: openai.String(prompt),
+		},
+		Text: responses.ResponseTextConfigParam{
+			Format: responses.ResponseFormatTextConfigParamOfJSONSchema(
+				"groceries",
+				schema,
+			),
+		},
+
+		Temperature:     openai.Float(0),
+		MaxOutputTokens: openai.Int(300),
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	var gs GroceriesAI
+	err = json.Unmarshal([]byte(response.OutputText()), &gs)
+
+	if err != nil {
+		panic(err)
+	}
+
+	groceries := make([]Grocery, len(gs.List))
+	for i, v := range gs.List {
+		groceries[i] = Grocery{
+			Product: v.Product,
+			Amount: v.Amount,
+			Brand: v.Brand,
+			Store: v.Store,
+		}
+	}
+
+	return groceries
+}
+
+func (s *Service) IngredientsFromRecipe(ctx context.Context, url string) []Grocery {
+
+	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)
 	}
 
 	defer resp.Body.Close()
 
-	start := time.Now()
-
 	tags := findTags(resp)
 
-	fmt.Println("took:", time.Since(start))
-
-	// fmt.Println("Parsed: " + tags)
-
-	client := openai.NewClient()
-
-	templatePrompt := `Extract ingredients from the text.
-
-Return ONLY raw JSON (no markdown, no code blocks):
-[
-	{ "Product": "ingredient name", "Amount": "amount", "Brand": "brand"}
-]
-
-Rules:
-- Amount = only numbers + units (e.g. "2 dl", "1 msk", "efter smak")
-- Product = only the ingredient name
-- Brand = only the products brand
-- If there is not suffiecent info, return empty json list []
-- Remove preparation words (hackad, skivad, riven, etc.)
-- Remove text after commas
-- No explanations
-- Do NOT wrap output in ANYTHING ELSE THAN []
-
-Text: 
-%s`
-
-	question := fmt.Sprintf(templatePrompt, tags)
-	ai_resp, ai_err := client.Responses.New(ctx, responses.ResponseNewParams{
-		Input: responses.ResponseNewParamsInputUnion{OfString: openai.String(question)},
-		Model: openai.ChatModelGPT4_1Nano,
-	})
-
-	if ai_err != nil {
-		panic(ai_err)
-	}
-
-	return ai_resp.OutputText()
-}
-
-func (s *Service) IngredientsFromRecipe(ctx context.Context, url string) []Grocery {
-	received := ai(ctx, url)
-	// 	received := `[
-	//   { "Product": "olivolja", "Amount": "till stekning" },
-	//   { "Product": "vitlök", "Amount": "3 klyftor" },
-	//   { "Product": "smör", "Amount": "till stekning" },
-	//   { "Product": "färska salsicciakorvar", "Amount": "4" },
-	//   { "Product": "vispgrädde", "Amount": "2 dl" },
-	//   { "Product": "passerade tomater", "Amount": "3 dl" },
-	//   { "Product": "tomatpuré", "Amount": "2 msk" },
-	//   { "Product": "vitt vin", "Amount": "1-2 dl" },
-	//   { "Product": "oregano", "Amount": "några kvistar" },
-	//   { "Product": "timjankvist", "Amount": "några kvistar" },
-	//   { "Product": "pasta (av favoritsort)", "Amount": "4 port" },
-	//   { "Product": "salt", "Amount": "efter smak" },
-	//   { "Product": "svartpeppar", "Amount": "nymalen" },
-	//   { "Product": "persilja", "Amount": "några kvistar" }
-	// ]`
-
-	var gs []Grocery
-	err := json.Unmarshal([]byte(received), &gs)
-
-	if err != nil {
-		panic(err)
-	}
-
-	return gs
+	return ai(ctx, tags)
 }
 
 func (s *Service) AddGroceries(ctx context.Context, groceries []Grocery) error {
 	for i, g := range groceries {
 		key := strings.ToLower(strings.TrimSpace(g.Product))
 
+		category := "other"
+
 		if cat, ok := s.FoodCategories[key]; ok {
-			fmt.Println("Found")
-			groceries[i].Category = cat
+			category = cat
 		} else {
-			fmt.Println("NotFound")
-			groceries[i].Category = "other"
+			for token := range strings.FieldsSeq(key) {
+				if cat, ok := s.FoodCategories[token]; ok {
+					category = cat
+					break
+				}
+			}
 		}
+
+		groceries[i].Category = category
 	}
 
 	return s.Repo.AddGroceries(ctx, groceries)
+}
+
+func (s *Service) SmartAdd(ctx context.Context, text string) ([]Grocery, error) {
+	return ai(ctx, text), nil
 }
 
 func (s *Service) List(ctx context.Context, sortBy, order string, householdID int) (GroceriesView, error) {
@@ -335,4 +331,20 @@ func (s *Service) Edit(ctx context.Context, groceries []Grocery, householdId int
 	}
 
 	return s.Repo.Edit(ctx, groceries)
+}
+
+// Structured Outputs uses a subset of JSON schema
+// These flags are necessary to comply with the subset
+func GenerateSchema[T any]() map[string]any {
+	reflector := jsonschema.Reflector{
+		AllowAdditionalProperties: false,
+		DoNotReference:            true,
+	}
+	var v T
+	schema := reflector.Reflect(v)
+
+	data, _ := json.Marshal(schema)
+	var result map[string]any
+	json.Unmarshal(data, &result)
+	return result
 }

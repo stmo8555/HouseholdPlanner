@@ -21,12 +21,7 @@ func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
 
 	groceries := h.Service.IngredientsFromRecipe(c, link)
 
-	data := gin.H{
-		"Title":     "Extracted Groceries",
-		"Groceries": groceries,
-	}
-
-	c.HTML(200, "groceries_extraction.html", data)
+	h.ExtractedView(c, groceries)
 }
 
 func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
@@ -140,6 +135,35 @@ func (h *Handler) Add(c *gin.Context) {
 	}
 
 	c.Redirect(302, "/groceries")
+}
+
+func (h *Handler) ExtractedView(c *gin.Context, groceries []Grocery) {
+	data := gin.H{
+		"Title":     "Extracted Groceries",
+		"Groceries": groceries,
+	}
+
+	c.HTML(200, "groceries_extraction.html", data)
+}
+
+func (h *Handler) SmartAdd(c *gin.Context) {
+	text := c.PostForm("text")
+
+	if strings.TrimSpace(text) == "" {
+		c.AbortWithStatus(500)
+		c.String(500, "Empty text")
+		return
+	}
+
+	groceries, err := h.Service.SmartAdd(c, text)
+
+	if err != nil {	
+		c.AbortWithStatus(500)
+		c.String(500, err.Error())
+		return
+	}
+
+	h.ExtractedView(c, groceries)
 }
 
 func (h *Handler) DeletePicked(c *gin.Context) {

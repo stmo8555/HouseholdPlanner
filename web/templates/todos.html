@@ -55,8 +55,7 @@
             </form>
 
 
-            <form class="smart-add-form container glass hidden" method="post"
-                action="/todos/smartadd">
+            <form class="smart-add-form container glass hidden" method="post" action="/todos/smartadd">
                 <h2><label for="smart-add">Smart Add</label></h2>
 
                 <textarea id="smart-add" class="glass-inner margin-block-end-12px"
@@ -65,7 +64,7 @@
             </form>
 
             <!--    filter -->
-            <fieldset class="todo-filter glass glass-strong">
+            <fieldset class="todo-filter glass">
                 <legend class="sr-only">Filter todos</legend>
 
                 <input type="radio" id="allFilter" name="filter" value="all" checked>
@@ -87,13 +86,13 @@
 
             <section class="todo-overdue" data-filter-section="overdue">
                 {{if gt (len .Overdue) 0}}
-                <h2>Overdue {{len .Overdue}}</h2>
-                <ul>
+                <h2>Overdue</h2>
+                <ul class="glass glass-strong">
                     {{range .Overdue}}
                     <li class="todo">
                         <div>
-                            <p><strong>{{.Task}}</strong></p>
-                            <small>Was due {{if eq .DueIn 1}}yesterday{{else}}{{.DueIn}} days ago{{end}}
+                            <strong>{{.Task}}</strong>
+                            <small>{{ .DueLabel }}</small>
                         </div>
                         <form method="POST" action="/todos/done">
                             <button type="submit" name="id" value="{{.Id}}">Done</button>
@@ -106,13 +105,33 @@
 
             <section data-filter-section="today">
                 {{if gt (len .Today) 0}}
-                <h2>Today {{len .Today}}</h2>
-                <ul class="container glass">
+                <h2>Today</h2>
+                <ul class="glass glass-strong">
                     {{range .Today}}
                     <li class="todo">
                         <div>
-                            <p><strong>{{.Task}}</strong></p>
-                            <small>Today</small>
+                            <strong>{{.Task}}</strong>
+                            <small>{{ .DueLabel }}</small>
+                        </div>
+                        <form method="POST" action="/todos/done">
+                            <button type="submit" name="id" value="{{.Id}}">Done</button>
+                            <small>{{ .RepeatLabel }}</small>
+                        </form>
+                    </li>
+                    {{end}}
+                </ul>
+                {{end}}
+            </section>
+
+            <section data-filter-section="soon">
+                {{if gt (len .Soon) 0}}
+                <h2>Soon</h2>
+                <ul class="glass">
+                    {{range .Soon}}
+                    <li class="todo">
+                        <div>
+                            <strong>{{.Task}}</strong>
+                            <small>{{ .DueLabel }}</small>
                         </div>
                         <form method="POST" action="/todos/done">
                             <button type="submit" name="id" value="{{.Id}}">Done</button>
@@ -123,15 +142,15 @@
                 {{end}}
             </section>
 
-            <section data-filter-section="soon">
-                {{if gt (len .Soon) 0}}
-                <h2>Soon {{len .Soon}}</h2>
-                <ul class="container glass">
-                    {{range .Soon}}
+            <section data-filter-section="Later">
+                {{if gt (len .TheRest) 0}}
+                <h2>Later</h2>
+                <ul class="glass">
+                    {{range .TheRest}}
                     <li class="todo">
                         <div>
-                            <p><strong>{{.Task}}</strong></p>
-                            <small>Was due {{if eq .DueIn 1}}Tomorrow{{else}}{{.DueIn}} days ago{{end}}
+                            <strong>{{.Task}}</strong>
+                            <small>{{ .DueLabel }}</small>
                         </div>
                         <form method="POST" action="/todos/done">
                             <button type="submit" name="id" value="{{.Id}}">Done</button>
@@ -145,32 +164,13 @@
             <section data-filter-section="completed">
                 {{if gt (len .Completed) 0}}
                 <div class="flex space-between align-items">
-                    <h2>Completed ({{len .Completed}})</h2>
+                    <h2>Completed</h2>
                     <p class="badge">Auto-clears after seven day</p>
                 </div>
-                <ul class="container glass">
+                <ul class="glass">
                     {{range .Completed}}
                     <li class="todo">
-                        <p><strong>{{.Task}}</strong></p>
-                        <form method="POST" action="/todos/undo">
-                            <button type="submit" name="id" value="{{.Id}}">Undo</button>
-                        </form>
-                    </li>
-                    {{end}}
-                </ul>
-                {{end}}
-            </section>
-
-            <section data-filter-section="Later">
-                {{if gt (len .TheRest) 0}}
-                <h2>Later ({{len .TheRest}})</h2>
-                <ul class="container glass">
-                    {{range .TheRest}}
-                    <li class="todo">
-                        <div>
-                            <p><strong>{{.Task}}</strong></p>
-                            <small>Was due {{if eq .DueIn 1}}yesterday{{else}}{{.DueIn}} days ago{{end}}
-                        </div>
+                        <strong>{{.Task}}</strong>
                         <form method="POST" action="/todos/undo">
                             <button type="submit" name="id" value="{{.Id}}">Undo</button>
                         </form>
