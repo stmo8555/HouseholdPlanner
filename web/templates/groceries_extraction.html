@@ -8,13 +8,12 @@
         {{template "header" .}}
         <main>
             <div class="margin-block-end-24px flex gap-6px">
-                <button type="submit" form="exractedForm">Save</button>
-                <form action="/groceries" method="GET">
+                <button type="submit" form="extractedForm">Save</button>
+                <form action="{{ .CancelURL }}" method="GET">
                     <button type="submit">Cancel</button>
                 </form>
             </div>
-            <form action="/groceries/extracted" id="exractedForm" method="POST"
-                class='glass container glass-strong'>
+            <form action="{{ .SaveURL }}" id="extractedForm" method="POST" class='glass container glass-strong'>
                 <h2>Extracted from recipe ({{ len .Groceries }} items)</h2>
                 <table>
                     <thead>
@@ -53,16 +52,6 @@
             </form>
         </main>
         <script src="/static/script.js"></script>
-        <script>
-            const btns = document.querySelectorAll(".removeRowBtn");
-            btns.forEach((btn) => {
-                const parentRow = btn.closest("tr");
-                btn.addEventListener("click", () => {
-                    console.log("remove")
-                    parentRow.remove();
-                });
-            });
-        </script>
     </div>
 </body>
 

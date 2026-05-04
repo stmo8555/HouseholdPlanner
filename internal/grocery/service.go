@@ -31,6 +31,7 @@ func ai(ctx context.Context, text string) []Grocery {
 				- Do not guess or infer.
 				- Missing amount, brand, or store = "".
 				- Product is the grocery name only.
+				- The text is most of the time given and in swedish. Don't translate it to english.
 
 				Text:
 				` + text

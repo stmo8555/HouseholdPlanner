@@ -29,7 +29,7 @@ func (r *Repo) List(ctx context.Context, hid int) ([]Recipe, error) {
 		err := rows.Scan(
 			&r.Id,
 			&r.Title,
-			&r.Img_url,
+			&r.ImgURL,
 			&r.Link,
 			&r.Household_id,
 		)
@@ -49,7 +49,7 @@ func (r *Repo) Add(ctx context.Context, hid int, recipe Recipe) error {
 	(title, img_url, link, household_id)
 	VALUES ($1, $2, $3, $4);`
 
-	_, err := r.DB.Exec(context.Background(), sql, recipe.Title, recipe.Img_url, recipe.Link, recipe.Household_id)
+	_, err := r.DB.Exec(context.Background(), sql, recipe.Title, recipe.ImgURL, recipe.Link, recipe.Household_id)
 
 	return err
 }

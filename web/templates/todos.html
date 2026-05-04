@@ -248,12 +248,6 @@
                 });
             });
 
-            const textArea = document.getElementById('smart-add');
-            textArea.addEventListener("input", function () {
-                this.style.height = "auto";
-                this.style.height = this.scrollHeight + "px";
-            });
-
             const filterRadios = document.querySelectorAll('input[name="filter"]');
             const todoSections = document.querySelectorAll("[data-filter-section]");
 

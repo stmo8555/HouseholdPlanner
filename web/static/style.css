@@ -485,6 +485,20 @@ tr.divider-top td {
 .recipe-card .image-wrapper {
     height: 180px;
     overflow: hidden;
+    position: relative;
+}
+
+.recipe-card .image-wrapper a {
+    position: absolute;
+    inline-size: 2rem;
+    text-align: center;
+    place-content: center;
+    inset-inline-end: 1ch;
+    inset-block-start: 1ch;
+    z-index: 100;
+    padding: 0px;
+    aspect-ratio: 1;
+    border-radius: 50%;
 }
 
 .title {
@@ -636,21 +650,21 @@ tr.divider-top td {
     cursor: pointer;
 }
 
-.todo-form .repeat-interval-container {
+.todo-form .repeat-frequency-container {
     display: flex;
     gap: 5px;
     align-items: center;
     justify-content: left;
 }
 
-.todo-form .repeat-interval-container input {
+.todo-form .repeat-frequency-container input {
     display: inline-block;
     text-align: center;
     font-size: inherit;
     padding: 6px 12px;
 }
 
-.todo-form .repeat-interval-container button {
+.todo-form .repeat-frequency-container button {
     width: 1.5em;
     aspect-ratio: 1;
     padding: 0;

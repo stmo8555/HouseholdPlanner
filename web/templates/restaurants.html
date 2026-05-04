@@ -24,15 +24,11 @@
                 {{range .Data}}
                 <div class="glass recipe-card">
                     <div class="image-wrapper">
-                        <img src="{{.ImgURL}}" alt="{{.Title}}">
-                        <a href="{{.Link}}" class="button-styling">↗</a>
+                        <img src="{{.Img_url}}" alt="{{.Title}}">
                     </div>
                     <div class="title">
                         <p>{{.Title}}</p>
-                        <form method="POST" action="/recipes/extract">
-                            <input type="hidden" name="link" value="{{ .Link }}">
-                            <button type="submit">Add To Groceries</button>
-                        </form>
+                        <a href="{{.Link}}" class="button-styling">Visit</a>
                     </div>
                 </div>
                 {{end}}
@@ -40,6 +36,30 @@
         </main>
         {{template "footer" .}}
         <script src="/static/script.js"></script>
+        <script>
+            const add_recipe_btn = document.getElementById('add-recipe');
+            const overlay_recipe = document.getElementById("add-recipe-overlay");
+            const main = document.querySelector("main")
+            const add_recipe_modal = document.getElementById("add-recipe-modal"); // the inner modal content
+            const focusables = document.querySelectorAll(".focus");
+
+            add_recipe_btn.addEventListener("click", () => {
+                overlay_recipe.style.display = "block";
+                main.style.display = "none"
+                overlay_recipe.style.cursor = "pointer"
+                add_recipe_modal.style.cursor = "default"
+                focusables.forEach(e => {
+                    e.focus();
+                });
+            });
+
+            overlay_recipe.addEventListener("click", (e) => {
+                if (!add_recipe_modal.contains(e.target)) {
+                    overlay_recipe.style.display = "none";
+                    main.style.display = "block"
+                }
+            });
+        </script>
     </div>
 </body>
 

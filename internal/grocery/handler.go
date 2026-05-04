@@ -50,7 +50,7 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(302, "/groceries")
+	c.Redirect(303, "/groceries")
 }
 
 func (h *Handler) List(c *gin.Context) {
@@ -141,6 +141,8 @@ func (h *Handler) ExtractedView(c *gin.Context, groceries []Grocery) {
 	data := gin.H{
 		"Title":     "Extracted Groceries",
 		"Groceries": groceries,
+		"SaveURL":   "/groceries/extracted",
+		"CancelURL": "/groceries",
 	}
 
 	c.HTML(200, "groceries_extraction.html", data)
@@ -157,7 +159,7 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 
 	groceries, err := h.Service.SmartAdd(c, text)
 
-	if err != nil {	
+	if err != nil {
 		c.AbortWithStatus(500)
 		c.String(500, err.Error())
 		return

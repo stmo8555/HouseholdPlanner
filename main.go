@@ -20,8 +20,8 @@ var conn *pgx.Conn
 
 var loginService *login.Service
 var todosService *todo.Service
-var recipesService *recipe.Service
-var groceriesService *grocery.Service
+var recipeService *recipe.Service
+var groceryService *grocery.Service
 
 func main() {
 	var err error
@@ -41,9 +41,9 @@ func main() {
 
 	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
 	todosService = &todo.Service{Repo: &todo.Repo{DB: conn}}
-	recipesService = &recipe.Service{Repo: &recipe.Repo{DB: conn}}
-	groceriesService = &grocery.Service{
-		Repo: &grocery.Repo{DB: conn},
+	recipeService = &recipe.Service{Repo: &recipe.Repo{DB: conn}}
+	groceryService = &grocery.Service{
+		Repo:           &grocery.Repo{DB: conn},
 		FoodCategories: foodMap,
 	}
 
@@ -85,15 +85,16 @@ func setupTodos(r *gin.RouterGroup) {
 }
 
 func setupRecipes(r *gin.RouterGroup) {
-	handler := &recipe.Handler{Service: recipesService}
+	handler := &recipe.Handler{Service: recipeService, GroceryService: groceryService}
 
 	r.GET("/recipes", handler.List)
 	r.POST("/recipes/add", handler.Add)
+	r.POST("/recipes/extract", handler.IngredientsFromRecipe)
+	r.POST("/recipes/extracted", handler.AcceptExtractedGroceries)
 }
 
 func setupGroceries(r *gin.RouterGroup) {
-	handler := &grocery.Handler{Service: groceriesService}
-
+	handler := &grocery.Handler{Service: groceryService}
 	r.GET("/groceries", handler.List)
 	r.POST("/groceries", handler.TogglePicked)
 	r.POST("/groceries/add", handler.Add)
@@ -106,9 +107,9 @@ func setupGroceries(r *gin.RouterGroup) {
 
 func setupHome(r *gin.RouterGroup) {
 	handler := &home.Handler{
-		GroceriesService: groceriesService,
+		GroceriesService: groceryService,
 		LoginService:     loginService,
-		RecipesService:   recipesService,
+		RecipesService:   recipeService,
 		TodosService:     todosService,
 	}
 

@@ -1,17 +1,20 @@
 package recipe
 
 import (
+	"bytes"
 	"context"
 	"errors"
-	"golang.org/x/net/html"
+	"fmt"
 	"net/http"
 	"regexp"
-	"sort"
+	"strconv"
 	"strings"
+
+	"golang.org/x/net/html"
 )
 
 type Service struct {
-	Repo *Repo
+	Repo IRepo
 }
 
 func (s *Service) List(ctx context.Context, hid int) ([]Recipe, error) {
@@ -40,82 +43,94 @@ func (s *Service) Add(c context.Context, hid int, link string) error {
 	recipe.Link = link
 	recipe.Household_id = hid
 
-	var findTitle func(n *html.Node)
-	findTitle = func(n *html.Node) {
-		if n.Type == html.ElementNode {
-			if n.Data == "h1" {
-				var findtext func(n *html.Node) string
-				findtext = func(n *html.Node) string {
-					if n.Type == html.TextNode {
-						return strings.TrimSpace(n.Data)
-					}
-					for c := n.FirstChild; c != nil; c = c.NextSibling {
-						return findtext(c)
-					}
+	recipe.Title = findTitle(doc)
 
-					return ""
-				}
+	recipe.ImgURL = findImg(doc, recipe.Title)
 
-				recipe.Title = findtext(n.FirstChild)
-				return
-			}
+	return s.Repo.Add(c, hid, recipe)
+}
+
+func findTitle(n *html.Node) string {
+	if n == nil {
+		return ""
+	}
+
+	if h1 := findFirst(n, "h1"); h1 != nil {
+		return textContent(h1)
+	}
+
+	if title := findFirst(n, "title"); title != nil {
+		return textContent(title)
+	}
+
+	return ""
+}
+
+func textContent(n *html.Node) string {
+	if n == nil {
+		return ""
+	}
+
+	if n.Type == html.TextNode {
+		return strings.TrimSpace(n.Data)
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		text := textContent(c)
+		if text != "" {
+			return text
 		}
+	}
 
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			findTitle(c)
+	return ""
+}
+
+func findFirst(n *html.Node, tag string) *html.Node {
+	if n == nil {
+		return nil
+	}
+
+	if n.Type == html.ElementNode && n.Data == tag {
+		return n
+	}
+
+	for c := n.FirstChild; c != nil; c = c.NextSibling {
+		if found := findFirst(c, tag); found != nil {
+			return found
 		}
 	}
-	findTitle(doc)
 
-	titleComponents := strings.Split(recipe.Title, " ")
-	matchFactor := len(titleComponents)
+	return nil
+}
 
-	if matchFactor < 1 {
-		return errors.New("Title not found")
-	}
-
-	type item struct {
-		src    string
-		points int
-	}
-
-	img_tags := []item{}
+func findImg(doc *html.Node, title string) string {
+	src := ""
 
 	var findImg func(n *html.Node)
+
 	findImg = func(n *html.Node) {
-		if n.Type == html.ElementNode {
-			if n.Data == "img" {
-				src := ""
-				points := 0
-				for _, v := range n.Attr {
-					switch v.Key {
-					case "src":
-						src = v.Val
-					case "alt":
-					default:
-						continue
-					}
-
-					for _, tc := range titleComponents {
-						match, err := regexp.MatchString("(?i)"+tc, v.Val)
-
-						if err != nil {
-							panic(err)
-						}
-
-						if match {
-							points += 1
+		if n.Type == html.ElementNode && n.Data == "img" {
+			for _, v := range n.Attr {
+				if v.Key == "alt" && strings.Contains(v.Val, title) {
+					if n.Parent.Type == html.ElementNode && n.Parent.Data == "picture" {
+						p := n.Parent
+						for c := p.FirstChild; c != nil; c = c.NextSibling {
+							if c.Type == html.ElementNode && c.Data == "source" {
+								for _, v := range c.Attr {
+									if v.Key == "srcset" {
+										src = findLargestImageFromSrcSet(v.Val)
+										return
+									}
+								}
+							}
 						}
 					}
 
-					match, err := regexp.MatchString("^(?i)https", src)
-
-					if err != nil {
-						panic(err)
-					}
-
-					if match && points >= matchFactor {
-						img_tags = append(img_tags, item{src, points})
+					for _, v := range n.Attr {
+						if v.Key == "src" {
+							src = v.Val
+							return
+						}
 					}
 				}
 			}
@@ -128,15 +143,96 @@ func (s *Service) Add(c context.Context, hid int, link string) error {
 
 	findImg(doc)
 
-	if len(img_tags) < 1 {
-		return errors.New("Failed to find recipe image")
+	if src == "" {
+		src = FindLooseImage(doc, title)
 	}
 
-	sort.Slice(img_tags, func(i, j int) bool {
-		return img_tags[i].points < img_tags[j].points
-	})
+	return src
+}
 
-	recipe.Img_url = img_tags[len(img_tags)-1].src
+var widthRegex = regexp.MustCompile(`\s(\d+)w`)
 
-	return s.Repo.Add(c, hid, recipe)
+func findLargestImageFromSrcSet(srcsetStr string) string {
+
+	srcset := strings.Split(srcsetStr, ",")
+	for i, v := range srcset {
+		srcset[i] = strings.TrimSpace(v)
+		if !strings.HasPrefix(srcset[i], "http") {
+			return srcsetStr
+		}
+	}
+
+	maxWidth := 0
+	src := ""
+
+	for _, v := range srcset {
+		matches := widthRegex.FindStringSubmatch(v)
+		if matches != nil {
+			width, err := strconv.Atoi(matches[1])
+			if err != nil {
+				panic(err)
+			}
+
+			if width > maxWidth {
+				maxWidth = width
+				src = strings.Fields(v)[0]
+			}
+		}
+	}
+
+	return src
+}
+
+func FindLooseImage(doc *html.Node, title string) string {
+	var buf bytes.Buffer
+	if err := html.Render(&buf, doc); err != nil {
+		return ""
+	}
+
+	rendered := buf.String()
+
+	urlRe := regexp.MustCompile(`https?://[^"'<> ]+\.(jpg|jpeg|webp|png)(\?[^"'<> ]*)?`)
+	urls := urlRe.FindAllString(rendered, -1)
+
+	titleWords := strings.Fields(normalizeForSearch(title))
+
+	for _, raw := range urls {
+		cleanURL := html.UnescapeString(raw)
+
+		searchURL := normalizeForSearch(cleanURL)
+
+		ok := true
+		for _, word := range titleWords {
+			if !strings.Contains(searchURL, word) {
+				ok = false
+				break
+			}
+		}
+
+		if ok {
+			return cleanURL
+		}
+	}
+
+	return ""
+}
+
+func normalizeForSearch(s string) string {
+	s = strings.ToLower(s)
+
+	replacer := strings.NewReplacer(
+		"å", "a",
+		"ä", "a",
+		"ö", "o",
+		"é", "e",
+		"è", "e",
+		"ü", "u",
+	)
+
+	return replacer.Replace(s)
+}
+func printNode(n *html.Node) {
+	var buf bytes.Buffer
+	html.Render(&buf, n)
+	fmt.Println(buf.String())
 }
