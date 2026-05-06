@@ -10,8 +10,13 @@
             <fieldset class="margin-block-end-24px">
                 <legend class="sr-only">Action buttons</legend>
                 <button class="add-toggler">Add Recipe</button>
-                <!-- <button class="smart-add-toggler">Smart Add</button> -->
+                <button class="search-toggler">Search</button>
             </fieldset>
+
+            <section class="glass container search-section hidden">
+                <h2><label for="fuzzy-search">Search</label></h2>
+                <input type="text" id="fuzzy-search" class="glass-inner focus" placeholder="Type keywords...">
+            </section>
 
             <form class="glass container add-form add-recipe-form hidden" method="post" action="/recipes/add">
                 <h2>Add Recipe</h2>
@@ -22,7 +27,7 @@
 
             <div class="grid-recipe">
                 {{range .Data}}
-                <div class="glass recipe-card">
+                <div class="glass recipe-card" data-title="{{.Title}}">
                     <div class="image-wrapper">
                         <img src="{{.ImgURL}}" alt="{{.Title}}">
                         <a href="{{.Link}}" class="button-styling">↗</a>
@@ -39,7 +44,7 @@
             </div>
         </main>
         {{template "footer" .}}
-        <script src="/static/script.js"></script>
+        <script type="module" src="/static/script.js"></script>
     </div>
 </body>
 

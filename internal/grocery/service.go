@@ -14,7 +14,7 @@ import (
 )
 
 type Service struct {
-	Repo           *Repo
+	Repo           IRepo
 	FoodCategories map[string]string
 }
 
@@ -31,7 +31,7 @@ func ai(ctx context.Context, text string) []Grocery {
 				- Do not guess or infer.
 				- Missing amount, brand, or store = "".
 				- Product is the grocery name only.
-				- The text is most of the time given and in swedish. Don't translate it to english.
+				- The text is most of the time given in swedish. Don't translate it to english.
 
 				Text:
 				` + text
@@ -47,9 +47,8 @@ func ai(ctx context.Context, text string) []Grocery {
 				schema,
 			),
 		},
-
-		Temperature:     openai.Float(0),
-		MaxOutputTokens: openai.Int(300),
+		Temperature: openai.Float(0),
+		MaxOutputTokens: openai.Int(1000),
 	})
 
 	if err != nil {
@@ -67,9 +66,9 @@ func ai(ctx context.Context, text string) []Grocery {
 	for i, v := range gs.List {
 		groceries[i] = Grocery{
 			Product: v.Product,
-			Amount: v.Amount,
-			Brand: v.Brand,
-			Store: v.Store,
+			Amount:  v.Amount,
+			Brand:   v.Brand,
+			Store:   v.Store,
 		}
 	}
 
@@ -77,7 +76,6 @@ func ai(ctx context.Context, text string) []Grocery {
 }
 
 func (s *Service) IngredientsFromRecipe(ctx context.Context, url string) []Grocery {
-
 	resp, err := http.Get(url)
 	if err != nil {
 		panic(err)

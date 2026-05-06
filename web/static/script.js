@@ -1,3 +1,5 @@
+import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.basic.min.mjs";
+
 const form = document.querySelector("form");
 const body = document.body;
 const focusables = document.querySelectorAll(".focus");
@@ -26,6 +28,7 @@ nav_toggle?.addEventListener("click", () => {
 
 document.querySelector(".add-toggler")?.addEventListener("click", toggleAddForm)
 document.querySelector(".smart-add-toggler")?.addEventListener("click", toggleSmartAdd);
+document.querySelector(".search-toggler")?.addEventListener("click", toggleSearch);
 
 const textArea = document.getElementById('smart-add');
 textArea?.addEventListener("input", function() {
@@ -42,6 +45,35 @@ btns.forEach((btn) => {
     });
 });
 
+const recipeCards = [...document.querySelectorAll(".recipe-card")];
+const searchInput = document.getElementById("fuzzy-search");
+
+if (recipeCards.length > 0 && searchInput) {
+    const data = recipeCards.map(card => ({
+        element: card,
+        title: card.dataset.title || "",
+    }));
+
+    const fuse = new Fuse(data, {
+        keys: ["title"],
+        threshold: 0.5
+    });
+
+    searchInput.addEventListener("input", e => {
+        const q = e.target.value.trim();
+
+        if (!q) {
+            recipeCards.forEach(c => c.hidden = false);
+            return;
+        }
+
+        recipeCards.forEach(c => c.hidden = true);
+
+        fuse.search(q).forEach(r => {
+            r.item.element.hidden = false;
+        });
+    });
+}
 function toggleSmartAdd() {
     document.querySelector(".smart-add-form").classList.toggle("hidden");
     textArea.style.height = textArea.scrollHeight + "px";
@@ -53,6 +85,13 @@ function toggleSmartAdd() {
 
 function toggleAddForm() {
     document.querySelector(".add-form").classList.toggle("hidden");
+    focusables.forEach(e => {
+        e.focus();
+    });
+}
+
+function toggleSearch() {
+    document.querySelector(".search-section").classList.toggle("hidden");
     focusables.forEach(e => {
         e.focus();
     });

@@ -5,5 +5,6 @@ type Recipe struct {
 	Title        string `json:"title"`
 	ImgURL      string `json:"img_url"`
 	Link         string `json:"link"`
+
 	Household_id int
 }
