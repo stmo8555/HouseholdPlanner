@@ -7,6 +7,7 @@ import (
 	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go/v3"
 	"github.com/openai/openai-go/v3/responses"
+	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"golang.org/x/net/html"
 	"net/http"
 	"regexp"
@@ -15,11 +16,23 @@ import (
 
 type Service struct {
 	Repo           IRepo
-	FoodCategories map[string]string
+	ProductService *product.Service
 }
 
 func (s *Service) GetTopProducts(ctx context.Context, householdID int) ([]string, error) {
-	return s.Repo.getTopProducts(ctx, householdID)
+	products, err := s.Repo.getTopProducts(ctx, householdID)
+	
+	if err != nil {
+		panic(err)
+	}
+
+	strSlice := make([]string, 0, len(products))
+
+	for _, v := range products {
+		strSlice = append(strSlice, v.Name)
+	}
+
+	return strSlice, err
 }
 
 var client = openai.NewClient()
@@ -47,7 +60,7 @@ func ai(ctx context.Context, text string) []Grocery {
 				schema,
 			),
 		},
-		Temperature: openai.Float(0),
+		Temperature:     openai.Float(0),
 		MaxOutputTokens: openai.Int(1000),
 	})
 
@@ -65,10 +78,12 @@ func ai(ctx context.Context, text string) []Grocery {
 	groceries := make([]Grocery, len(gs.List))
 	for i, v := range gs.List {
 		groceries[i] = Grocery{
-			Product: v.Product,
-			Amount:  v.Amount,
-			Brand:   v.Brand,
-			Store:   v.Store,
+			Product: product.Product{
+				Name:  v.Product,
+				Brand: v.Brand,
+				Store: v.Store,
+			},
+			Amount: v.Amount,
 		}
 	}
 
@@ -90,22 +105,12 @@ func (s *Service) IngredientsFromRecipe(ctx context.Context, url string) []Groce
 
 func (s *Service) AddGroceries(ctx context.Context, groceries []Grocery) error {
 	for i, g := range groceries {
-		key := strings.ToLower(strings.TrimSpace(g.Product))
-
-		category := "other"
-
-		if cat, ok := s.FoodCategories[key]; ok {
-			category = cat
-		} else {
-			for token := range strings.FieldsSeq(key) {
-				if cat, ok := s.FoodCategories[token]; ok {
-					category = cat
-					break
-				}
-			}
+		id, err := s.ProductService.GetID(ctx, g.Product)
+		if err != nil {
+			panic(err)
 		}
 
-		groceries[i].Category = category
+		groceries[i].ProductID = id
 	}
 
 	return s.Repo.AddGroceries(ctx, groceries)
@@ -117,15 +122,15 @@ func (s *Service) SmartAdd(ctx context.Context, text string) ([]Grocery, error) 
 
 func (s *Service) List(ctx context.Context, sortBy, order string, householdID int) (GroceriesView, error) {
 	allowedSorts := map[string]string{
-		"product": "product",
-		"amount":  "amount",
-		"brand":   "brand",
-		"store":   "store",
+		"product": "p.name",
+		"brand":   "p.brand",
+		"store":   "p.store",
+		"amount":  "g.amount",
 	}
 
 	column, ok := allowedSorts[sortBy]
 	if !ok {
-		column = "product"
+		column = "p.name"
 	}
 
 	groceries, err := s.Repo.List(ctx, column, order, householdID)
@@ -140,7 +145,7 @@ func (s *Service) List(ctx context.Context, sortBy, order string, householdID in
 		if g.Picked {
 			sortedGroceries.Picked = append(sortedGroceries.Picked, g)
 		} else {
-			switch g.Category {
+			switch g.Product.Category {
 			case "dairy":
 				sortedGroceries.Dairy = append(sortedGroceries.Dairy, g)
 			case "pantry":
@@ -158,9 +163,9 @@ func (s *Service) List(ctx context.Context, sortBy, order string, householdID in
 	return sortedGroceries, nil
 }
 
-func (s *Service) CountUnpicked(ctx context.Context, householdID int) (int, error) {
-	return s.Repo.AmountOfUnpickedGroceries(ctx, householdID)
-}
+// func (s *Service) CountUnpicked(ctx context.Context, householdID int) (int, error) {
+// 	return s.Repo.AmountOfUnpickedGroceries(ctx, householdID)
+// }
 
 func (s *Service) TogglePicked(ctx context.Context, id, householdID int) error {
 	return s.Repo.TogglePicked(ctx, id, householdID)
@@ -324,9 +329,16 @@ func findTags(resp *http.Response) string {
 }
 
 func (s *Service) Edit(ctx context.Context, groceries []Grocery, householdId int) error {
-	for i := range len(groceries) {
+	for i, v := range groceries {
 		groceries[i].Picked = false
 		groceries[i].HouseholdID = householdId
+
+		id, err := s.ProductService.GetID(ctx, v.Product)
+		if err != nil {
+			panic(err)
+		}
+
+		groceries[i].ProductID = id
 	}
 
 	return s.Repo.Edit(ctx, groceries)

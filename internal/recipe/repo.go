@@ -31,7 +31,7 @@ func (r *Repo) List(ctx context.Context, hid int) ([]Recipe, error) {
 			&r.Title,
 			&r.ImgURL,
 			&r.Link,
-			&r.Household_id,
+			&r.HouseholdID,
 		)
 
 		if err != nil {
@@ -44,12 +44,16 @@ func (r *Repo) List(ctx context.Context, hid int) ([]Recipe, error) {
 	return recipes, rows.Err()
 }
 
-func (r *Repo) Add(ctx context.Context, hid int, recipe Recipe) error {
-	sql := `INSERT INTO recipes 
+func (r *Repo) AddRecipe(ctx context.Context, hid int, recipe Recipe) (int, error) {
+	sql := `
+	INSERT INTO recipes 
 	(title, img_url, link, household_id)
-	VALUES ($1, $2, $3, $4);`
+	VALUES ($1, $2, $3, $4)
+	RETURNING id;
+	`
 
-	_, err := r.DB.Exec(context.Background(), sql, recipe.Title, recipe.ImgURL, recipe.Link, recipe.Household_id)
+	var id int
+	err := r.DB.QueryRow(context.Background(), sql, recipe.Title, recipe.ImgURL, recipe.Link, recipe.HouseholdID).Scan(&id)
 
-	return err
+	return id, err
 }

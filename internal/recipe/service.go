@@ -10,17 +10,21 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
+	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"golang.org/x/net/html"
 )
 
 type Service struct {
-	Repo IRepo
+	Repo           IRepo
+	GroceryService grocery.Service
+	ProductService product.Service
 }
 
 func (s *Service) List(ctx context.Context, hid int) ([]Recipe, error) {
 	return s.Repo.List(ctx, hid)
 }
-func (s *Service) Add(c context.Context, hid int, link string) error {
+func (s *Service) Add(ctx context.Context, hid int, link string) error {
 	if !strings.HasPrefix(link, "http") {
 		return errors.New("Recipe: Not an URL")
 	}
@@ -41,13 +45,37 @@ func (s *Service) Add(c context.Context, hid int, link string) error {
 	var recipe Recipe
 
 	recipe.Link = link
-	recipe.Household_id = hid
+	recipe.HouseholdID = hid
 
 	recipe.Title = findTitle(doc)
 
 	recipe.ImgURL = findImg(doc, recipe.Title)
 
-	return s.Repo.Add(c, hid, recipe)
+	var recipeID int
+	recipeID, err = s.Repo.Add(ctx, hid, recipe)
+
+	if err != nil {
+		panic(err)
+	}
+
+	groceries := s.GroceryService.IngredientsFromRecipe(ctx, recipe.Link)
+
+	var recipeIngredients []RecipeIngredient
+
+	for _, g := range groceries {
+		p := g.Product
+		p.Normalize()
+		id, err := s.ProductService.GetID(ctx, p)
+		if err != nil {
+			panic(err)
+		}
+		ri := RecipeIngredient{RecipeID: recipeID, ProductID: id, Amount: g.Amount}
+
+		recipeIngredients = append(recipeIngredients, ri)
+	}
+
+
+	return
 }
 
 func findTitle(n *html.Node) string {

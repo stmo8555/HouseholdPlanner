@@ -1,9 +1,11 @@
 package grocery
 
 import (
-	"github.com/gin-gonic/gin"
 	"strconv"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+	"github.com/stmo8555/HouseholdPlanner/internal/product"
 )
 
 type Handler struct {
@@ -25,19 +27,22 @@ func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
 }
 
 func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
-	products := c.PostFormArray("product")
+	products := c.PostFormArray("name")
 	amounts := c.PostFormArray("amount")
 	brands := c.PostFormArray("brand")
 	stores := c.PostFormArray("store")
 
 	hid := c.GetInt("household_id")
 	groceries := make([]Grocery, len(products))
-	for i := range len(groceries) {
+	for i := range groceries {
 		groceries[i] = Grocery{
-			Product:     products[i],
+			Product: product.Product{
+				Name:     products[i],
+				Brand:    brands[i],
+				Store:    stores[i],
+				Category: "",
+			},
 			Amount:      amounts[i],
-			Brand:       brands[i],
-			Store:       stores[i],
 			HouseholdID: hid,
 		}
 	}
@@ -118,10 +123,13 @@ func (h *Handler) TogglePicked(c *gin.Context) {
 
 func (h *Handler) Add(c *gin.Context) {
 	grocery := Grocery{
-		Product:     c.PostForm("product"),
-		Brand:       c.PostForm("brand"),
+		Product: product.Product{
+			Name:     c.PostForm("name"),
+			Brand:    c.PostForm("brand"),
+			Store:    c.PostForm("store"),
+			Category: "",
+		},
 		Amount:      c.PostForm("amount"),
-		Store:       c.PostForm("store"),
 		Picked:      false,
 		HouseholdID: c.GetInt("household_id"),
 	}

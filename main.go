@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"html/template"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
 	"github.com/stmo8555/HouseholdPlanner/internal/home"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
+	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
 	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
@@ -20,6 +22,7 @@ var conn *pgx.Conn
 
 var loginService *login.Service
 var todosService *todo.Service
+var productService *product.Service
 var recipeService *recipe.Service
 var groceryService *grocery.Service
 
@@ -41,14 +44,15 @@ func main() {
 
 	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
 	todosService = &todo.Service{Repo: &todo.Repo{DB: conn}}
+	productService = &product.Service{Repo: &product.Repo{DB: conn}, FoodCategories: foodMap}
 	recipeService = &recipe.Service{Repo: &recipe.Repo{DB: conn}}
-	groceryService = &grocery.Service{
-		Repo:           &grocery.Repo{DB: conn},
-		FoodCategories: foodMap,
-	}
+	groceryService = &grocery.Service{Repo: &grocery.Repo{DB: conn}, ProductService: productService}
+
+	tmpl := template.Must(template.ParseGlob("web/templates/*.html"))
+	tmpl = template.Must(tmpl.ParseGlob("web/templates/partial/*.html"))
 
 	r := gin.Default()
-	r.LoadHTMLGlob("web/templates/*.html")
+	r.SetHTMLTemplate(tmpl)
 	r.Static("/static/", "web/static")
 	setupLogin(r)
 
@@ -115,7 +119,7 @@ func setupHome(r *gin.RouterGroup) {
 
 	r.GET("/", handler.Index)
 	r.GET("/home", handler.Index)
-	r.POST("/home/add/grocery", handler.AddGrocery)
+	// r.POST("/home/add/grocery", handler.AddGrocery)
 	r.POST("/home/add/recipe", handler.AddRecipe)
 	r.POST("/home/ai", handler.AI)
 }

@@ -1,9 +1,11 @@
 package recipe
 
 import (
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
-	"strings"
+	"github.com/stmo8555/HouseholdPlanner/internal/product"
 )
 
 type Handler struct {
@@ -72,23 +74,26 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 
 	hid := c.GetInt("household_id")
 	groceries := make([]grocery.Grocery, len(products))
-	for i := range len(groceries) {
+	for i := range groceries {
 		groceries[i] = grocery.Grocery{
-			Product:     products[i],
+			Product: product.Product{
+				Name:     products[i],
+				Brand:    brands[i],
+				Store:    stores[i],
+				Category: "",
+			},
 			Amount:      amounts[i],
-			Brand:       brands[i],
-			Store:       stores[i],
 			HouseholdID: hid,
 		}
+
+		err := h.GroceryService.AddGroceries(c, groceries)
+
+		if err != nil {
+			c.AbortWithStatus(500)
+			c.String(500, err.Error())
+			return
+		}
+
+		c.Redirect(302, "/recipes")
 	}
-
-	err := h.GroceryService.AddGroceries(c, groceries)
-
-	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
-	}
-
-	c.Redirect(302, "/recipes")
 }

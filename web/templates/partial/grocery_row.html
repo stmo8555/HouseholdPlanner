@@ -1,0 +1,21 @@
+{{define "grocery_row"}}
+<tr data-id="{{.Id}}" class="changable">
+    <td>
+        <form method="POST" action="/groceries">
+            <button class="checkbox {{if .Picked}}checked{{end}}" type="submit" name="id" value="{{.Id}}"></button>
+        </form>
+    </td>
+    <td data-field="name">
+        <p>{{.Product.Name}}</p>
+    </td>
+    <td data-field="amount">
+        <p>{{.Amount}}</p>
+    </td>
+    <td data-field="brand">
+        <p>{{.Product.Brand}}</p>
+    </td>
+    <td data-field="store">
+        <p>{{.Product.Store}}</p>
+    </td>
+</tr>
+{{end}}

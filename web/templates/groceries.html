@@ -26,7 +26,7 @@
                 <ul class="margin-block-end-24px">
                     <li>
                         <label for="product-input">Product <small>(required)</small></label>
-                        <input class="glass-inner focus" id="product-input" type="text" name="product" required>
+                        <input class="glass-inner focus" id="product-input" type="text" name="name" required>
                     </li>
                     <li>
                         <label for="3">Amount</label>
@@ -96,25 +96,7 @@
                             </td>
                         </tr>
                         {{range .Data.Dairy}}
-                        <tr data-id="{{.Id}}" class="changable">
-                            <td>
-                                <form method="POST" action="/groceries">
-                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
-                                </form>
-                            </td>
-                            <td data-field="product">
-                                <p>{{.Product}}</p>
-                            </td>
-                            <td data-field="amount">
-                                <p>{{.Amount}}</p>
-                            </td>
-                            <td data-field="brand">
-                                <p>{{.Brand}}</p>
-                            </td>
-                            <td data-field="store">
-                                <p>{{.Store}}</p>
-                            </td>
-                        </tr>
+                        {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
 
@@ -125,25 +107,7 @@
                             </td>
                         </tr>
                         {{range .Data.FruitAndVegetables}}
-                        <tr data-id="{{.Id}}" class="changable">
-                            <td>
-                                <form method="POST" action="/groceries">
-                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
-                                </form>
-                            </td>
-                            <td data-field="product">
-                                <p>{{.Product}}</p>
-                            </td>
-                            <td data-field="amount">
-                                <p>{{.Amount}}</p>
-                            </td>
-                            <td data-field="brand">
-                                <p>{{.Brand}}</p>
-                            </td>
-                            <td data-field="store">
-                                <p>{{.Store}}</p>
-                            </td>
-                        </tr>
+                        {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
 
@@ -154,25 +118,7 @@
                             </td>
                         </tr>
                         {{range .Data.MeatAndFish}}
-                        <tr data-id="{{.Id}}" class="changable">
-                            <td>
-                                <form method="POST" action="/groceries">
-                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
-                                </form>
-                            </td>
-                            <td data-field="product">
-                                <p>{{.Product}}</p>
-                            </td>
-                            <td data-field="amount">
-                                <p>{{.Amount}}</p>
-                            </td>
-                            <td data-field="brand">
-                                <p>{{.Brand}}</p>
-                            </td>
-                            <td data-field="store">
-                                <p>{{.Store}}</p>
-                            </td>
-                        </tr>
+                        {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
 
@@ -183,25 +129,7 @@
                             </td>
                         </tr>
                         {{range .Data.Pantry}}
-                        <tr data-id="{{.Id}}" class="changable">
-                            <td>
-                                <form method="POST" action="/groceries">
-                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
-                                </form>
-                            </td>
-                            <td data-field="product">
-                                <p>{{.Product}}</p>
-                            </td>
-                            <td data-field="amount">
-                                <p>{{.Amount}}</p>
-                            </td>
-                            <td data-field="brand">
-                                <p>{{.Brand}}</p>
-                            </td>
-                            <td data-field="store">
-                                <p>{{.Store}}</p>
-                            </td>
-                        </tr>
+                        {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
 
@@ -212,28 +140,10 @@
                             </td>
                         </tr>
                         {{range .Data.Other}}
-                        <tr data-id="{{.Id}}" class="changable">
-                            <td>
-                                <form method="POST" action="/groceries">
-                                    <button class="checkbox" type="submit" name="id" value="{{.Id}}"></button>
-                                </form>
-                            </td>
-                            <td data-field="product">
-                                <p>{{.Product}}</p>
-                            </td>
-                            <td data-field="amount">
-                                <p>{{.Amount}}</p>
-                            </td>
-                            <td data-field="brand">
-                                <p>{{.Brand}}</p>
-                            </td>
-                            <td data-field="store">
-                                <p>{{.Store}}</p>
-                            </td>
-                        </tr>
+                        {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
-                        <!-- Picked section starts -->
+
                         {{if gt (len .Data.Picked) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
@@ -241,17 +151,7 @@
                             </td>
                         </tr>
                         {{range .Data.Picked}}
-                        <tr>
-                            <td>
-                                <form method="POST" action="/groceries">
-                                    <button class="checkbox checked" type="submit" name="id" value="{{.Id}}"></button>
-                                </form>
-                            </td>
-                            <td class="line-through">{{.Product}}</td>
-                            <td class="line-through">{{.Amount}}</td>
-                            <td class="line-through">{{.Brand}}</td>
-                            <td class="line-through">{{.Store}}</td>
-                        </tr>
+                        {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
                     </tbody>
@@ -263,7 +163,7 @@
                 {{end}}
             </section>
         </main>
-        <script src="/static/script.js"></script>
+        <script type="module" src="/static/script.js"></script>
         <script>
             const notMobile = window.matchMedia("(min-width: 500px)")
 
@@ -303,29 +203,39 @@
                     editing = true;
 
                 } else {
-                    // SAVE MODE
                     const changes = [];
 
                     changables.forEach(row => {
-                        const data = {id: parseInt(row.dataset.id)};
+                        const data = {
+                            id: parseInt(row.dataset.id, 10),
+                            product: {},
+                        };
+
                         row.querySelectorAll('input').forEach(input => {
-                            data[input.name] = input.value;
+                            if (input.name === "name") {
+                                data.product.name = input.value;
+                            } else if (input.name === "brand") {
+                                data.product.brand = input.value;
+                            } else if (input.name === "store") {
+                                data.product.store = input.value;
+                            } else {
+                                data[input.name] = input.value;
+                            }
                         });
+
                         changes.push(data);
                     });
 
-                    // Send JSON to backend
                     fetch('/groceries/edit', {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
                         body: JSON.stringify(changes)
-                    })
-                        .then(res => {
-                            if (res.ok) {
-                                window.location.href = "/groceries"; // manual redirect
-                            }
-                        })
-                        .catch(console.error);
+                    }).then(res => {
+                        if (!res.ok) {
+                            throw new Error("Failed to save groceries");
+                        }
+                        window.location.href = "/groceries";
+                    }).catch(console.error);
                 }
             });
         </script>

@@ -2,7 +2,7 @@ package home
 
 import (
 	"errors"
-	"net/http"
+	_"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -21,52 +21,52 @@ type Handler struct {
 }
 
 func (h *Handler) Index(c *gin.Context) {
-	hid := c.GetInt("household_id")
+	// hid := c.GetInt("household_id")
 
-	groceriesCount, err := h.GroceriesService.CountUnpicked(c, hid)
+	// groceriesCount, err := h.GroceriesService.CountUnpicked(c, hid)
+	//
+	// if err != nil {
+	// 	c.AbortWithStatus(500)
+	// 	c.String(500, err.Error())
+	// }
+	//
+	// var todosCount int
+	// todosCount, err = h.TodosService.Count(c, hid)
+	//
+	// if err != nil {
+	// 	c.AbortWithStatus(500)
+	// 	c.String(500, err.Error())
+	// }
+	//
+	// data := gin.H{
+	// 	"Title":       "Home",
+	// 	"CurrentPath": c.Request.URL.Path,
+	// 	"Todos":       todosCount,
+	// 	"Groceries":   groceriesCount,
+	// }
 
-	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-	}
-
-	var todosCount int
-	todosCount, err = h.TodosService.Count(c, hid)
-
-	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-	}
-
-	data := gin.H{
-		"Title":       "Home",
-		"CurrentPath": c.Request.URL.Path,
-		"Todos":       todosCount,
-		"Groceries":   groceriesCount,
-	}
-
-	c.HTML(http.StatusOK, "index.html", data)
+	// c.HTML(http.StatusOK, "index.html", data)
 }
 
-func (h *Handler) AddGrocery(c *gin.Context) {
-	hid := c.GetInt("household_id")
-	product := strings.TrimSpace(c.PostForm("product"))
-
-	if product == "" {
-		panic(errors.New("No product value in home add grocery"))
-	}
-
-	groceryItem := grocery.Grocery{Product: product, HouseholdID: hid}
-	err := h.GroceriesService.AddGroceries(c, []grocery.Grocery{groceryItem})
-
-	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
-	}
-
-	c.Redirect(302, "/home")
-}
+// func (h *Handler) AddGrocery(c *gin.Context) {
+// 	hid := c.GetInt("household_id")
+// 	product := strings.TrimSpace(c.PostForm("product"))
+//
+// 	if product == "" {
+// 		panic(errors.New("No product value in home add grocery"))
+// 	}
+//
+// 	groceryItem := grocery.Grocery{Product: product.Product{}, HouseholdID: hid}
+// 	err := h.GroceriesService.AddGroceries(c, []grocery.Grocery{groceryItem})
+//
+// 	if err != nil {
+// 		c.AbortWithStatus(500)
+// 		c.String(500, err.Error())
+// 		return
+// 	}
+//
+// 	c.Redirect(302, "/home")
+// }
 
 func (h *Handler) AddRecipe(c *gin.Context) {
 	hid := c.GetInt("household_id")

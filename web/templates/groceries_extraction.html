@@ -40,10 +40,10 @@
                         {{range .Groceries}}
                         <tr>
                             <td><button class="removeRowBtn">×</button></td>
-                            <td><input class="glass-inner" name="product" value="{{.Product}}"></td>
+                            <td><input class="glass-inner" name="name" value="{{.Product.Name}}"></td>
                             <td><input class="glass-inner" name="amount" value="{{.Amount}}"></td>
-                            <td><input class="glass-inner" name="brand" value="{{.Brand}}"></td>
-                            <td><input class="glass-inner" name="store" value="{{.Store}}"></td>
+                            <td><input class="glass-inner" name="brand" value="{{.Product.Brand}}"></td>
+                            <td><input class="glass-inner" name="store" value="{{.Product.Store}}"></td>
                         </tr>
                         {{end}}
                         {{end}}
@@ -51,7 +51,7 @@
                 </table>
             </form>
         </main>
-        <script src="/static/script.js"></script>
+        <script type="module" src="/static/script.js"></script>
     </div>
 </body>
 
