@@ -14,8 +14,12 @@
             </fieldset>
 
             <section class="glass container search-section hidden">
-                <h2><label for="fuzzy-search">Search</label></h2>
+                <h2>Search</h2>
+                <h3>Find Title</h3>
                 <input type="text" id="fuzzy-search" class="glass-inner focus" placeholder="Type keywords...">
+                <h3>Match With Ingredients</h3>
+                <input type="text" id="fuzzy-match" class="glass-inner" placeholder='Type Ingredients...'>
+
             </section>
 
             <form class="glass container add-form add-recipe-form hidden" method="post" action="/recipes/add">
@@ -26,25 +30,34 @@
             </form>
 
             <div class="grid-recipe">
-                {{range .Data}}
-                <div class="glass recipe-card" data-title="{{.Title}}">
-                    <div class="image-wrapper">
-                        <img src="{{.ImgURL}}" alt="{{.Title}}">
-                        <a href="{{.Link}}" class="button-styling">↗</a>
-                    </div>
-                    <div class="title">
-                        <p>{{.Title}}</p>
-                        <form method="POST" action="/recipes/extract">
-                            <input type="hidden" name="link" value="{{ .Link }}">
-                            <button type="submit">Add To Groceries</button>
-                        </form>
-                    </div>
+                {{range .RecipesView}}
+                <div class="recipe-card glass" data-title="{{.Recipe.Title}}">
+                    <section class="front" aria-label="Front of recipe card">
+                        <div class="image-wrapper">
+                            <img src="{{.Recipe.ImgURL}}" alt="{{.Recipe.Title}}">
+                            <a href="{{.Recipe.Link}}" class="button-styling">↗</a>
+                        </div>
+                        <div class="title">
+                            <p>{{.Recipe.Title}}</p>
+                            <form method="POST" action="/recipes/extract">
+                                <input type="hidden" name="recipe_id" value="{{ .Recipe.Id }}">
+                                <button type="submit">Add To Groceries</button>
+                            </form>
+                        </div>
+                    </section>
+                    <section aria-label="Back of recipe card" class="back" hidden>
+                        <ul>
+                            {{range .RecipeIngredients}}
+                            <li>{{.Ingredient.Product.Name}}</li>
+                            {{end}}
+                        </ul>
+                    </section>
                 </div>
                 {{end}}
             </div>
         </main>
         {{template "footer" .}}
-        <script type="module" type="module" src="/static/script.js"></script>
+        <script type="module" src="/static/script.js"></script>
     </div>
 </body>
 

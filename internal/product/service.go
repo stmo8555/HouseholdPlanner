@@ -6,13 +6,26 @@ import (
 	"strings"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/stmo8555/HouseholdPlanner/internal/ai"
 )
 
 type Service struct {
 	Repo           *Repo
+	AIService      *ai.Service
 	FoodCategories map[string]string
 }
 
+func CreateService(repo *Repo, ai *ai.Service, lookUpTable map[string]string) *Service {
+	if repo == nil || ai == nil || lookUpTable == nil {
+		panic("service not initialized")
+	}
+
+	return &Service{
+		Repo:           repo,
+		AIService:      ai,
+		FoodCategories: lookUpTable,
+	}
+}
 func (s *Service) Get(ctx context.Context, id int) (Product, error) {
 	return s.Repo.Get(ctx, id)
 }

@@ -62,7 +62,20 @@
 
             <!-- table start -->
             <section class='glass container glass-strong grocery-list'>
-                <h2>Shopping ({{.Total}})</h2>
+                <div class='flex space-between'>
+                    <h2>Shopping ({{.Total}})</h2>
+                    <fieldset class="center-with-grid">
+                        <legend class="sr-only">Show </legend>
+                        <select id="filter-groceries" name="selection" class="glass-inner">
+                            <option value="all">All</option>
+                            <option value="dairy">Dairy</option>
+                            <option value="fruitandvegetables">Fruit & Vegetables</option>
+                            <option value="meatandfish">Meat & Fish</option>
+                            <option value="pantry">Pantry</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </fieldset>
+                </div>
                 <table>
                     <thead>
                         <tr>
@@ -88,7 +101,7 @@
                             </th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody data-filter-section="dairy">
                         {{if gt (len .Data.Dairy) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
@@ -99,7 +112,9 @@
                         {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
+                    </tbody>
 
+                    <tbody data-filter-section="fruitandvegetables">
                         {{if gt (len .Data.FruitAndVegetables) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
@@ -110,7 +125,9 @@
                         {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
+                    </tbody>
 
+                    <tbody data-filter-section="meatandfish">
                         {{if gt (len .Data.MeatAndFish) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
@@ -121,7 +138,9 @@
                         {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
+                    </tbody>
 
+                    <tbody data-filter-section="pantry">
                         {{if gt (len .Data.Pantry) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
@@ -132,7 +151,9 @@
                         {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
+                    </tbody>
 
+                    <tbody data-filter-section="other">
                         {{if gt (len .Data.Other) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
@@ -143,7 +164,9 @@
                         {{template "grocery_row" .}}
                         {{end}}
                         {{end}}
+                    </tbody>
 
+                    <tbody>
                         {{if gt (len .Data.Picked) 0}}
                         <tr class="divider-top">
                             <td colspan="5">
@@ -165,21 +188,6 @@
         </main>
         <script type="module" src="/static/script.js"></script>
         <script>
-            const notMobile = window.matchMedia("(min-width: 500px)")
-
-            document.getElementById('extract-button').addEventListener("click", () => {
-                document.querySelector(".extract-grocery-form").classList.toggle("hidden");
-                focusables.forEach(e => {
-                    e.focus();
-                });
-            });
-
-            document.querySelectorAll(".quick-btn").forEach(btn => {
-                btn.addEventListener("click", () => {
-                    document.getElementById("product-input").value = btn.textContent;
-                });
-            });
-
             const edit_btn = document.getElementById('edit-button');
             let editing = false;
 
@@ -237,6 +245,21 @@
                         window.location.href = "/groceries";
                     }).catch(console.error);
                 }
+            });
+
+            const groceryFilter = document.getElementById("filter-groceries")
+            const grocerySections = document.querySelectorAll("tbody[data-filter-section]");
+
+            groceryFilter.addEventListener('change', ({target}) => {
+                const selectedFilter = target.value;
+
+                grocerySections.forEach(section => {
+                    const shouldShow =
+                        selectedFilter === "all" ||
+                        selectedFilter === section.dataset.filterSection;
+
+                    section.classList.toggle("hidden", !shouldShow);
+                });
             });
         </script>
     </div>

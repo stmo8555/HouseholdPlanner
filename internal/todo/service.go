@@ -5,10 +5,24 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/stmo8555/HouseholdPlanner/internal/ai"
 )
 
 type Service struct {
-	Repo *Repo
+	Repo           *Repo
+	AIService      *ai.Service
+}
+
+func CreateService(repo *Repo, ai *ai.Service) *Service {
+	if repo == nil || ai == nil {
+		panic("service not initialized")
+	}
+
+	return &Service{
+		Repo: repo,
+		AIService: ai,
+	}
 }
 
 func (s *Service) AddTodo(ctx context.Context, todo Todo) error {

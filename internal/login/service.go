@@ -2,60 +2,58 @@ package login
 
 import (
 	"context"
-	"github.com/google/uuid"
+	"time"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
 const fakeHash = "$2a$10$7EqJtq98hPqEX7fNZaFWoOePaWxn96p36C1p0uZ1tcHTTX3e8DqGa"
 
 type Service struct {
-	Repo *Repo
+	repo           *Repo
 }
 
-func (s *Service) Logout(uuid string) {
-	s.Repo.RemoveSession(uuid)
+func CreateService(repo *Repo) *Service {
+	if repo == nil {
+		panic("service not initialized")
+	}
+
+	return &Service{
+		repo: repo,
+	}
 }
 
-func (s *Service) Authenticate(ctx context.Context, uname, pwd string) string {
-	user, err := s.Repo.SelectUser(ctx, uname)
+func (s *Service) Logout(ctx context.Context, uuid string) {
+	err := s.repo.RemoveSession(ctx, uuid)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func (s *Service) Authenticate(ctx context.Context, uname, pwd string) (string, error) {
+	user, err := s.repo.User(ctx, uname)
 
 	if err != nil {
 		bcrypt.CompareHashAndPassword([]byte(fakeHash), []byte(pwd))
-		return ""
+		return "", err
 	}
 
 	if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(pwd)) != nil {
-		return ""
+		return "", err
 	}
 
-	sessionID := uuid.New().String()
 	session := Session{
-		UserID:      user.ID,
-		HouseholdID: nil,
+		UserID:    user.ID,
+		ExpiresAt: time.Now().UTC().Add(time.Hour * 36),
 	}
 
-	hid, err := s.Repo.getHouseholdId(user.ID)
-
-	if err == nil {
-		session.HouseholdID = &hid
-	} else {
-		panic("not implemented yet")
-	}
-
-	s.Repo.AddSession(sessionID, session)
-	return sessionID
+	return s.repo.AddSession(ctx, session)
 }
 
-func verifyPassword(pwd, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(pwd))
-
-	if err != nil {
-		return false
-	}
-
-	return true
+func (s *Service) GetSession(ctx context.Context, sessionID string) (Session, error) {
+	return s.repo.getSession(ctx, sessionID)
 }
 
-func (s *Service) GetSession(sessionID string) (Session, error) {
-	return s.Repo.getSession(sessionID)
+func (s *Service) RemoveExpiredSessions(ctx context.Context) error {
+	return s.repo.RemoveExpiredSessions(ctx)
 }

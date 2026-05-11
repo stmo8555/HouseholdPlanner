@@ -2,6 +2,8 @@ package login
 
 import (
 	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,8 +16,16 @@ func AuthMiddleware(s *Service) gin.HandlerFunc {
 			return
 		}
 
-		session, err := s.GetSession(sessionID)
+		session, err := s.GetSession(c.Request.Context(), sessionID)
 		if err != nil {
+			c.Redirect(http.StatusFound, "/login")
+			c.Abort()
+			return
+		}
+
+		if time.Now().UTC().After(session.ExpiresAt) {
+			s.repo.RemoveSession(c.Request.Context(), sessionID)
+
 			c.Redirect(http.StatusFound, "/login")
 			c.Abort()
 			return

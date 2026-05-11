@@ -9,12 +9,13 @@
         <main>
             <div class="margin-block-end-24px flex gap-6px">
                 <button type="submit" form="extractedForm">Save</button>
-                <form action="{{ .CancelURL }}" method="GET">
+                <form action={{.CancelURL}} method="GET">
                     <button type="submit">Cancel</button>
                 </form>
             </div>
-            <form action="{{ .SaveURL }}" id="extractedForm" method="POST" class='glass container glass-strong'>
-                <h2>Extracted from recipe ({{ len .Groceries }} items)</h2>
+            <form action="/groceries/extracted" id="extractedForm" method="POST" class='glass container glass-strong'>
+                <h2>Extracted from recipe ({{ len .Ingredients }} items)</h2>
+                <input type="hidden" name="redirect_path" value={{.RedirectPath}}>
                 <table>
                     <thead>
                         <tr>
@@ -36,8 +37,8 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{if gt (len .Groceries) 0}}
-                        {{range .Groceries}}
+                        {{if gt (len .Ingredients) 0}}
+                        {{range .Ingredients}}
                         <tr>
                             <td><button class="removeRowBtn">×</button></td>
                             <td><input class="glass-inner" name="name" value="{{.Product.Name}}"></td>

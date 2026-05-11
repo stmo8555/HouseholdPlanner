@@ -1,32 +1,51 @@
 package recipe
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
-	"github.com/stmo8555/HouseholdPlanner/internal/product"
+	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 )
 
 type Handler struct {
-	Service        *Service
-	GroceryService *grocery.Service
+	service        *Service
+	groceryService *grocery.Service
+}
+
+func CreateHandler(s *Service, gs *grocery.Service) *Handler {
+	if s == nil || gs == nil {
+		panic("nil services for handler")
+	}
+
+	return &Handler{
+		service:        s,
+		groceryService: gs,
+	}
 }
 
 func (h *Handler) List(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	recipes, err := h.Service.List(c, hid)
+	recipes, recipeIngredients, err := h.service.List(c, hid)
 
 	if err != nil {
 		c.AbortWithError(500, err)
 		return
 	}
 
+	recipesView := make([]RecipeView, 0, len(recipes))
+	for _, v := range recipes {
+		recipesView = append(recipesView, RecipeView{
+			Recipe:            v,
+			RecipeIngredients: recipeIngredients[v.Id],
+		})
+	}
 	data := gin.H{
 		"Title":       "Groceries",
 		"CurrentPath": c.Request.URL.Path,
-		"Data":        recipes,
+		"RecipesView": recipesView,
 	}
 
 	c.HTML(200, "recipes.html", data)
@@ -42,7 +61,7 @@ func (h *Handler) Add(c *gin.Context) {
 
 	hid := c.GetInt("household_id")
 
-	err := h.Service.Add(c, hid, link)
+	err := h.service.Add(c, hid, link)
 
 	if err != nil {
 		c.AbortWithError(500, err)
@@ -53,47 +72,31 @@ func (h *Handler) Add(c *gin.Context) {
 }
 
 func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
-	link := c.PostForm("link")
-	groceries := h.GroceryService.IngredientsFromRecipe(c, link)
+	hid := c.GetInt("household_id")
+	recipeID, err := strconv.Atoi(c.PostForm("recipe_id"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	recipeIngredients, err := h.service.Ingredients(c.Request.Context(), recipeID, hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	ingredients := make([]ingredient.Ingredient, 0, len(recipeIngredients))
+
+	for _, v := range recipeIngredients {
+		ingredients = append(ingredients, v.Ingredient)
+	}
 
 	data := gin.H{
-		"Title":     "Extracted Groceries",
-		"Groceries": groceries,
-		"SaveURL":   "/recipes/extracted",
-		"CancelURL": "/recipes",
+		"Title":        "Extracted Groceries",
+		"Ingredients":  ingredients,
+		"CancelURL":    "/recipes",
+		"RedirectPath": "/recipes",
 	}
 
 	c.HTML(200, "groceries_extraction.html", data)
-}
-
-func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
-	products := c.PostFormArray("product")
-	amounts := c.PostFormArray("amount")
-	brands := c.PostFormArray("brand")
-	stores := c.PostFormArray("store")
-
-	hid := c.GetInt("household_id")
-	groceries := make([]grocery.Grocery, len(products))
-	for i := range groceries {
-		groceries[i] = grocery.Grocery{
-			Product: product.Product{
-				Name:     products[i],
-				Brand:    brands[i],
-				Store:    stores[i],
-				Category: "",
-			},
-			Amount:      amounts[i],
-			HouseholdID: hid,
-		}
-
-		err := h.GroceryService.AddGroceries(c, groceries)
-
-		if err != nil {
-			c.AbortWithStatus(500)
-			c.String(500, err.Error())
-			return
-		}
-
-		c.Redirect(302, "/recipes")
-	}
 }

@@ -1,6 +1,8 @@
 package recipe
 
-import "github.com/stmo8555/HouseholdPlanner/internal/product"
+import (
+	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
+)
 
 type Recipe struct {
 	Id          int    `json:"id"`
@@ -11,9 +13,12 @@ type Recipe struct {
 }
 
 type RecipeIngredient struct {
-	Id        int     `json:"id"`
-	RecipeID  int     `json:"recipe_id"`
-	ProductID int     `json:"product_id"`
-	Amount    string  `json:"amount"`
-	Product   product.Product `json:"product"`
+	Id         int                    `json:"id"`
+	RecipeID   int                    `json:"recipe_id"`
+	Ingredient ingredient.Ingredient  `json:"ingredient"`
+}
+
+type RecipeView struct {
+	Recipe
+	RecipeIngredients []RecipeIngredient
 }

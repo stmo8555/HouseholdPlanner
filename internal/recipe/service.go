@@ -10,20 +10,33 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
+	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"golang.org/x/net/html"
 )
 
 type Service struct {
-	Repo           IRepo
-	GroceryService grocery.Service
-	ProductService product.Service
+	repo                IRepo
+	productService      *product.Service
+	ingredientExtractor *ingredient.Extractor
 }
 
-func (s *Service) List(ctx context.Context, hid int) ([]Recipe, error) {
-	return s.Repo.List(ctx, hid)
+func CreateService(repo IRepo, product *product.Service, ingredient *ingredient.Extractor) *Service {
+	if repo == nil || product == nil || ingredient == nil {
+		panic("service not initialized")
+	}
+
+	return &Service{
+		repo:                repo,
+		productService:      product,
+		ingredientExtractor: ingredient,
+	}
 }
+
+func (s *Service) List(ctx context.Context, hid int) ([]Recipe, map[int][]RecipeIngredient, error) {
+	return s.repo.List(ctx, hid)
+}
+
 func (s *Service) Add(ctx context.Context, hid int, link string) error {
 	if !strings.HasPrefix(link, "http") {
 		return errors.New("Recipe: Not an URL")
@@ -42,40 +55,48 @@ func (s *Service) Add(ctx context.Context, hid int, link string) error {
 		return err
 	}
 
-	var recipe Recipe
+	title := findTitle(doc)
 
-	recipe.Link = link
-	recipe.HouseholdID = hid
-
-	recipe.Title = findTitle(doc)
-
-	recipe.ImgURL = findImg(doc, recipe.Title)
+	recipe := Recipe{
+		Link:        link,
+		HouseholdID: hid,
+		Title:       title,
+		ImgURL:      findImg(doc, title),
+	}
 
 	var recipeID int
-	recipeID, err = s.Repo.Add(ctx, hid, recipe)
+	recipeID, err = s.repo.AddRecipe(ctx, hid, recipe)
 
 	if err != nil {
 		panic(err)
 	}
 
-	groceries := s.GroceryService.IngredientsFromRecipe(ctx, recipe.Link)
+	ingredients, err := s.ingredientExtractor.FromRecipeURL(ctx, recipe.Link)
 
-	var recipeIngredients []RecipeIngredient
+	if err != nil {
+		panic(err)
+	}
 
-	for _, g := range groceries {
-		p := g.Product
-		p.Normalize()
-		id, err := s.ProductService.GetID(ctx, p)
+	recipeIngredients := make([]RecipeIngredient, 0, len(ingredients))
+
+	for _, i := range ingredients {
+		id, err := s.productService.GetID(ctx, i.Product)
+
 		if err != nil {
 			panic(err)
 		}
-		ri := RecipeIngredient{RecipeID: recipeID, ProductID: id, Amount: g.Amount}
 
+		i.ProductID = id
+
+		ri := RecipeIngredient{RecipeID: recipeID, Ingredient: i}
 		recipeIngredients = append(recipeIngredients, ri)
 	}
 
+	return s.repo.AddIngredients(ctx, recipeIngredients)
+}
 
-	return
+func (s *Service) Ingredients(ctx context.Context, recipeId, hid int) ([]RecipeIngredient, error) {
+	return s.repo.Ingredients(ctx, recipeId, hid)
 }
 
 func findTitle(n *html.Node) string {
@@ -259,6 +280,7 @@ func normalizeForSearch(s string) string {
 
 	return replacer.Replace(s)
 }
+
 func printNode(n *html.Node) {
 	var buf bytes.Buffer
 	html.Render(&buf, n)

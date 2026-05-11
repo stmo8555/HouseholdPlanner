@@ -2,15 +2,26 @@ package product
 
 import (
 	"context"
+
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repo struct {
-	DB *pgx.Conn
+	db *pgxpool.Pool
+}
+
+func CreateRepo(db *pgxpool.Pool) *Repo {
+	if db == nil {
+		panic("nil DB connection")
+	}
+	return &Repo{
+		db: db,
+	}
 }
 
 func (r *Repo) Get(ctx context.Context, id int) (Product, error) {
-	rows, err := r.DB.Query(
+	rows, err := r.db.Query(
 		ctx,
 		`
 		SELECT id, name, brand, store, category
@@ -31,7 +42,7 @@ func (r *Repo) Get(ctx context.Context, id int) (Product, error) {
 func (r *Repo) GetID(ctx context.Context, p Product) (int, error) {
 	var id int
 
-	err := r.DB.QueryRow(
+	err := r.db.QueryRow(
 		ctx,
 		`
 		SELECT id
@@ -49,7 +60,7 @@ func (r *Repo) GetID(ctx context.Context, p Product) (int, error) {
 func (r *Repo) Add(ctx context.Context, p Product) (int, error) {
 	var id int
 
-	err := r.DB.QueryRow(
+	err := r.db.QueryRow(
 		ctx,
 		`
 		INSERT INTO products (name, brand, store, category)

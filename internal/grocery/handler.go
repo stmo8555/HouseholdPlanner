@@ -1,15 +1,29 @@
 package grocery
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 )
 
 type Handler struct {
-	Service *Service
+	service             *Service
+	ingredientExtractor *ingredient.Extractor
+}
+
+func CreateHandler(s *Service, ingredient *ingredient.Extractor) *Handler {
+	if s == nil || ingredient == nil {
+		panic("nil service for handler")
+	}
+
+	return &Handler{
+		service:             s,
+		ingredientExtractor: ingredient,
+	}
 }
 
 func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
@@ -21,33 +35,39 @@ func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
 		return
 	}
 
-	groceries := h.Service.IngredientsFromRecipe(c, link)
+	ingredients, err := h.ingredientExtractor.FromRecipeURL(c, link)
 
-	h.ExtractedView(c, groceries)
+	if err != nil {
+		panic(err)
+	}
+
+	h.ExtractedView(c, ingredients)
 }
 
 func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
+	hid := c.GetInt("household_id")
+
+	redirectPath := c.PostForm("redirect_path")
+
 	products := c.PostFormArray("name")
 	amounts := c.PostFormArray("amount")
 	brands := c.PostFormArray("brand")
 	stores := c.PostFormArray("store")
 
-	hid := c.GetInt("household_id")
-	groceries := make([]Grocery, len(products))
-	for i := range groceries {
-		groceries[i] = Grocery{
+	ingredients := make([]ingredient.Ingredient, len(products))
+	for i := range ingredients {
+		ingredients[i] = ingredient.Ingredient{
 			Product: product.Product{
 				Name:     products[i],
 				Brand:    brands[i],
 				Store:    stores[i],
 				Category: "",
 			},
-			Amount:      amounts[i],
-			HouseholdID: hid,
+			Amount: amounts[i],
 		}
 	}
 
-	err := h.Service.AddGroceries(c, groceries)
+	err := h.service.AddGroceries(c, ingredients, hid)
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -55,7 +75,13 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(303, "/groceries")
+	if !strings.HasPrefix(redirectPath,"/"){
+		c.AbortWithStatus(500)
+		c.String(500, errors.New("Redirect variable does not start with /. Value: " + redirectPath).Error())	
+		return
+	}
+
+	c.Redirect(303, redirectPath)
 }
 
 func (h *Handler) List(c *gin.Context) {
@@ -73,7 +99,7 @@ func (h *Handler) List(c *gin.Context) {
 		nextOrder = "desc"
 	}
 
-	groceries, err := h.Service.List(c, sortBy, order, hid)
+	groceries, err := h.service.List(c, sortBy, order, hid)
 	if err != nil {
 		c.AbortWithStatus(500)
 		c.String(500, err.Error())
@@ -81,7 +107,7 @@ func (h *Handler) List(c *gin.Context) {
 	}
 
 	var topProducts []string
-	topProducts, err = h.Service.GetTopProducts(c, hid)
+	topProducts, err = h.service.GetTopProducts(c, hid)
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -117,24 +143,23 @@ func (h *Handler) TogglePicked(c *gin.Context) {
 		panic(err)
 	}
 
-	h.Service.TogglePicked(c, id, hid)
+	h.service.TogglePicked(c, id, hid)
 	c.Redirect(302, "/groceries")
 }
 
 func (h *Handler) Add(c *gin.Context) {
-	grocery := Grocery{
+	ingredients := make([]ingredient.Ingredient, 0, 1)
+	ingredients = append(ingredients, ingredient.Ingredient{
 		Product: product.Product{
 			Name:     c.PostForm("name"),
 			Brand:    c.PostForm("brand"),
 			Store:    c.PostForm("store"),
 			Category: "",
 		},
-		Amount:      c.PostForm("amount"),
-		Picked:      false,
-		HouseholdID: c.GetInt("household_id"),
-	}
+		Amount: c.PostForm("amount"),
+	})
 
-	err := h.Service.AddGroceries(c, []Grocery{grocery})
+	err := h.service.AddGroceries(c, ingredients, c.GetInt("household_id"))
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -145,12 +170,12 @@ func (h *Handler) Add(c *gin.Context) {
 	c.Redirect(302, "/groceries")
 }
 
-func (h *Handler) ExtractedView(c *gin.Context, groceries []Grocery) {
+func (h *Handler) ExtractedView(c *gin.Context, ingredients []ingredient.Ingredient) {
 	data := gin.H{
-		"Title":     "Extracted Groceries",
-		"Groceries": groceries,
-		"SaveURL":   "/groceries/extracted",
+		"Title":      "Extracted Groceries",
+		"Ingredients": ingredients,
 		"CancelURL": "/groceries",
+		"RedirectPath": "/groceries",
 	}
 
 	c.HTML(200, "groceries_extraction.html", data)
@@ -165,7 +190,7 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 		return
 	}
 
-	groceries, err := h.Service.SmartAdd(c, text)
+	groceries, err := h.service.SmartAdd(c, text)
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -177,7 +202,7 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 }
 
 func (h *Handler) DeletePicked(c *gin.Context) {
-	err := h.Service.DeletePicked(c, c.GetInt("household_id"))
+	err := h.service.DeletePicked(c, c.GetInt("household_id"))
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -195,7 +220,7 @@ func (h *Handler) Edit(c *gin.Context) {
 		panic(err)
 	}
 
-	err = h.Service.Edit(c, groceries, c.GetInt("household_id"))
+	err = h.service.Edit(c, groceries, c.GetInt("household_id"))
 
 	if err != nil {
 		c.AbortWithStatus(500)

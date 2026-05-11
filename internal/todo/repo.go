@@ -2,12 +2,23 @@ package todo
 
 import (
 	"context"
-	"github.com/jackc/pgx/v5"
 	"time"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Repo struct {
-	DB *pgx.Conn
+	DB *pgxpool.Pool
+}
+
+func CreateRepo(db *pgxpool.Pool) *Repo {
+	if db == nil {
+		panic("nil DB connection")
+	}
+
+	return &Repo{
+		DB: db,
+	}
 }
 
 func (r *Repo) Add(ctx context.Context, t Todo) error {

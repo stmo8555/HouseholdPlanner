@@ -2,7 +2,6 @@ package home
 
 import (
 	"errors"
-	_"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,12 +12,23 @@ import (
 )
 
 type Handler struct {
-	GroceriesService *grocery.Service
-	LoginService     *login.Service
-	RecipesService   *recipe.Service
-	TodosService     *todo.Service
-	Service          *Service
+	groceriesService *grocery.Service
+	loginService     *login.Service
+	recipesService   *recipe.Service
+	todosService     *todo.Service
+	service          *Service
 }
+
+func CreateHandler(s *Service) *Handler {
+	if s == nil {
+		panic("nil service for handler")
+	}
+
+	return &Handler{
+		service: s,
+	}
+}
+
 
 func (h *Handler) Index(c *gin.Context) {
 	// hid := c.GetInt("household_id")
@@ -76,7 +86,7 @@ func (h *Handler) AddRecipe(c *gin.Context) {
 		panic(errors.New("No product value in home add grocery"))
 	}
 
-	err := h.RecipesService.Add(c, hid, recipe)
+	err := h.recipesService.Add(c, hid, recipe)
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -97,7 +107,7 @@ func (h *Handler) AI(c *gin.Context) {
 		return
 	}
 
-	content := h.Service.AI(c, question)
+	content := h.service.AI(c, question)
 
 	data := gin.H{
 		"Groceries": content.Groceries,

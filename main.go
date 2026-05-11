@@ -8,28 +8,28 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/stmo8555/HouseholdPlanner/internal/ai"
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
-	"github.com/stmo8555/HouseholdPlanner/internal/home"
+	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
 	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
 
-var conn *pgx.Conn
-
+var aiService *ai.Service
 var loginService *login.Service
 var todosService *todo.Service
 var productService *product.Service
+var ingredientExtractor *ingredient.Extractor
 var recipeService *recipe.Service
 var groceryService *grocery.Service
 
 func main() {
-	var err error
+	pool, err := pgxpool.New(context.Background(), dbDSN())
 
-	conn, err = pgx.Connect(context.Background(), dbDSN())
 	if err != nil {
 		panic(err)
 	}
@@ -40,18 +40,21 @@ func main() {
 		panic(err)
 	}
 
-	defer conn.Close(context.Background())
+	defer pool.Close()
 
-	loginService = &login.Service{Repo: &login.Repo{DB: conn, Sessions: make(map[string]login.Session)}}
-	todosService = &todo.Service{Repo: &todo.Repo{DB: conn}}
-	productService = &product.Service{Repo: &product.Repo{DB: conn}, FoodCategories: foodMap}
-	recipeService = &recipe.Service{Repo: &recipe.Repo{DB: conn}}
-	groceryService = &grocery.Service{Repo: &grocery.Repo{DB: conn}, ProductService: productService}
+	aiService = ai.CreateService(ai.CreateClient())
+	productService = product.CreateService(product.CreateRepo(pool), aiService, foodMap)
+	ingredientExtractor = ingredient.CreateExtractor(aiService)
+	loginService = login.CreateService(login.CreateRepo(pool))
+	todosService = todo.CreateService(todo.CreateRepo(pool), aiService)
+	groceryService = grocery.CreateService(grocery.CreateRepo(pool), productService, ingredientExtractor)
+	recipeService = recipe.CreateService(recipe.CreateRepo(pool), productService, ingredientExtractor)
 
 	tmpl := template.Must(template.ParseGlob("web/templates/*.html"))
 	tmpl = template.Must(tmpl.ParseGlob("web/templates/partial/*.html"))
 
 	r := gin.Default()
+	// r.LoadHTMLGlob("web/templates/*.html")
 	r.SetHTMLTemplate(tmpl)
 	r.Static("/static/", "web/static")
 	setupLogin(r)
@@ -62,7 +65,7 @@ func main() {
 	setupTodos(auth)
 	setupRecipes(auth)
 	setupGroceries(auth)
-	setupHome(auth)
+	// setupHome(auth)
 
 	err = r.Run(":8080")
 	if err != nil {
@@ -71,14 +74,17 @@ func main() {
 }
 
 func setupLogin(r *gin.Engine) {
-	handler := &login.Handler{Service: loginService}
+	handler := login.CreateHandler(loginService)
+
 	r.GET("/login", handler.Login)
 	r.POST("/login", handler.Authenticate)
 	r.GET("/logout", handler.Logout)
+
+	login.RunCleanup(context.Background(), loginService)
 }
 
 func setupTodos(r *gin.RouterGroup) {
-	handler := &todo.Handler{Service: todosService}
+	handler := todo.CreateHandler(todosService)
 
 	r.GET("/todos", handler.List)
 	r.POST("/todos/add", handler.Add)
@@ -89,16 +95,15 @@ func setupTodos(r *gin.RouterGroup) {
 }
 
 func setupRecipes(r *gin.RouterGroup) {
-	handler := &recipe.Handler{Service: recipeService, GroceryService: groceryService}
-
+	handler := recipe.CreateHandler(recipeService, groceryService)
 	r.GET("/recipes", handler.List)
 	r.POST("/recipes/add", handler.Add)
 	r.POST("/recipes/extract", handler.IngredientsFromRecipe)
-	r.POST("/recipes/extracted", handler.AcceptExtractedGroceries)
 }
 
 func setupGroceries(r *gin.RouterGroup) {
-	handler := &grocery.Handler{Service: groceryService}
+	handler := grocery.CreateHandler(groceryService, ingredientExtractor)
+
 	r.GET("/groceries", handler.List)
 	r.POST("/groceries", handler.TogglePicked)
 	r.POST("/groceries/add", handler.Add)
@@ -109,20 +114,20 @@ func setupGroceries(r *gin.RouterGroup) {
 	r.POST("/groceries/extracted", handler.AcceptExtractedGroceries)
 }
 
-func setupHome(r *gin.RouterGroup) {
-	handler := &home.Handler{
-		GroceriesService: groceryService,
-		LoginService:     loginService,
-		RecipesService:   recipeService,
-		TodosService:     todosService,
-	}
-
-	r.GET("/", handler.Index)
-	r.GET("/home", handler.Index)
-	// r.POST("/home/add/grocery", handler.AddGrocery)
-	r.POST("/home/add/recipe", handler.AddRecipe)
-	r.POST("/home/ai", handler.AI)
-}
+// func setupHome(r *gin.RouterGroup) {
+// 	handler := &home.Handler{
+// 		GroceriesService: groceryService,
+// 		LoginService:     loginService,
+// 		RecipesService:   recipeService,
+// 		TodosService:     todosService,
+// 	}
+//
+// 	r.GET("/", handler.Index)
+// 	r.GET("/home", handler.Index)
+// 	// r.POST("/home/add/grocery", handler.AddGrocery)
+// 	r.POST("/home/add/recipe", handler.AddRecipe)
+// 	r.POST("/home/ai", handler.AI)
+// }
 
 func getenv(key, fallback string) string {
 	v := os.Getenv(key)

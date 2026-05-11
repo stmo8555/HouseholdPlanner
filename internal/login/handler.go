@@ -6,7 +6,17 @@ import (
 )
 
 type Handler struct {
-	Service *Service
+	service *Service
+}
+
+func CreateHandler(s *Service) *Handler {
+	if s == nil {
+		panic("nil service for handler")
+	}
+
+	return &Handler{
+		service: s,
+	}
 }
 
 func (h *Handler) Login(c *gin.Context) {
@@ -15,12 +25,12 @@ func (h *Handler) Login(c *gin.Context) {
 }
 
 func (h *Handler) Logout(c *gin.Context) {
-	cookie, err := c.Cookie("session_id")
+	sessionID, err := c.Cookie("session_id")
 	if err == nil {
-		h.Service.Logout(cookie)
+		h.service.Logout(c.Request.Context(), sessionID)
 	}
 
-	c.SetCookie("session_id", "", -1, "/", "", false, true)
+	c.SetCookie("session_id", "", -1, "/", "", true, true)
 	c.Redirect(302, "/login")
 }
 
@@ -28,12 +38,13 @@ func (h *Handler) Authenticate(c *gin.Context) {
 	uname := c.PostForm("uname")
 	pwd := c.PostForm("pwd")
 
-	uuid := h.Service.Authenticate(c, uname, pwd)
+	sessionID, err := h.service.Authenticate(c, uname, pwd)
 
-	if uuid != "" {
+
+	if err == nil {
 		c.SetSameSite(http.SameSiteStrictMode)
-		c.SetCookie("session_id", uuid, 0, "/", "", false, true)
-		c.Redirect(302, "/")
+		c.SetCookie("session_id", sessionID, 0, "/", "", true, true)
+		c.Redirect(302, "/recipes")
 	} else {
 		c.Redirect(302, "/login")
 	}

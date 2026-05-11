@@ -2,10 +2,9 @@ package recipe
 
 import (
 	"context"
+	"golang.org/x/net/html"
 	"net/http"
 	"testing"
-
-	"golang.org/x/net/html"
 )
 
 var recipes = [...]string{
@@ -80,19 +79,27 @@ type mockDB struct {
 	result []Recipe
 }
 
-func (m *mockDB) List(ctx context.Context, hid int) ([]Recipe, error) {
+func (m *mockDB) List(ctx context.Context, hid int) ([]Recipe, map[int][]RecipeIngredient, error) {
 	panic("Not implemented for test")
 }
 
-func (m *mockDB) Add(ctx context.Context, hid int, recipe Recipe) error {
+func (m *mockDB) AddRecipe(ctx context.Context, hid int, recipe Recipe) (int, error) {
 	m.result = append(m.result, recipe)
+	return 0, nil
+}
+
+func (m *mockDB) AddIngredients(ctx context.Context, recipeIngredients []RecipeIngredient) error {
 	return nil
+}
+
+func (m *mockDB) Ingredients(ctx context.Context, recipeID, hid int) ([]RecipeIngredient, error) {
+	return nil, nil
 }
 
 func TestAddRecipe(t *testing.T) {
 	var mockDB mockDB
 	mockDB.result = make([]Recipe, 0)
-	service := Service{Repo: &mockDB}
+	service := Service{repo: &mockDB}
 
 	for i, url := range recipes {
 		service.Add(context.Background(), i, url)

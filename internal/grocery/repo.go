@@ -5,11 +5,22 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 )
 
 type Repo struct {
-	DB *pgx.Conn
+	db *pgxpool.Pool
+}
+
+func CreateRepo(db *pgxpool.Pool) *Repo {
+	if db == nil {
+		panic("nil DB connection")
+	}
+
+	return &Repo{
+		db: db,
+	}
 }
 
 func (r *Repo) getTopProducts(ctx context.Context, householdID int) ([]product.Product, error) {
@@ -22,7 +33,7 @@ func (r *Repo) getTopProducts(ctx context.Context, householdID int) ([]product.P
 		LIMIT 10;
 	`
 
-	rows, err := r.DB.Query(ctx, sql, householdID)
+	rows, err := r.db.Query(ctx, sql, householdID)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +47,7 @@ func AddToHistory(tx pgx.Tx, ctx context.Context, grocerie Grocery) error {
 	ON CONFLICT (household_id, product_id)
 	DO UPDATE SET times_added = groceries_history.times_added + 1;`
 
-	_, err := tx.Exec(ctx, sql, grocerie.HouseholdID, grocerie.ProductID)
+	_, err := tx.Exec(ctx, sql, grocerie.HouseholdID, grocerie.Ingredient.ProductID)
 	return err
 }
 
@@ -46,14 +57,14 @@ func (r *Repo) AddGroceries(ctx context.Context, groceries []Grocery) error {
 	(product_id, amount, household_id)
 	VALUES ($1, $2, $3)`
 
-	tx, err := r.DB.Begin(ctx)
+	tx, err := r.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback(ctx)
 
 	for _, grocery := range groceries {
-		_, err = tx.Exec(ctx, sql, grocery.ProductID, grocery.Amount, grocery.HouseholdID)
+		_, err = tx.Exec(ctx, sql, grocery.Ingredient.ProductID, grocery.Ingredient.Amount, grocery.HouseholdID)
 		if err != nil {
 			return err
 		}
@@ -86,7 +97,7 @@ func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) 
 	ORDER BY %s %s
 `, sortBy, order)
 
-	rows, err := r.DB.Query(ctx, sql, householdID)
+	rows, err := r.db.Query(ctx, sql, householdID)
 	if err != nil {
 		return nil, err
 	}
@@ -99,13 +110,13 @@ func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) 
 
 		err := rows.Scan(
 			&g.Id,
-			&g.ProductID,
-			&g.Product.Id,
-			&g.Product.Name,
-			&g.Product.Brand,
-			&g.Product.Store,
-			&g.Product.Category,
-			&g.Amount,
+			&g.Ingredient.ProductID,
+			&g.Ingredient.Product.Id,
+			&g.Ingredient.Product.Name,
+			&g.Ingredient.Product.Brand,
+			&g.Ingredient.Product.Store,
+			&g.Ingredient.Product.Category,
+			&g.Ingredient.Amount,
 			&g.HouseholdID,
 			&g.Picked,
 		)
@@ -121,7 +132,7 @@ func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) 
 
 func (r *Repo) TogglePicked(ctx context.Context, id, householdID int) error {
 	sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1 AND household_id=$2;`
-	_, err := r.DB.Exec(ctx, sql, id, householdID)
+	_, err := r.db.Exec(ctx, sql, id, householdID)
 
 	return err
 }
@@ -130,12 +141,12 @@ func (r *Repo) DeletePicked(ctx context.Context, householdId int) error {
 	sql := `DELETE FROM groceries
 			WHERE household_id = $1 AND picked IS TRUE;`
 
-	_, err := r.DB.Exec(ctx, sql, householdId)
+	_, err := r.db.Exec(ctx, sql, householdId)
 	return err
 }
 
 func (r *Repo) Edit(ctx context.Context, groceries []Grocery) error {
-	tx, err := r.DB.Begin(ctx)
+	tx, err := r.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
@@ -145,7 +156,7 @@ func (r *Repo) Edit(ctx context.Context, groceries []Grocery) error {
 		sql := `UPDATE groceries
                SET product_id=$1, amount=$2
                WHERE id=$3 AND household_id=$4`
-		_, err = tx.Exec(ctx, sql, g.ProductID, g.Amount, g.Id, g.HouseholdID)
+		_, err = tx.Exec(ctx, sql, g.Ingredient.ProductID, g.Ingredient.Amount, g.Id, g.HouseholdID)
 	}
 
 	return tx.Commit(ctx)

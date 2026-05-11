@@ -13,6 +13,16 @@ type Handler struct {
 	Service *Service
 }
 
+func CreateHandler(s *Service) *Handler {
+	if s == nil {
+		panic("nil service for handler")
+	}
+
+	return &Handler{
+		Service: s,
+	}
+}
+
 func (h *Handler) Add(c *gin.Context) {
 	hid := c.GetInt("household_id")
 

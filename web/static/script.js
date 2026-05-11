@@ -45,16 +45,32 @@ btns.forEach((btn) => {
     });
 });
 
+document.getElementById('extract-button').addEventListener("click", () => {
+    document.querySelector(".extract-grocery-form").classList.toggle("hidden");
+    focusables.forEach(e => {
+        e.focus();
+    });
+});
+
+document.querySelectorAll(".quick-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.getElementById("product-input").value = btn.textContent;
+    });
+});
+
 const recipeCards = [...document.querySelectorAll(".recipe-card")];
 const searchInput = document.getElementById("fuzzy-search");
+const matchInput = document.getElementById("fuzzy-match");
 
-if (recipeCards.length > 0 && searchInput) {
+if (recipeCards.length > 0 && searchInput && matchInput) {
     const data = recipeCards.map(card => ({
         element: card,
         title: card.dataset.title || "",
+        ingredients: [...card.querySelectorAll("li")].map(li => li.textContent.trim()),
     }));
 
-    const fuse = new Fuse(data, {
+    console.log(data)
+    const fuseTitle = new Fuse(data, {
         keys: ["title"],
         threshold: 0.5
     });
@@ -69,8 +85,37 @@ if (recipeCards.length > 0 && searchInput) {
 
         recipeCards.forEach(c => c.hidden = true);
 
-        fuse.search(q).forEach(r => {
+        fuseTitle.search(q).forEach(r => {
             r.item.element.hidden = false;
+        });
+    });
+
+    matchInput.addEventListener("input", e => {
+        const q = e.target.value.trim();
+
+        if (!q) {
+            recipeCards.forEach(card => card.hidden = false);
+            return;
+        }
+
+        recipeCards.forEach(c => c.hidden = true);
+
+        const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
+
+        recipeCards.forEach(card => {
+            const ingredients = [...card.querySelectorAll("li")]
+                .map(li => li.textContent.trim().toLowerCase());
+
+            const allTokensFound = tokens.every(token => {
+                const fuse = new Fuse(ingredients, {
+                    threshold: 0.2,
+                    ignoreDiacritics: true,
+                });
+
+                return fuse.search(token).length > 0;
+            });
+
+            card.hidden = !allTokensFound;
         });
     });
 }
