@@ -75,9 +75,9 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 		return
 	}
 
-	if !strings.HasPrefix(redirectPath,"/"){
+	if !strings.HasPrefix(redirectPath, "/") {
 		c.AbortWithStatus(500)
-		c.String(500, errors.New("Redirect variable does not start with /. Value: " + redirectPath).Error())	
+		c.String(500, errors.New("Redirect variable does not start with /. Value: "+redirectPath).Error())
 		return
 	}
 
@@ -87,67 +87,49 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 func (h *Handler) List(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	sortBy := c.DefaultQuery("sort", "product")
-	order := c.DefaultQuery("order", "asc")
-
-	if order != "desc" {
-		order = "asc"
-	}
-
-	nextOrder := "asc"
-	if order == "asc" {
-		nextOrder = "desc"
-	}
-
-	groceries, err := h.service.List(c, sortBy, order, hid)
+	data, err := h.groceryListData(c, hid)
 	if err != nil {
-		c.AbortWithStatus(500)
 		c.String(500, err.Error())
 		return
 	}
 
-	var topProducts []string
-	topProducts, err = h.service.GetTopProducts(c, hid)
-
-	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
-	}
-
-	data := gin.H{
-		"Title":       "Groceries",
-		"CurrentPath": c.Request.URL.Path,
-		"Data":        groceries,
-		"Total": len(groceries.Pantry) +
-			len(groceries.FruitAndVegetables) +
-			len(groceries.MeatAndFish) +
-			len(groceries.Dairy) +
-			len(groceries.Other),
-		"TopProducts": topProducts,
-		"Sort":        sortBy,
-		"Order":       order,
-		"NextOrder":   nextOrder,
-	}
+	data["Title"] = "Groceries"
+	data["CurrentPath"] = c.Request.URL.Path
 
 	c.HTML(200, "groceries.html", data)
 }
 
-func (h *Handler) TogglePicked(c *gin.Context) {
+func (h *Handler) ListPartial(c *gin.Context) {
 	hid := c.GetInt("household_id")
-	idStr := c.PostForm("id")
 
-	id, err := strconv.Atoi(idStr)
-
+	data, err := h.groceryListData(c, hid)
 	if err != nil {
-		panic(err)
+		c.String(500, err.Error())
+		return
 	}
 
-	h.service.TogglePicked(c, id, hid)
-	c.Redirect(302, "/groceries")
+	c.HTML(200, "grocery_list", data)
+}
+
+func (h *Handler) TogglePicked(c *gin.Context) {
+	hid := c.GetInt("household_id")
+
+	id, err := strconv.Atoi(c.PostForm("id"))
+	if err != nil {
+		c.String(400, "invalid grocery id")
+		return
+	}
+
+	if err := h.service.TogglePicked(c, id, hid); err != nil {
+		c.String(500, err.Error())
+		return
+	}
+
+	h.ListPartial(c)
 }
 
 func (h *Handler) Add(c *gin.Context) {
+	hid := c.GetInt("household_id")
 	ingredients := make([]ingredient.Ingredient, 0, 1)
 	ingredients = append(ingredients, ingredient.Ingredient{
 		Product: product.Product{
@@ -159,7 +141,7 @@ func (h *Handler) Add(c *gin.Context) {
 		Amount: c.PostForm("amount"),
 	})
 
-	err := h.service.AddGroceries(c, ingredients, c.GetInt("household_id"))
+	err := h.service.AddGroceries(c, ingredients, hid)
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -167,14 +149,14 @@ func (h *Handler) Add(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(302, "/groceries")
+	h.ListPartial(c)
 }
 
 func (h *Handler) ExtractedView(c *gin.Context, ingredients []ingredient.Ingredient) {
 	data := gin.H{
-		"Title":      "Extracted Groceries",
-		"Ingredients": ingredients,
-		"CancelURL": "/groceries",
+		"Title":        "Extracted Groceries",
+		"Ingredients":  ingredients,
+		"CancelURL":    "/groceries",
 		"RedirectPath": "/groceries",
 	}
 
@@ -202,15 +184,15 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 }
 
 func (h *Handler) DeletePicked(c *gin.Context) {
-	err := h.service.DeletePicked(c, c.GetInt("household_id"))
+	hid := c.GetInt("household_id")
+	err := h.service.DeletePicked(c, hid)
 
 	if err != nil {
-		c.AbortWithStatus(500)
 		c.String(500, err.Error())
 		return
 	}
 
-	c.Redirect(302, "/groceries")
+	h.ListPartial(c)
 }
 
 func (h *Handler) Edit(c *gin.Context) {
@@ -229,4 +211,60 @@ func (h *Handler) Edit(c *gin.Context) {
 	}
 
 	c.Redirect(302, "/groceries")
+}
+
+func (h *Handler) groceryListData(c *gin.Context, hid int) (gin.H, error) {
+	sortBy := c.DefaultQuery("sort", c.DefaultPostForm("sort", "product"))
+	order := c.DefaultQuery("order", c.DefaultPostForm("order", "asc"))
+	filter := c.DefaultQuery("filter", c.DefaultPostForm("filter", "all"))
+
+	if order != "desc" {
+		order = "asc"
+	}
+
+	nextOrder := "asc"
+	if order == "asc" {
+		nextOrder = "desc"
+	}
+
+	groceries, err := h.service.List(c, sortBy, order, hid)
+	if err != nil {
+		return nil, err
+	}
+
+	topProducts, err := h.service.GetTopProducts(c, hid)
+	if err != nil {
+		return nil, err
+	}
+
+	var filteredGroceries GroceriesView
+
+	filteredGroceries.Picked = groceries.Picked
+	switch filter {
+	case "all":
+		filteredGroceries = groceries
+	case "dairy":
+		filteredGroceries.Dairy = groceries.Dairy
+	case "fruitandvegetables":
+		filteredGroceries.FruitAndVegetables = groceries.FruitAndVegetables
+	case "meatandfish":
+		filteredGroceries.MeatAndFish = groceries.MeatAndFish
+	case "pantry":
+		filteredGroceries.Pantry = groceries.Pantry
+	case "other":
+		filteredGroceries.Other = groceries.Other
+	default:
+		filter = "all"
+		filteredGroceries = groceries
+	}
+
+	return gin.H{
+		"Data":        filteredGroceries,
+		"Total":       filteredGroceries.Total(),
+		"TopProducts": topProducts,
+		"Sort":        sortBy,
+		"Order":       order,
+		"NextOrder":   nextOrder,
+		"Filter":      filter,
+	}, nil
 }

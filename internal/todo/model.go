@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 	"time"
+	"unicode"
 )
 
 type Todo struct {
@@ -15,6 +16,23 @@ type Todo struct {
 	Frequency   int          `json:"frequency"`
 	CompletedAt sql.NullTime
 	HouseholdID int
+}
+
+func capitalize(s string) string {
+	s = strings.TrimSpace(strings.ToLower(s))
+
+	if s == "" {
+		return ""
+	}
+
+	r := []rune(s)
+	r[0] = unicode.ToUpper(r[0])
+
+	return string(r)
+}
+
+func (t *Todo) Normalize() {
+	t.Task = capitalize(t.Task)
 }
 
 func (t *Todo) RepeatLabel() string {

@@ -10,7 +10,8 @@
                 <button class="add-toggler">Add</button>
                 <button class="smart-add-toggler">Smart Add</button>
             </div>
-            <form class="glass container add-form todo-form hidden" method="post" action="/todos/add">
+            <form class="glass container add-form todo-form hidden" hx-post="/todos/add" hx-swap="outerhtml"
+                hx-target=".todo-list" hx-on::after-request="if(event.detail.successful) this.reset()">
                 <h2>Add Task</h2>
                 <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
                     name="task" required>
@@ -55,7 +56,8 @@
             </form>
 
 
-            <form class="smart-add-form container glass hidden" method="post" action="/todos/smartadd">
+            <form class="smart-add-form container glass hidden" hx-post="/todos/smartadd" hx-target=".todo-list"
+                hx-swap="outerHTML">
                 <h2><label for="smart-add">Smart Add</label></h2>
 
                 <textarea id="smart-add" class="glass-inner margin-block-end-12px"
@@ -84,186 +86,133 @@
             </fieldset>
             <!-- end of filter -->
 
-            <section class="todo-overdue" data-filter-section="overdue">
-                {{if gt (len .Overdue) 0}}
-                <h2>Overdue</h2>
-                <ul class="glass glass-strong">
-                    {{range .Overdue}}
-                    <li class="todo">
-                        <div>
-                            <strong>{{.Task}}</strong>
-                            <small>{{ .DueLabel }}</small>
-                        </div>
-                        <form method="POST" action="/todos/done">
-                            <button type="submit" name="id" value="{{.Id}}">Done</button>
-                        </form>
-                    </li>
-                    {{end}}
-                </ul>
-                {{end}}
-            </section>
+            {{template "todo-list" .}}
 
-            <section data-filter-section="today">
-                {{if gt (len .Today) 0}}
-                <h2>Today</h2>
-                <ul class="glass glass-strong">
-                    {{range .Today}}
-                    <li class="todo">
-                        <div>
-                            <strong>{{.Task}}</strong>
-                            <small>{{ .DueLabel }}</small>
-                        </div>
-                        <form method="POST" action="/todos/done">
-                            <button type="submit" name="id" value="{{.Id}}">Done</button>
-                            <small>{{ .RepeatLabel }}</small>
-                        </form>
-                    </li>
-                    {{end}}
-                </ul>
-                {{end}}
-            </section>
-
-            <section data-filter-section="soon">
-                {{if gt (len .Soon) 0}}
-                <h2>Soon</h2>
-                <ul class="glass">
-                    {{range .Soon}}
-                    <li class="todo">
-                        <div>
-                            <strong>{{.Task}}</strong>
-                            <small>{{ .DueLabel }}</small>
-                        </div>
-                        <form method="POST" action="/todos/done">
-                            <button type="submit" name="id" value="{{.Id}}">Done</button>
-                        </form>
-                    </li>
-                    {{end}}
-                </ul>
-                {{end}}
-            </section>
-
-            <section data-filter-section="Later">
-                {{if gt (len .TheRest) 0}}
-                <h2>Later</h2>
-                <ul class="glass">
-                    {{range .TheRest}}
-                    <li class="todo">
-                        <div>
-                            <strong>{{.Task}}</strong>
-                            <small>{{ .DueLabel }}</small>
-                        </div>
-                        <form method="POST" action="/todos/done">
-                            <button type="submit" name="id" value="{{.Id}}">Done</button>
-                        </form>
-                    </li>
-                    {{end}}
-                </ul>
-                {{end}}
-            </section>
-
-            <section data-filter-section="completed">
-                {{if gt (len .Completed) 0}}
-                <div class="flex space-between align-items">
-                    <h2>Completed</h2>
-                    <p class="badge">Auto-clears after seven day</p>
-                </div>
-                <ul class="glass">
-                    {{range .Completed}}
-                    <li class="todo">
-                        <strong>{{.Task}}</strong>
-                        <form method="POST" action="/todos/undo">
-                            <button type="submit" name="id" value="{{.Id}}">Undo</button>
-                        </form>
-                    </li>
-                    {{end}}
-                </ul>
-                {{end}}
-            </section>
         </main>
         {{template "footer" .}}
         <script type="module" src="/static/script.js"></script>
         <script>
-            const radios = document.querySelectorAll('input[name="due-choices"]');
-            const datepicker = document.getElementById('datepicker');
-
             function formatDate(date) {
                 return date.toISOString().split('T')[0];
             }
 
-            // set default (today)
-            const today = new Date();
-            datepicker.value = formatDate(today);
+            function initDueDateControls() {
+                const radios = document.querySelectorAll('input[name="due-choices"]');
+                const datepicker = document.getElementById('datepicker');
 
-            radios.forEach(radio => {
-                radio.addEventListener('change', () => {
-                    const now = new Date();
+                if (!datepicker) return;
 
-                    switch (radio.value) {
-                        case 'today':
-                            datepicker.value = formatDate(now);
-                            datepicker.classList.add("hidden");
-                            break;
+                datepicker.value = formatDate(new Date());
 
-                        case 'tomorrow':
-                            now.setDate(now.getDate() + 1);
-                            datepicker.value = formatDate(now);
-                            datepicker.classList.add("hidden");
-                            break;
+                radios.forEach(radio => {
+                    radio.addEventListener('change', () => {
+                        const date = new Date();
 
-                        case 'unspecified':
-                            datepicker.value = "";
-                            datepicker.classList.add("hidden");
-                            break;
+                        switch (radio.value) {
+                            case 'today':
+                                datepicker.value = formatDate(date);
+                                datepicker.classList.add("hidden");
+                                break;
 
-                        case 'custom':
-                            datepicker.classList.remove("hidden");
-                            datepicker.focus();
-                            break;
+                            case 'tomorrow':
+                                date.setDate(date.getDate() + 1);
+                                datepicker.value = formatDate(date);
+                                datepicker.classList.add("hidden");
+                                break;
 
-                        default:
-                            throw "Value not supported";
-                    }
+                            case 'unspecified':
+                                datepicker.value = "";
+                                datepicker.classList.add("hidden");
+                                break;
+
+                            case 'custom':
+                                datepicker.classList.remove("hidden");
+                                datepicker.focus();
+                                break;
+
+                            default:
+                                throw new Error("Value not supported");
+                        }
+                    });
                 });
-            });
+            }
 
-            const repeatDropdown = document.getElementById("repeat-dropdown");
-            const repeatIntervalContainer = document.querySelector(".repeat-frequency-container");
-            const repeatBtns = repeatIntervalContainer.querySelectorAll("button");
-            const repeatInterval = repeatIntervalContainer.querySelector("input");
-            const repeatUnit = document.getElementById("repeat-unit");
+            function initRepeatControls() {
+                const repeatDropdown = document.getElementById("repeat-dropdown");
+                const repeatIntervalContainer = document.querySelector(".repeat-frequency-container");
 
-            repeatDropdown.addEventListener('change', () => {
-                const isNever = repeatDropdown.value === 'never';
-                repeatIntervalContainer.classList.toggle("hidden", isNever);
-            });
+                if (!repeatDropdown || !repeatIntervalContainer) return;
 
-            repeatBtns.forEach(btn => {
-                btn.addEventListener("click", () => {
-                    console.log("clicked")
-                    if (btn.value === "1") {
-                        repeatInterval.stepUp();
-                    } else {
-                        repeatInterval.stepDown();
-                    }
+                const repeatBtns = repeatIntervalContainer.querySelectorAll("button");
+                const repeatInterval = repeatIntervalContainer.querySelector("input");
+
+                const toggle = () => {
+                    const isNever = repeatDropdown.value === 'never';
+                    repeatIntervalContainer.classList.toggle("hidden", isNever);
+                };
+
+                toggle()
+
+                repeatDropdown.addEventListener('change', () => {
+                    toggle()
                 });
-            });
 
-            const filterRadios = document.querySelectorAll('input[name="filter"]');
-            const todoSections = document.querySelectorAll("[data-filter-section]");
+                repeatBtns.forEach(btn => {
+                    btn.addEventListener("click", () => {
+                        if (!repeatInterval) return;
 
-            filterRadios.forEach(radio => {
-                radio.addEventListener("change", () => {
-                    const selectedFilter = radio.value;
+                        if (btn.value === "1") {
+                            repeatInterval.stepUp();
+                        } else {
+                            repeatInterval.stepDown();
+                        }
+                    });
+                });
+            }
+
+            let activeFilter = "all";
+
+            function initTodoFilters() {
+                const filterRadios = document.querySelectorAll('input[name="filter"]');
+                const todoSections = document.querySelectorAll("[data-filter-section]");
+
+                function applyFilter(selectedFilter) {
+                    activeFilter = selectedFilter;
 
                     todoSections.forEach(section => {
-                        const sectionFilter = section.dataset.filterSection;
+                        const sectionFilter = section.dataset.filterSection.toLowerCase();
 
                         const shouldShow =
-                            selectedFilter === "all" || selectedFilter === sectionFilter;
+                            selectedFilter === "all" ||
+                            selectedFilter === sectionFilter;
 
                         section.classList.toggle("hidden", !shouldShow);
                     });
+                }
+
+                filterRadios.forEach(radio => {
+                    radio.checked = radio.value === activeFilter;
+
+                    radio.onchange = () => {
+                        applyFilter(radio.value);
+                    };
                 });
+
+                applyFilter(activeFilter);
+            }
+
+            function initTodoPage() {
+                initDueDateControls();
+                initRepeatControls();
+                initTodoFilters();
+            }
+
+            initTodoPage()
+
+            document.body.addEventListener("htmx:afterSwap", (event) => {
+                if (event.detail.target.matches(".todo-list")) {
+                    initTodoPage();
+                }
             });
         </script>
     </div>

@@ -17,3 +17,11 @@ type GroceriesView struct {
 	Other              []Grocery
 	Picked             []Grocery
 }
+
+func (g GroceriesView) Total() int {
+	return len(g.Pantry) +
+		len(g.FruitAndVegetables) +
+		len(g.MeatAndFish) +
+		len(g.Dairy) +
+		len(g.Other)
+}

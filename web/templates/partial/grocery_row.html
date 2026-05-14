@@ -1,19 +1,26 @@
 {{define "grocery_row"}}
 <tr data-id="{{.Id}}" class="changable">
     <td>
-        <form method="POST" action="/groceries">
-            <button class="checkbox {{if .Picked}}checked{{end}}" type="submit" name="id" value="{{.Id}}"></button>
+        <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls">
+            <input type="hidden" name="id" value="{{.Id}}">
+            <button class="checkbox {{if .Picked}}checked{{end}}" type="submit">
+                <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            </button>
         </form>
     </td>
+
     <td data-field="name">
         <p>{{.Ingredient.Product.Name}}</p>
     </td>
+
     <td data-field="amount">
         <p>{{.Ingredient.Amount}}</p>
     </td>
+
     <td data-field="brand">
         <p>{{.Ingredient.Product.Brand}}</p>
     </td>
+
     <td data-field="store">
         <p>{{.Ingredient.Product.Store}}</p>
     </td>

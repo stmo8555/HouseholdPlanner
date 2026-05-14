@@ -15,7 +15,10 @@
                 <button id="edit-button">Edit</button>
             </fieldset>
 
-            <form class="glass container add-form add-grocery-form hidden" method="POST" action="/groceries/add">
+            <form class="glass container add-form add-grocery-form hidden" hx-post="/groceries/add"
+                hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls"
+                hx-on::after-request="if(event.detail.successful) {this.reset(); syncDueDateControls(); initTodoFilters();}">
+
                 <h2>Add Grocery</h2>
                 <p class="margin-block-end-12px"><strong>Quick Select</strong></p>
                 <div class="quick-select margin-block-end-24px">
@@ -41,150 +44,37 @@
                         <input class="glass-inner" id="4" type="text" name="store">
                     </li>
                 </ul>
-                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+                <button class="inline-size-full margin-inline-auto block" type="submit">
+                    <span>Add</span>
+                    <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+                </button>
             </form>
 
-            <form class="smart-add-form glass container hidden" method="post" action="/groceries/smartadd">
+            <form class="smart-add-form glass container hidden" hx-post="/groceries/smartadd" hx-target="main"
+                hx-swap="outerHTML">
                 <h2><label for="smart-add">Smart Add</label></h2>
 
                 <textarea id="smart-add" class="glass-inner margin-block-end-24px"
                     placeholder='Add groceries... (try: "10 bananas, 5L milk from willys"' name="text"
                     required></textarea>
-                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+                <button class="inline-size-full margin-inline-auto block" type="submit">
+                    <span>Add</span>
+                    <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+                </button>
             </form>
 
-            <form class="glass container extract-grocery-form hidden" method="POST" action="/groceries/extract">
+            <form class="extract-grocery-form glass container hidden" hx-post="/groceries/extract" hx-target="main"
+                hx-swap="outerHTML">
                 <h2>Extract Ingredients From Recipe</h2>
                 <input class="inline-size-full glass-inner focus margin-block-end-24px"
                     placeholder="Add link to recipe..." type="text" name="link" required>
-                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+                <button class="inline-size-full margin-inline-auto block" type="submit">
+                    <span>Add</span>
+                    <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+                </button>
             </form>
 
-            <!-- table start -->
-            <section class='glass container glass-strong grocery-list'>
-                <div class='flex space-between'>
-                    <h2>Shopping ({{.Total}})</h2>
-                    <fieldset class="center-with-grid">
-                        <legend class="sr-only">Show </legend>
-                        <select id="filter-groceries" name="selection" class="glass-inner">
-                            <option value="all">All</option>
-                            <option value="dairy">Dairy</option>
-                            <option value="fruitandvegetables">Fruit & Vegetables</option>
-                            <option value="meatandfish">Meat & Fish</option>
-                            <option value="pantry">Pantry</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </fieldset>
-                </div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>
-                            </th>
-                            <th>
-                                <a href="/groceries?sort=product&order={{.NextOrder}}">Product{{if eq .Sort
-                                    "product"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}}{{end}}</a>
-                            </th>
-
-                            <th>
-                                <a href="/groceries?sort=amount&order={{.NextOrder}}">Amount{{if eq .Sort
-                                    "amount"}}{{if eq .Order "asc"}}↑{{else}}↓{{end}}{{end}}</a>
-                            </th>
-
-                            <th>
-                                <a href="/groceries?sort=brand&order={{.NextOrder}}">Brand{{if eq .Sort "brand"}}{{if
-                                    eq .Order "asc"}}↑{{else}}↓{{end}}{{end}}</a>
-                            </th>
-                            <th>
-                                <a href="/groceries?sort=store&order={{.NextOrder}}">Store{{if eq .Sort "store"}}{{if
-                                    eq .Order "asc"}}↑{{else}}↓{{end}}{{end}}</a>
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody data-filter-section="dairy">
-                        {{if gt (len .Data.Dairy) 0}}
-                        <tr class="divider-top">
-                            <td colspan="5">
-                                <strong class="dairy">Dairy ({{len .Data.Dairy}})</strong>
-                            </td>
-                        </tr>
-                        {{range .Data.Dairy}}
-                        {{template "grocery_row" .}}
-                        {{end}}
-                        {{end}}
-                    </tbody>
-
-                    <tbody data-filter-section="fruitandvegetables">
-                        {{if gt (len .Data.FruitAndVegetables) 0}}
-                        <tr class="divider-top">
-                            <td colspan="5">
-                                <strong class="fruit">Fruit & Vegetables ({{len .Data.FruitAndVegetables}})</strong>
-                            </td>
-                        </tr>
-                        {{range .Data.FruitAndVegetables}}
-                        {{template "grocery_row" .}}
-                        {{end}}
-                        {{end}}
-                    </tbody>
-
-                    <tbody data-filter-section="meatandfish">
-                        {{if gt (len .Data.MeatAndFish) 0}}
-                        <tr class="divider-top">
-                            <td colspan="5">
-                                <strong class="meat">Meat & Fish ({{len .Data.MeatAndFish}})</strong>
-                            </td>
-                        </tr>
-                        {{range .Data.MeatAndFish}}
-                        {{template "grocery_row" .}}
-                        {{end}}
-                        {{end}}
-                    </tbody>
-
-                    <tbody data-filter-section="pantry">
-                        {{if gt (len .Data.Pantry) 0}}
-                        <tr class="divider-top">
-                            <td colspan="5">
-                                <strong class="pantry">Pantry ({{len .Data.Pantry}})</strong>
-                            </td>
-                        </tr>
-                        {{range .Data.Pantry}}
-                        {{template "grocery_row" .}}
-                        {{end}}
-                        {{end}}
-                    </tbody>
-
-                    <tbody data-filter-section="other">
-                        {{if gt (len .Data.Other) 0}}
-                        <tr class="divider-top">
-                            <td colspan="5">
-                                <strong class="other">Other ({{len .Data.Other}})</strong>
-                            </td>
-                        </tr>
-                        {{range .Data.Other}}
-                        {{template "grocery_row" .}}
-                        {{end}}
-                        {{end}}
-                    </tbody>
-
-                    <tbody>
-                        {{if gt (len .Data.Picked) 0}}
-                        <tr class="divider-top">
-                            <td colspan="5">
-                                <strong class="picked">Picked ({{len .Data.Picked}})</strong>
-                            </td>
-                        </tr>
-                        {{range .Data.Picked}}
-                        {{template "grocery_row" .}}
-                        {{end}}
-                        {{end}}
-                    </tbody>
-                </table>
-                {{if gt (len .Data.Picked) 0}}
-                <form action="/groceries/delete/picked" method="POST">
-                    <button class="block margin-inline-auto inline-size-full" type="submit">Done</button>
-                </form>
-                {{end}}
-            </section>
+            {{template "grocery_list" .}}
         </main>
         <script type="module" src="/static/script.js"></script>
         <script>
@@ -245,21 +135,6 @@
                         window.location.href = "/groceries";
                     }).catch(console.error);
                 }
-            });
-
-            const groceryFilter = document.getElementById("filter-groceries")
-            const grocerySections = document.querySelectorAll("tbody[data-filter-section]");
-
-            groceryFilter.addEventListener('change', ({target}) => {
-                const selectedFilter = target.value;
-
-                grocerySections.forEach(section => {
-                    const shouldShow =
-                        selectedFilter === "all" ||
-                        selectedFilter === section.dataset.filterSection;
-
-                    section.classList.toggle("hidden", !shouldShow);
-                });
             });
         </script>
     </div>

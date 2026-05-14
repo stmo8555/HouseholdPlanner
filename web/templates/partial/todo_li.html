@@ -1,0 +1,12 @@
+{{define "todo-li"}}
+<li class="todo">
+    <div>
+        <strong>{{.Task}}</strong>
+        <small>{{ .DueLabel }}</small>
+    </div>
+    <form hx-post="/todos/done" hx-swap="outerHTML" hx-target=".todo-list">
+        <button type="submit" name="id" value="{{.Id}}">Done</button>
+        <small>{{ .RepeatLabel }}</small>
+    </form>
+</li>
+{{end}}

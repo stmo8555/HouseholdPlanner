@@ -10,8 +10,8 @@ import (
 )
 
 type Service struct {
-	Repo           *Repo
-	AIService      *ai.Service
+	Repo      *Repo
+	AIService *ai.Service
 }
 
 func CreateService(repo *Repo, ai *ai.Service) *Service {
@@ -20,7 +20,7 @@ func CreateService(repo *Repo, ai *ai.Service) *Service {
 	}
 
 	return &Service{
-		Repo: repo,
+		Repo:      repo,
 		AIService: ai,
 	}
 }
@@ -32,7 +32,7 @@ func (s *Service) AddTodo(ctx context.Context, todo Todo) error {
 		return errors.New("Task have no name")
 	}
 
-	todo.Task = strings.ToUpper(task[:1]) + strings.ToLower(task[1:])
+	todo.Normalize()
 
 	return s.Repo.Add(ctx, todo)
 }

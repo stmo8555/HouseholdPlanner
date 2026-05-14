@@ -105,6 +105,7 @@ func setupGroceries(r *gin.RouterGroup) {
 	handler := grocery.CreateHandler(groceryService, ingredientExtractor)
 
 	r.GET("/groceries", handler.List)
+	r.GET("/groceries/list", handler.ListPartial)
 	r.POST("/groceries", handler.TogglePicked)
 	r.POST("/groceries/add", handler.Add)
 	r.POST("/groceries/smartadd", handler.SmartAdd)

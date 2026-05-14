@@ -1,12 +1,11 @@
 package todo
 
 import (
+	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
-
-	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -64,7 +63,7 @@ func (h *Handler) Add(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(302, "/todos")
+	h.ListPartial(c)
 }
 
 func (h *Handler) MarkDone(c *gin.Context) {
@@ -86,7 +85,7 @@ func (h *Handler) MarkDone(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(302, "/todos")
+	h.ListPartial(c)
 }
 
 func (h *Handler) MarkUnDone(c *gin.Context) {
@@ -102,19 +101,26 @@ func (h *Handler) MarkUnDone(c *gin.Context) {
 
 	err = h.Service.MarkUnDone(c, id, hid)
 
+	h.ListPartial(c)
+}
+
+func (h *Handler) List(c *gin.Context) {
+	data, err := h.todoListData(c)
+
 	if err != nil {
 		c.AbortWithStatus(500)
 		c.String(500, err.Error())
 		return
 	}
 
-	c.Redirect(302, "/todos")
+	data["Title"] = "Todos"
+	data["CurrentPath"] = c.Request.URL.Path
+
+	c.HTML(200, "todos.html", data)
 }
 
-func (h *Handler) List(c *gin.Context) {
-	hid := c.GetInt("household_id")
-
-	todoList, err := h.Service.List(c, hid)
+func (h *Handler) ListPartial(c *gin.Context) {
+	data, err := h.todoListData(c)
 
 	if err != nil {
 		c.AbortWithError(500, err)
@@ -122,20 +128,30 @@ func (h *Handler) List(c *gin.Context) {
 		return
 	}
 
-	data := gin.H{
-		"Title": "Todos",
-		"CurrentPath": c.Request.URL.Path,
-		"Overdue": todoList.Overdue,
-		"Today": todoList.Today,
-		"Soon": todoList.Soon,
-		"Completed": todoList.Completed,
-		"TheRest": todoList.TheRest,
-	}
-
-	c.HTML(200, "todos.html", data)
+	c.HTML(200, "todo-list", data)
 }
 
 func parseID(c *gin.Context) (int, error) {
 	id := c.PostForm("id")
 	return strconv.Atoi(id)
+}
+
+func (h *Handler) todoListData(c *gin.Context) (gin.H, error) {
+	hid := c.GetInt("household_id")
+
+	todoList, err := h.Service.List(c, hid)
+
+	if err != nil {
+		c.AbortWithError(500, err)
+		c.String(500, err.Error())
+		return nil, err
+	}
+
+	return gin.H{
+		"Overdue":   todoList.Overdue,
+		"Today":     todoList.Today,
+		"Soon":      todoList.Soon,
+		"Completed": todoList.Completed,
+		"TheRest":   todoList.TheRest,
+	}, nil
 }

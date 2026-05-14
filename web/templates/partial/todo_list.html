@@ -1,0 +1,70 @@
+{{define "todo-list"}}
+<article class="todo-list" aria-labelledby="todo-list-heading">
+    <h2 id="todo-list-heading" class="sr-only">Todo list</h2>
+
+    <section class="todo-overdue" data-filter-section="overdue">
+        {{if gt (len .Overdue) 0}}
+        <h2>Overdue</h2>
+        <ul class="glass glass-strong">
+            {{range .Overdue}}
+            {{template "todo-li" .}}
+            {{end}}
+        </ul>
+        {{end}}
+    </section>
+
+    <section data-filter-section="today">
+        {{if gt (len .Today) 0}}
+        <h2>Today</h2>
+        <ul class="glass glass-strong">
+            {{range .Today}}
+            {{template "todo-li" .}}
+            {{end}}
+        </ul>
+        {{end}}
+    </section>
+
+    <section data-filter-section="soon">
+        {{if gt (len .Soon) 0}}
+        <h2>Soon</h2>
+        <ul class="glass">
+            {{range .Soon}}
+            {{template "todo-li" .}}
+            {{end}}
+        </ul>
+        {{end}}
+    </section>
+
+    <section data-filter-section="later">
+        {{if gt (len .TheRest) 0}}
+        <h2>Later</h2>
+        <ul class="glass">
+            {{range .TheRest}}
+            {{template "todo-li" .}}
+            {{end}}
+        </ul>
+        {{end}}
+    </section>
+
+    <section data-filter-section="completed">
+        {{if gt (len .Completed) 0}}
+        <div class="flex space-between align-items">
+            <h2>Completed</h2>
+            <p class="badge">Auto-clears after seven days</p>
+        </div>
+        <ul class="glass">
+            {{range .Completed}}
+            <li class="todo">
+                <strong>{{.Task}}</strong>
+                <form hx-post="/todos/undo" hx-swap="outerHTML" hx-target=".todo-list"
+                    hx-on::after-swap="initTodoPage()">
+                    <button type="submit" name="id" value="{{.Id}}">Undo</button>
+                    <small>{{ .RepeatLabel }}</small>
+                </form>
+            </li>
+            {{end}}
+        </ul>
+        {{end}}
+    </section>
+</article>
+{{end}}
