@@ -154,7 +154,6 @@ func (h *Handler) Add(c *gin.Context) {
 
 func (h *Handler) ExtractedView(c *gin.Context, ingredients []ingredient.Ingredient) {
 	data := gin.H{
-		"Title":        "Extracted Groceries",
 		"Ingredients":  ingredients,
 		"CancelURL":    "/groceries",
 		"RedirectPath": "/groceries",

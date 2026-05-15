@@ -7,54 +7,31 @@
     <div class="background">
         {{template "header" .}}
         <main>
-            <fieldset class="margin-block-end-24px">
-                <legend class="sr-only">Action buttons</legend>
+            <div class="margin-block-end-24px">
                 <button class="add-toggler">Add Recipe</button>
                 <button class="search-toggler">Search</button>
-            </fieldset>
+            </div>
 
             <section class="glass container search-section hidden">
                 <h2>Search</h2>
-                <h3>Find Title</h3>
+                <label for="fuzzy-search">Find title</label>
                 <input type="text" id="fuzzy-search" class="glass-inner focus" placeholder="Type keywords...">
-                <h3>Match With Ingredients</h3>
-                <input type="text" id="fuzzy-match" class="glass-inner" placeholder='Type Ingredients...'>
 
+                <label for="fuzzy-match">Match with ingredients</label>
+                <input type="text" id="fuzzy-match" class="glass-inner" placeholder="Type ingredients...">
             </section>
 
-            <form class="glass container add-form add-recipe-form hidden" method="post" action="/recipes/add">
+            <form class="glass container add-form add-recipe-form hidden" 
+                hx-post="/recipes/add"
+                hx-swap="outerHTML"
+                hx-target=".recipe-list">
                 <h2>Add Recipe</h2>
                 <input class="inline-size-full glass-inner focus margin-block-end-24px"
                     placeholder="Add link to recipe..." id="1" type="text" name="link" required>
                 <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
-            <div class="grid-recipe">
-                {{range .RecipesView}}
-                <div class="recipe-card glass" data-title="{{.Recipe.Title}}">
-                    <section class="front" aria-label="Front of recipe card">
-                        <div class="image-wrapper">
-                            <img src="{{.Recipe.ImgURL}}" alt="{{.Recipe.Title}}">
-                            <a href="{{.Recipe.Link}}" class="button-styling">↗</a>
-                        </div>
-                        <div class="title">
-                            <p>{{.Recipe.Title}}</p>
-                            <form method="POST" action="/recipes/extract">
-                                <input type="hidden" name="recipe_id" value="{{ .Recipe.Id }}">
-                                <button type="submit">Add To Groceries</button>
-                            </form>
-                        </div>
-                    </section>
-                    <section aria-label="Back of recipe card" class="back" hidden>
-                        <ul>
-                            {{range .RecipeIngredients}}
-                            <li>{{.Ingredient.Product.Name}}</li>
-                            {{end}}
-                        </ul>
-                    </section>
-                </div>
-                {{end}}
-            </div>
+            {{template "recipe-list" .}}
         </main>
         {{template "footer" .}}
         <script type="module" src="/static/script.js"></script>

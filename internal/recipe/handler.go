@@ -26,29 +26,30 @@ func CreateHandler(s *Service, gs *grocery.Service) *Handler {
 }
 
 func (h *Handler) List(c *gin.Context) {
-	hid := c.GetInt("household_id")
-
-	recipes, recipeIngredients, err := h.service.List(c, hid)
+	data, err := h.recipeListData(c)
 
 	if err != nil {
 		c.AbortWithError(500, err)
+		c.String(500, err.Error())
+		return
+	}
+	
+	data["Title"] = "Groceries"
+	data["CurrentPath"] = c.Request.URL.Path
+
+	c.HTML(200, "recipes.html", data)
+}
+
+func (h *Handler) ListPartial(c *gin.Context) {
+	data, err := h.recipeListData(c)
+	
+	if err != nil {
+		c.AbortWithError(500, err)
+		c.String(500, err.Error())
 		return
 	}
 
-	recipesView := make([]RecipeView, 0, len(recipes))
-	for _, v := range recipes {
-		recipesView = append(recipesView, RecipeView{
-			Recipe:            v,
-			RecipeIngredients: recipeIngredients[v.Id],
-		})
-	}
-	data := gin.H{
-		"Title":       "Groceries",
-		"CurrentPath": c.Request.URL.Path,
-		"RecipesView": recipesView,
-	}
-
-	c.HTML(200, "recipes.html", data)
+	c.HTML(200, "recipe-list", data)
 }
 
 func (h *Handler) Add(c *gin.Context) {
@@ -68,7 +69,7 @@ func (h *Handler) Add(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(302, "/recipes")
+	h.ListPartial(c)
 }
 
 func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
@@ -92,11 +93,31 @@ func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
 	}
 
 	data := gin.H{
-		"Title":        "Extracted Groceries",
 		"Ingredients":  ingredients,
 		"CancelURL":    "/recipes",
 		"RedirectPath": "/recipes",
 	}
 
 	c.HTML(200, "groceries_extraction.html", data)
+}
+
+func (h *Handler) recipeListData(c *gin.Context) (gin.H, error) {
+	hid := c.GetInt("household_id")
+	recipes, recipeIngredients, err := h.service.List(c, hid)
+
+	if err != nil {
+		c.AbortWithError(500, err)
+		c.String(500, err.Error())
+		return nil, err
+	}
+
+	recipesView := make([]RecipeView, 0, len(recipes))
+	for _, v := range recipes {
+		recipesView = append(recipesView, RecipeView{
+			Recipe:            v,
+			RecipeIngredients: recipeIngredients[v.Id],
+		})
+	}
+
+	return gin.H{ "RecipesView": recipesView, }, nil
 }
