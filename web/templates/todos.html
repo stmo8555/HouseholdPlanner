@@ -11,7 +11,13 @@
                 <button class="smart-add-toggler">Smart Add</button>
             </div>
             <form class="glass container add-form todo-form hidden" hx-post="/todos/add" hx-swap="outerhtml"
-                hx-target=".todo-list" hx-on::after-request="if(event.detail.successful) this.reset()">
+                hx-target=".todo-list" hx-on::after-request="
+                            if(event.detail.successful) {
+                                this.reset();
+                                syncDueDateControls();
+                                initRepeatControls();
+                            }
+                            ">
                 <h2>Add Task</h2>
                 <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
                     name="task" required>
@@ -201,19 +207,22 @@
                 applyFilter(activeFilter);
             }
 
-            function initTodoPage() {
-                initDueDateControls();
-                initRepeatControls();
-                initTodoFilters();
-            }
+            initDueDateControls();
+            initRepeatControls();
+            initTodoFilters();
 
-            initTodoPage()
-
-            document.body.addEventListener("htmx:afterSwap", (event) => {
+            document.body.addEventListener("htmx:afterSwap", event => {
                 if (event.detail.target.matches(".todo-list")) {
-                    initTodoPage();
+                    initTodoFilters();
                 }
             });
+
+            function syncDueDateControls() {
+                const selected = document.querySelector('input[name="due-choices"]:checked');
+                if (!selected) return;
+
+                selected.dispatchEvent(new Event("change"));
+            }
         </script>
     </div>
 </body>
