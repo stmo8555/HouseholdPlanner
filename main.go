@@ -110,6 +110,7 @@ func setupGroceries(r *gin.RouterGroup) {
 	r.POST("/groceries/add", handler.Add)
 	r.POST("/groceries/smartadd", handler.SmartAdd)
 	r.POST("/groceries/edit", handler.Edit)
+	r.POST("/groceries/delete", handler.Delete)
 	r.POST("/groceries/delete/picked", handler.DeletePicked)
 	r.POST("/groceries/extract", handler.IngredientsFromRecipe)
 	r.POST("/groceries/extracted", handler.AcceptExtractedGroceries)

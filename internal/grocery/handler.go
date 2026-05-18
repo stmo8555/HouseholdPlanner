@@ -182,6 +182,25 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 	h.ExtractedView(c, groceries)
 }
 
+func (h *Handler) Delete(c *gin.Context) {
+	hid := c.GetInt("household_id")
+	groceryID, err := strconv.Atoi(c.PostForm("id"))
+	
+	if err != nil {
+		c.String(500, err.Error())
+		return
+	}
+
+	err = h.service.Delete(c, groceryID, hid)
+
+	if err != nil {
+		c.String(500, err.Error())
+		return
+	}
+
+	h.ListPartial(c)
+}
+
 func (h *Handler) DeletePicked(c *gin.Context) {
 	hid := c.GetInt("household_id")
 	err := h.service.DeletePicked(c, hid)
@@ -195,13 +214,27 @@ func (h *Handler) DeletePicked(c *gin.Context) {
 }
 
 func (h *Handler) Edit(c *gin.Context) {
-	var groceries []Grocery
-	err := c.BindJSON(&groceries)
+	hid := c.GetInt("household_id")
+
+	prod := product.Product{
+		Name:     c.PostForm("name"),
+		Brand:    c.PostForm("brand"),
+		Store:    c.PostForm("store"),
+		Category: "",
+	}
+
+	ing := ingredient.Ingredient{
+		Product: prod,
+		Amount:  c.PostForm("amount"),
+	}
+
+	id, err := strconv.Atoi(c.PostForm("id"))
+
 	if err != nil {
 		panic(err)
 	}
 
-	err = h.service.Edit(c, groceries, c.GetInt("household_id"))
+	err = h.service.Edit(c, ing, id, hid)
 
 	if err != nil {
 		c.AbortWithStatus(500)
@@ -209,7 +242,7 @@ func (h *Handler) Edit(c *gin.Context) {
 		return
 	}
 
-	c.Redirect(302, "/groceries")
+	h.ListPartial(c)
 }
 
 func (h *Handler) groceryListData(c *gin.Context, hid int) (gin.H, error) {

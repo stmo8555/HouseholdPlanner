@@ -1,6 +1,6 @@
 :root {
     /* Background */
-    --bg: #94BBE9;
+    --bg: #94BBE1;
     --bg-soft: #BFD4F2;
 
     /* Glass */
@@ -288,6 +288,23 @@ main {
     margin-inline: 2dvw;
 }
 
+dialog {
+    padding: 0;
+    max-inline-size: 32rem;
+    inline-size: calc(100% - 2rem);
+}
+
+dialog[open] {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(4px);
+}
+
 @media screen and (min-width: 500px) {
     main {
         margin-inline: 10dvw;
@@ -357,7 +374,14 @@ td {
 
 td:first-child,
 th:first-child {
-    width: 40px;
+    inline-size: 40px;
+}
+
+
+td:last-child,
+th:last-child {
+    inline-size: 2em;
+    text-align: center;
 }
 
 @media screen and (min-width: 500px) {
@@ -649,12 +673,14 @@ tr.divider-top td {
     padding-inline: 5px;
 }
 
+.edit-grocery-form,
 .add-grocery-form {
     @media screen and (min-width: 500px) {
         inline-size: auto;
     }
 }
 
+.edit-grocery-form li,
 .add-grocery-form li {
     display: flex;
     flex-direction: column;
@@ -672,6 +698,33 @@ tr.divider-top td {
     font-size: inherit;
 }
 
+.edit-grocery-form input,
+.add-grocery-form input {
+    font-size: inherit;
+    padding: 5px;
+}
+
+.edit-btn {
+    color: var(--text);
+    font-weight: normal;
+    background: transparent;
+    border-radius: 0;
+    inline-size: 100%;
+    block-size: 100%;
+}
+
+.edit-btn:hover {
+    box-shadow: none;
+    scale: 1.0;
+}
+
+.grocery-filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+
 .login-form {
     inline-size: 100%;
     padding-block-start: 20dvh;
@@ -683,16 +736,6 @@ tr.divider-top td {
     }
 }
 
-
-.add-grocery-form input {
-    padding: 5px;
-}
-
-.grocery-filter {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
 
 .login-form label {
     display: inline-block;
@@ -874,9 +917,16 @@ button {
     border: unset;
     color: white;
     background: var(--accent);
+    background: linear-gradient(to bottom,
+            var(--accent),
+            var(--accent-dark));
     border-radius: 16px;
     padding: 5px 10px;
     max-inline-size: 500px;
+}
+
+button span {
+    color: white;
 }
 
 @media screen and (min-width: 500px) {
@@ -886,6 +936,36 @@ button {
         cursor: pointer;
         scale: 1.01;
         box-shadow: 0 4px 10px var(--shadow);
+    }
+}
+
+.close-button {
+    display: grid;
+    place-items: middle;
+    padding: 0.5rem;
+    margin-inline-start: auto;
+    background: inherit;
+    opacity: 0.8;
+    border: var(--border) solid 1px;
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    &:hover {
+        scale: 1.0;
+        box-shadow: none;
+    }
+}
+
+.delete-button {
+    background: linear-gradient(to bottom,
+            #8f3d5a,
+            #742d47);
+
+    @media (prefers-color-scheme: dark) {
+        background: linear-gradient(to bottom,
+                #7a2632,
+                #651d28);
     }
 }
 
@@ -913,7 +993,7 @@ button {
 }
 
 .todo form small {
-    color: white;
+    color: var(--text-lightly-dimmed);
 }
 
 .todo strong {

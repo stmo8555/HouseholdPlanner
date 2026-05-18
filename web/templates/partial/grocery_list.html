@@ -39,6 +39,8 @@
                 <th>
                     <a href="/groceries?filter={{.Filter}}&sort=store&order={{.NextOrder}}">Store</a>
                 </th>
+                <th>
+                </th>
             </tr>
         </thead>
         <tbody data-filter-section="dairy">
@@ -48,6 +50,7 @@
                 <td colspan="5">
                     <strong class="dairy">Dairy ({{len .Data.Dairy}})</strong>
                 </td>
+                <td></td>
             </tr>
             {{end}}
             {{range .Data.Dairy}}
@@ -63,6 +66,7 @@
                 <td colspan="5">
                     <strong class="fruit">Fruit & Vegetables ({{len .Data.FruitAndVegetables}})</strong>
                 </td>
+                <td></td>
             </tr>
             {{end}}
             {{range .Data.FruitAndVegetables}}
@@ -78,6 +82,7 @@
                 <td colspan="5">
                     <strong class="meat">Meat & Fish ({{len .Data.MeatAndFish}})</strong>
                 </td>
+                <td></td>
             </tr>
             {{end}}
             {{range .Data.MeatAndFish}}
@@ -93,6 +98,7 @@
                 <td colspan="5">
                     <strong class="pantry">Pantry ({{len .Data.Pantry}})</strong>
                 </td>
+                <td></td>
             </tr>
             {{end}}
             {{range .Data.Pantry}}
@@ -108,6 +114,7 @@
                 <td colspan="5">
                     <strong class="other">Other ({{len .Data.Other}})</strong>
                 </td>
+                <td></td>
             </tr>
             {{end}}
             {{range .Data.Other}}
@@ -122,6 +129,7 @@
                 <td colspan="5">
                     <strong class="picked">Picked ({{len .Data.Picked}})</strong>
                 </td>
+                <td></td>
             </tr>
             {{range .Data.Picked}}
             {{template "grocery_row" .}}
@@ -130,8 +138,9 @@
         </tbody>
     </table>
     {{if gt (len .Data.Picked) 0}}
-    <button hx-post="/groceries/delete/picked" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls"
-        class="block margin-inline-auto inline-size-full" type="submit" name="id" value="{{.Id}}">
+    <button hx-post="/groceries/delete/picked" hx-target=".grocery-list" hx-swap="outerHTML"
+        hx-include="#grocery-filter-controls" class="block margin-inline-auto inline-size-full" type="submit" name="id"
+        value="{{.Id}}">
         <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
         Done
     </button>

@@ -10,19 +10,23 @@
     </td>
 
     <td data-field="name">
-        <p>{{.Ingredient.Product.Name}}</p>
+        <span>{{.Ingredient.Product.Name}}</span>
     </td>
 
     <td data-field="amount">
-        <p>{{.Ingredient.Amount}}</p>
+        <span>{{.Ingredient.Amount}}</span>
     </td>
 
     <td data-field="brand">
-        <p>{{.Ingredient.Product.Brand}}</p>
+        <span>{{.Ingredient.Product.Brand}}</span>
     </td>
 
     <td data-field="store">
-        <p>{{.Ingredient.Product.Store}}</p>
+        <span>{{.Ingredient.Product.Store}}</span>
+    </td>
+
+    <td>
+        <button type="button" class="edit-btn">⋮</button>
     </td>
 </tr>
 {{end}}

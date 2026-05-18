@@ -6,6 +6,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 )
 
@@ -42,10 +43,12 @@ func (r *Repo) getTopProducts(ctx context.Context, householdID int) ([]product.P
 }
 
 func AddToHistory(tx pgx.Tx, ctx context.Context, grocerie Grocery) error {
-	sql := `INSERT INTO groceries_history (household_id, product_id)
+	sql := `
+	INSERT INTO groceries_history (household_id, product_id)
 	VALUES ($1, $2)
 	ON CONFLICT (household_id, product_id)
-	DO UPDATE SET times_added = groceries_history.times_added + 1;`
+	DO UPDATE SET times_added = groceries_history.times_added + 1;
+	`
 
 	_, err := tx.Exec(ctx, sql, grocerie.HouseholdID, grocerie.Ingredient.ProductID)
 	return err
@@ -53,9 +56,11 @@ func AddToHistory(tx pgx.Tx, ctx context.Context, grocerie Grocery) error {
 
 func (r *Repo) AddGroceries(ctx context.Context, groceries []Grocery) error {
 
-	sql := `INSERT INTO groceries 
+	sql := `
+	INSERT INTO groceries 
 	(product_id, amount, household_id)
-	VALUES ($1, $2, $3)`
+	VALUES ($1, $2, $3)
+	`
 
 	tx, err := r.db.Begin(ctx)
 	if err != nil {
@@ -131,33 +136,43 @@ func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) 
 }
 
 func (r *Repo) TogglePicked(ctx context.Context, id, householdID int) error {
-	sql := `UPDATE groceries SET picked = NOT picked WHERE id=$1 AND household_id=$2;`
+	sql := `
+	UPDATE groceries
+	SET picked = NOT picked 
+	WHERE id=$1 AND household_id=$2;
+	`
 	_, err := r.db.Exec(ctx, sql, id, householdID)
 
 	return err
 }
 
+func (r *Repo) Delete(ctx context.Context, groceryID, householdId int) error {
+	sql := `
+	DELETE FROM groceries
+	WHERE id = $1 AND household_id = $2;
+	`
+	_, err := r.db.Exec(ctx, sql, groceryID, householdId)
+
+	return err
+}
+
 func (r *Repo) DeletePicked(ctx context.Context, householdId int) error {
-	sql := `DELETE FROM groceries
-			WHERE household_id = $1 AND picked IS TRUE;`
+	sql := `
+	DELETE FROM groceries
+	WHERE household_id = $1 AND picked IS TRUE;
+	`
 
 	_, err := r.db.Exec(ctx, sql, householdId)
 	return err
 }
 
-func (r *Repo) Edit(ctx context.Context, groceries []Grocery) error {
-	tx, err := r.db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
+func (r *Repo) Edit(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
+	sql := `
+	UPDATE groceries
+    SET product_id=$1, amount=$2
+    WHERE id=$3 AND household_id=$4;
+	`
+	_, err := r.db.Exec(ctx, sql, ing.ProductID, ing.Amount, groceryID, householdID)
 
-	for _, g := range groceries {
-		sql := `UPDATE groceries
-               SET product_id=$1, amount=$2
-               WHERE id=$3 AND household_id=$4`
-		_, err = tx.Exec(ctx, sql, g.Ingredient.ProductID, g.Ingredient.Amount, g.Id, g.HouseholdID)
-	}
-
-	return tx.Commit(ctx)
+	return err
 }

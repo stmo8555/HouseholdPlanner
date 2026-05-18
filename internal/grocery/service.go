@@ -115,22 +115,23 @@ func (s *Service) TogglePicked(ctx context.Context, id, householdID int) error {
 	return s.repo.TogglePicked(ctx, id, householdID)
 }
 
+func (s *Service) Delete(ctx context.Context, groceryID, householdId int) error {
+	return s.repo.Delete(ctx, groceryID, householdId)
+}
+
 func (s *Service) DeletePicked(ctx context.Context, householdId int) error {
 	return s.repo.DeletePicked(ctx, householdId)
 }
 
-func (s *Service) Edit(ctx context.Context, groceries []Grocery, householdId int) error {
-	for i, v := range groceries {
-		groceries[i].Picked = false
-		groceries[i].HouseholdID = householdId
-
-		id, err := s.productService.GetID(ctx, v.Ingredient.Product)
-		if err != nil {
-			panic(err)
-		}
-
-		groceries[i].Ingredient.ProductID = id
+func (s *Service) Edit(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
+	productID, err := s.productService.GetID(ctx, ing.Product)
+	if err != nil {
+		panic(err)
 	}
 
-	return s.repo.Edit(ctx, groceries)
+	ing.ProductID = productID
+
+
+
+	return s.repo.Edit(ctx, ing, groceryID, householdID)
 }
