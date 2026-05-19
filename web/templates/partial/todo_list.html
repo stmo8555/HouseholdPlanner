@@ -5,7 +5,7 @@
     <section class="todo-overdue" data-filter-section="overdue">
         {{if gt (len .Overdue) 0}}
         <h2>Overdue</h2>
-        <ul class="glass glass-strong">
+        <ul class="glass">
             {{range .Overdue}}
             {{template "todo-li" .}}
             {{end}}
@@ -16,7 +16,7 @@
     <section data-filter-section="today">
         {{if gt (len .Today) 0}}
         <h2>Today</h2>
-        <ul class="glass glass-strong">
+        <ul class="glass">
             {{range .Today}}
             {{template "todo-li" .}}
             {{end}}

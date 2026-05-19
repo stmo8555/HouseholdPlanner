@@ -5,7 +5,7 @@
             <button type="submit">Cancel</button>
         </form>
     </div>
-    <form action="/groceries/extracted" id="extractedForm" method="POST" class='glass container glass-strong'>
+    <form action="/groceries/extracted" id="extractedForm" method="POST" class='glass container'>
         <h2>Extracted from recipe ({{ len .Ingredients }} items)</h2>
         <input type="hidden" name="redirect_path" value={{.RedirectPath}}>
         <table>

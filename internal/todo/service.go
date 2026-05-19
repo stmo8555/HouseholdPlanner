@@ -43,6 +43,16 @@ func (s *Service) Count(ctx context.Context, hid int) (int, error) {
 	return s.Repo.Count(ctx, hid)
 }
 
+func (s *Service) SmartAdd(ctx context.Context, text string, hid int) error {
+	extractedTodoList, err := s.AIService.ExtractTodo(ctx, text)
+	if err != nil {
+		return err
+	}
+
+	println(extractedTodoList.List)
+
+	return nil
+}
 func (s *Service) MarkDone(ctx context.Context, id, hid int) error {
 	todo, err := s.Repo.MarkDone(ctx, id, hid, time.Now().UTC())
 	if err != nil {

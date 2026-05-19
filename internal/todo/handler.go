@@ -67,6 +67,25 @@ func (h *Handler) Add(c *gin.Context) {
 }
 
 func (h *Handler) SmartAdd(c *gin.Context) {
+	hid := c.GetInt("household_id")
+	text := c.PostForm("text")
+
+	if strings.TrimSpace(text) == "" {
+		c.AbortWithStatus(500)
+		c.String(500, "Empty text")
+		return
+	}
+
+	err := h.Service.SmartAdd(c, text, hid)
+
+	if err != nil {
+		panic(err)
+		c.AbortWithStatus(500)
+		c.String(500, err.Error())
+		return
+	}
+
+	h.ListPartial(c)
 }
 
 func (h *Handler) MarkDone(c *gin.Context) {
@@ -83,7 +102,6 @@ func (h *Handler) MarkDone(c *gin.Context) {
 	err = h.Service.MarkDone(c, id, hid)
 
 	if err != nil {
-		panic(err)
 		c.AbortWithStatus(500)
 		c.String(500, err.Error())
 		return

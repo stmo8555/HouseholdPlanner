@@ -111,12 +111,6 @@
     pointer-events: none;
 }
 
-.glass-strong {
-    background: linear-gradient(135deg,
-            color-mix(in srgb, var(--surface-strong) 100%, white 10%),
-            var(--surface));
-}
-
 .glass-inner {
     background: var(--input-bg);
     border-radius: 18px;
