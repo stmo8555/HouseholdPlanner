@@ -6,7 +6,7 @@
         </form>
     </div>
     <form action="/groceries/extracted" id="extractedForm" method="POST" class='glass container'>
-        <h2>Extracted from recipe ({{ len .Ingredients }} items)</h2>
+        <h2>Extracted From Recipe</h2>
         <input type="hidden" name="redirect_path" value={{.RedirectPath}}>
         <table>
             <thead>
@@ -32,7 +32,7 @@
                 {{if gt (len .Ingredients) 0}}
                 {{range .Ingredients}}
                 <tr>
-                    <td><button class="removeRowBtn">×</button></td>
+                    <td><button type="button" class="removeRowBtn">×</button></td>
                     <td><input class="glass-inner" name="name" value="{{.Product.Name}}"></td>
                     <td><input class="glass-inner" name="amount" value="{{.Amount}}"></td>
                     <td><input class="glass-inner" name="brand" value="{{.Product.Brand}}"></td>

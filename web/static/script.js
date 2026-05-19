@@ -36,16 +36,16 @@ textArea?.addEventListener("input", function() {
     this.style.height = this.scrollHeight + "px";
 });
 
-const btns = document.querySelectorAll(".removeRowBtn");
-btns.forEach((btn) => {
-    const parentRow = btn.closest("tr");
-    btn.addEventListener("click", () => {
-        console.log("remove")
-        parentRow.remove();
-    });
+document.body.addEventListener("click", event => {
+    const button = event.target.closest(".removeRowBtn");
+    if (!button)
+        return;
+
+    const parentRow = button.closest("tr");
+    parentRow.remove();
 });
 
-document.getElementById('extract-button').addEventListener("click", () => {
+document.getElementById('extract-button')?.addEventListener("click", () => {
     document.querySelector(".extract-grocery-form").classList.toggle("hidden");
     focusables.forEach(e => {
         e.focus();

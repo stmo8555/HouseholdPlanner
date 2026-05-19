@@ -372,8 +372,8 @@ th:first-child {
 }
 
 
-td:last-child,
-th:last-child {
+.grocery-list td:last-child,
+.grocery-list td:last-child {
     inline-size: 2em;
     text-align: center;
 }
