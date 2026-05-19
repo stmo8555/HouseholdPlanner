@@ -44,7 +44,7 @@ func (h *Handler) Add(c *gin.Context) {
 		return
 	}
 
-	todo := Todo{Task: task, Repeat: repeat, Frequency: freqInt, HouseholdID: hid}
+	todo := Todo{Task: task, Repeat: Repeat(repeat), Frequency: freqInt, HouseholdID: hid}
 	if due != "" {
 		todo.Due.Time, err = time.Parse("2006-01-02", due)
 		todo.Due.Valid = true
@@ -66,6 +66,9 @@ func (h *Handler) Add(c *gin.Context) {
 	h.ListPartial(c)
 }
 
+func (h *Handler) SmartAdd(c *gin.Context) {
+}
+
 func (h *Handler) MarkDone(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
@@ -80,6 +83,7 @@ func (h *Handler) MarkDone(c *gin.Context) {
 	err = h.Service.MarkDone(c, id, hid)
 
 	if err != nil {
+		panic(err)
 		c.AbortWithStatus(500)
 		c.String(500, err.Error())
 		return

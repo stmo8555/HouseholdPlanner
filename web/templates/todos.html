@@ -47,6 +47,7 @@
                             <option value="never">Never</option>
                             <option value="daily">Daily</option>
                             <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
                             <option value="yearly">Yearly</option>
                         </select>
                         <div class="repeat-frequency-container hidden">
@@ -143,6 +144,8 @@
                 });
             }
 
+            repeatBtnsInitiliazed = false // This is a band aid kind of. Should make a smarter solution
+
             function initRepeatControls() {
                 const repeatDropdown = document.getElementById("repeat-dropdown");
                 const repeatIntervalContainer = document.querySelector(".repeat-frequency-container");
@@ -163,17 +166,21 @@
                     toggle()
                 });
 
-                repeatBtns.forEach(btn => {
-                    btn.addEventListener("click", () => {
-                        if (!repeatInterval) return;
+                if (!repeatBtnsInitiliazed) {
+                    repeatBtns.forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            if (!repeatInterval) return;
 
-                        if (btn.value === "1") {
-                            repeatInterval.stepUp();
-                        } else {
-                            repeatInterval.stepDown();
-                        }
+                            if (btn.value === "1") {
+                                repeatInterval.stepUp();
+                            } else {
+                                repeatInterval.stepDown();
+                            }
+                        });
                     });
-                });
+
+                    repeatBtnsInitiliazed = true
+                }
             }
 
             let activeFilter = "all";

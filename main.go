@@ -21,7 +21,7 @@ import (
 
 var aiService *ai.Service
 var loginService *login.Service
-var todosService *todo.Service
+var todoService *todo.Service
 var productService *product.Service
 var ingredientExtractor *ingredient.Extractor
 var recipeService *recipe.Service
@@ -46,7 +46,7 @@ func main() {
 	productService = product.CreateService(product.CreateRepo(pool), aiService, foodMap)
 	ingredientExtractor = ingredient.CreateExtractor(aiService)
 	loginService = login.CreateService(login.CreateRepo(pool))
-	todosService = todo.CreateService(todo.CreateRepo(pool), aiService)
+	todoService = todo.CreateService(todo.CreateRepo(pool), aiService)
 	groceryService = grocery.CreateService(grocery.CreateRepo(pool), productService, ingredientExtractor)
 	recipeService = recipe.CreateService(recipe.CreateRepo(pool), productService, ingredientExtractor)
 
@@ -84,14 +84,16 @@ func setupLogin(r *gin.Engine) {
 }
 
 func setupTodos(r *gin.RouterGroup) {
-	handler := todo.CreateHandler(todosService)
+	handler := todo.CreateHandler(todoService)
 
 	r.GET("/todos", handler.List)
 	r.POST("/todos/add", handler.Add)
+	r.POST("/todos/smartadd", handler.SmartAdd)
 	r.POST("/todos/done", handler.MarkDone)
 	r.POST("/todos/undo", handler.MarkUnDone)
 
-	todo.RunCleanup(context.Background(), todosService)
+	todo.RunCleanup(context.Background(), todoService)
+	todo.ScheduleRepeats(context.Background(), todoService)
 }
 
 func setupRecipes(r *gin.RouterGroup) {

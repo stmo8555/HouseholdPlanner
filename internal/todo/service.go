@@ -34,7 +34,9 @@ func (s *Service) AddTodo(ctx context.Context, todo Todo) error {
 
 	todo.Normalize()
 
-	return s.Repo.Add(ctx, todo)
+	_, err := s.Repo.Add(ctx, todo)
+
+	return err
 }
 
 func (s *Service) Count(ctx context.Context, hid int) (int, error) {
@@ -42,7 +44,12 @@ func (s *Service) Count(ctx context.Context, hid int) (int, error) {
 }
 
 func (s *Service) MarkDone(ctx context.Context, id, hid int) error {
-	return s.Repo.MarkDone(ctx, id, hid, time.Now().UTC())
+	todo, err := s.Repo.MarkDone(ctx, id, hid, time.Now().UTC())
+	if err != nil {
+		return err
+	}
+
+	return s.schedule(ctx, []Todo{todo})
 }
 
 func (s *Service) MarkUnDone(ctx context.Context, id, hid int) error {
@@ -98,4 +105,62 @@ func (s *Service) List(ctx context.Context, hid int) (TodosCategorized, error) {
 	}
 
 	return todosCategorized, nil
+}
+
+func (s *Service) ScheduleRepeats(ctx context.Context) error {
+	now := time.Now().UTC()
+
+	endOfTomorrow := time.Date(
+		now.Year(),
+		now.Month(),
+		now.Day()+2,
+		0, 0, 0, 0,
+		time.UTC,
+	)
+
+	todos, err := s.Repo.ListSchedulableDueBefore(ctx, endOfTomorrow)
+
+	err = s.schedule(ctx, todos)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) schedule(ctx context.Context, todos []Todo) error {
+	for _, v := range todos {
+		var newDue = v.Due
+		switch v.Repeat {
+		case RepeatNever:
+			continue
+		case RepeatDaily:
+			newDue.Time = newDue.Time.AddDate(0, 0, v.Frequency)
+		case RepeatWeekly:
+			newDue.Time = newDue.Time.AddDate(0, 0, 7*v.Frequency)
+		case RepeatMonthly:
+			newDue.Time = newDue.Time.AddDate(0, v.Frequency, 0)
+		case RepeatYearly:
+			newDue.Time = newDue.Time.AddDate(v.Frequency, 0, 0)
+		default:
+			panic("WHY ARE WE HERE!")
+		}
+
+		newTodo := v
+		newTodo.Due = newDue
+		nextID, err := s.Repo.Add(ctx, newTodo)
+
+		if err != nil {
+			return err
+		}
+
+		err = s.Repo.updateNextID(ctx, nextID, v.Id)
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

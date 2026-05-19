@@ -8,14 +8,33 @@ import (
 	"unicode"
 )
 
+type Repeat string
+
+const (
+	RepeatNever   Repeat = "never"
+	RepeatDaily   Repeat = "daily"
+	RepeatWeekly  Repeat = "weekly"
+	RepeatMonthly Repeat = "monthly"
+	RepeatYearly  Repeat = "yearly"
+)
+
 type Todo struct {
 	Id          int
 	Task        string       `json:"task"`
 	Due         sql.NullTime `json:"due"`
-	Repeat      string       `json:"repeat"`
+	Repeat      Repeat       `json:"repeat"`
 	Frequency   int          `json:"frequency"`
+	NextID      *int         `json:"next_id"`
 	CompletedAt sql.NullTime
 	HouseholdID int
+}
+
+var ValidRepeats = map[Repeat]struct{}{
+	RepeatNever:   {},
+	RepeatDaily:   {},
+	RepeatWeekly:  {},
+	RepeatMonthly: {},
+	RepeatYearly:  {},
 }
 
 func capitalize(s string) string {
@@ -37,20 +56,22 @@ func (t *Todo) Normalize() {
 
 func (t *Todo) RepeatLabel() string {
 	var occurence string
-	switch strings.ToLower(t.Repeat) {
-	case "never":
+	switch t.Repeat {
+	case RepeatNever:
 		return ""
-	case "daily":
+	case RepeatDaily:
 		occurence = "days"
-	case "weekly":
+	case RepeatWeekly:
 		occurence = "weeks"
-	case "yearly":
+	case RepeatMonthly:
+		occurence = "months"
+	case RepeatYearly:
 		occurence = "years"
 	default:
 		panic("We should never get to default. Our code is broken")
 	}
-	if t.Frequency == 1 {
 
+	if t.Frequency == 1 {
 		return fmt.Sprintf("⟳  %v", t.Repeat)
 	}
 
@@ -84,6 +105,7 @@ func (t *Todo) DueLabel() string {
 		if days > 0 {
 			return fmt.Sprintf("Due in %d days", days)
 		}
+
 		return fmt.Sprintf("Overdue by %d days", -days)
 	}
 }

@@ -72,6 +72,7 @@ CREATE TABLE todos (
     due TIMESTAMPTZ,
     repeat VARCHAR,
     frequency INT,
+    next_id INT REFERENCES todos(id),
     household_id INT NOT NULL REFERENCES households(id),
     completed_at TIMESTAMPTZ
 );
