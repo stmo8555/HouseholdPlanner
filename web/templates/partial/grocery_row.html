@@ -3,7 +3,8 @@
     <td>
         <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls">
             <input type="hidden" name="id" value="{{.Id}}">
-            <button class="checkbox {{if .Picked}}checked{{end}}" type="submit">
+            <button type="submit">
+                <div class="checkbox {{if .Picked}}checked{{end}}"></div>
                 <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
             </button>
         </form>
@@ -26,7 +27,7 @@
     </td>
 
     <td>
-        <button type="button" class="edit-btn">⋮</button>
+        <button class="edit-btn" type="button">⋮</button>
     </td>
 </tr>
 {{end}}

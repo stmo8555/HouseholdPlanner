@@ -280,6 +280,10 @@ body.flower-power.slide-out::before {
 
 main {
     margin-inline: 2dvw;
+
+    @media screen and (min-width: 500px) {
+        margin-inline: 10dvw;
+    }
 }
 
 dialog {
@@ -299,25 +303,18 @@ dialog::backdrop {
     backdrop-filter: blur(4px);
 }
 
-@media screen and (min-width: 500px) {
-    main {
-        margin-inline: 10dvw;
-    }
-}
-
 header {
     background: rgba(255, 255, 255, 0.25);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     margin-block-end: 24px;
-}
 
-@media (prefers-color-scheme: dark) {
-    header {
+    @media (prefers-color-scheme: dark) {
         background: rgba(255, 255, 255, 0.04);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 }
+
 
 .header-items {
     justify-content: space-between;
@@ -363,19 +360,47 @@ td {
 }
 
 td {
-    padding-block: 10px;
+    block-size: 3em;
+    min-block-size: 3em;
 }
 
 td:first-child,
 th:first-child {
-    inline-size: 40px;
+    inline-size: 2em;
 }
 
+td:first-child form {
+    inline-size: 100%;
+    block-size: 100%;
+}
 
-.grocery-list td:last-child,
-.grocery-list td:last-child {
-    inline-size: 2em;
+td:first-child button {
+    background: transparent;
     text-align: center;
+    padding: 0;
+    display: block;
+    inline-size: 100%;
+    block-size: 100%;
+}
+
+td:first-child button:hover {
+    box-shadow: none;
+}
+
+th:last-child,
+td:last-child {
+    inline-size: 2em;
+}
+
+.checkbox {
+    border-radius: 50%;
+    border: 1px solid var(--text);
+    inline-size: 75%;
+    aspect-ratio: 1;
+}
+
+.checkbox.checked {
+    background: var(--text);
 }
 
 @media screen and (min-width: 500px) {
@@ -462,25 +487,6 @@ tr.divider-top td {
     text-decoration: line-through;
 }
 
-.checkbox {
-    display: grid;
-    place-items: center;
-
-    padding: 0;
-    inline-size: 1rem;
-    block-size: 1rem;
-    margin-inline: auto;
-
-    border-radius: 50%;
-    border: 1px solid var(--text);
-    background: transparent;
-
-    line-height: 0;
-}
-
-.checkbox.checked {
-    background: var(--text);
-}
 
 .fixed-center {
     position: fixed;
@@ -705,6 +711,7 @@ tr.divider-top td {
     border-radius: 0;
     inline-size: 100%;
     block-size: 100%;
+    padding: 0;
 }
 
 .edit-btn:hover {
