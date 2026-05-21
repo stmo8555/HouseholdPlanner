@@ -1,5 +1,5 @@
 {{define "grocery_row"}}
-<div data-id="{{.Id}}" class="grocery-row changable {{if .Picked}}line-through{{end}}">
+<div data-id="{{.Id}}" class="grocery-row changable">
     <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls">
         <input type="hidden" name="id" value="{{.Id}}">
         <button type="submit">
@@ -8,9 +8,9 @@
         </button>
     </form>
 
-    <span data-field="name">{{.Ingredient.Product.Name}}</span>
-    <span data-field="amount">{{.Ingredient.Amount}}</span>
-    <span data-field="brand">{{.Ingredient.Product.Brand}}</span>
+    <span class="{{if .Picked}}line-through{{end}}" data-field="name">{{.Ingredient.Product.Name}}</span>
+    <span class="{{if .Picked}}line-through{{end}}" data-field="amount">{{.Ingredient.Amount}}</span>
+    <span class="{{if .Picked}}line-through{{end}}" data-field="brand">{{.Ingredient.Product.Brand}}</span>
     <button class="edit-btn" type="button">⋮</button>
 </div>
 {{end}}

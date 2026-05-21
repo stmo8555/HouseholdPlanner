@@ -63,7 +63,7 @@ func main() {
 	auth.Use(login.AuthMiddleware(loginService))
 
 	setupTodos(auth)
-	setupRecipes(auth)
+	// setupRecipes(auth)
 	setupGroceries(auth)
 	// setupHome(auth)
 
@@ -105,6 +105,10 @@ func setupRecipes(r *gin.RouterGroup) {
 
 func setupGroceries(r *gin.RouterGroup) {
 	handler := grocery.CreateHandler(groceryService, ingredientExtractor)
+
+	r.GET("/", func(c *gin.Context) {
+		c.Redirect(302, "/groceries")
+	})
 
 	r.GET("/groceries", handler.List)
 	r.GET("/groceries/list", handler.ListPartial)

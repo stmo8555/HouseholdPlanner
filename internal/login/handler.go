@@ -44,7 +44,7 @@ func (h *Handler) Authenticate(c *gin.Context) {
 	if err == nil {
 		c.SetSameSite(http.SameSiteStrictMode)
 		c.SetCookie("session_id", sessionID, 0, "/", "", true, true)
-		c.Redirect(302, "/recipes")
+		c.Redirect(302, "/")
 	} else {
 		c.Redirect(302, "/login")
 	}

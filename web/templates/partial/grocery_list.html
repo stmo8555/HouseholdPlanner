@@ -96,7 +96,7 @@
 
     {{if gt (len .Data.Picked) 0}}
     <button hx-post="/groceries/delete/picked" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-filter-controls" class="block margin-inline-auto inline-size-full" type="submit">
+        hx-include="#grocery-filter-controls" class="block margin-inline-auto inline-size-full margin-block-start-24px" type="submit">
         <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
         Done
     </button>
