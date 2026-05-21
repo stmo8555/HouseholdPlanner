@@ -340,56 +340,50 @@ header {
     background-size: 100% 2px;
 }
 
-table {
-    border-collapse: collapse;
-    width: 100%;
-    table-layout: fixed;
+.grocery-grid {
+    inline-size: 100%;
 }
 
-table a {
+.grocery-row {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 2em 1fr 1fr 1fr 2em;
+    align-items: center;
+    min-block-size: 3em;
+    border-block-end: solid var(--text-dimmed) 1px;
+}
+
+.grocery-row>* {
+    min-inline-size: 0;
+}
+
+.grocery-header {
+    border-block-end: solid var(--text-lightly-dimmed) 2px;
+    font-weight: 700;
+}
+
+.grocery-header a {
     display: block;
 }
 
-thead {
-    border-block-end: solid var(--text-lightly-dimmed) 2px;
-}
-
-th,
-td {
-    text-align: left;
-}
-
-td {
-    block-size: 3em;
-    min-block-size: 3em;
-}
-
-td:first-child,
-th:first-child {
-    inline-size: 2em;
-}
-
-td:first-child form {
+.grocery-row form {
     inline-size: 100%;
     block-size: 100%;
 }
 
-td:first-child button {
+.grocery-row form button,
+.grocery-row>.edit-btn {
     background: transparent;
     text-align: center;
     padding: 0;
-    display: block;
+    display: grid;
+    place-items: center;
     inline-size: 100%;
     block-size: 100%;
 }
 
-td:first-child button:hover {
+.grocery-row form button:hover {
     box-shadow: none;
-}
-
-th:last-child,
-td:last-child {
-    inline-size: 2em;
 }
 
 .checkbox {
@@ -403,32 +397,50 @@ td:last-child {
     background: var(--text);
 }
 
-@media screen and (min-width: 500px) {
-    th:hover {
-        border-start-start-radius: 10px;
-        border-start-end-radius: 10px;
-        background: var(--accent-light);
-        overflow: hidden;
-    }
-
-    th:first-of-type:hover {
-        background: transparent;
-    }
+.grocery-divider {
+    padding-block: 0.75rem 0.25rem;
+    border-block-start: solid var(--text-lightly-dimmed) 2px;
 }
 
-td p,
-td input {
+.grocery-divider.dairy strong {
+    color: #38bdf8;
+}
+
+.grocery-divider.fruit strong {
+    color: #34d399;
+}
+
+.grocery-divider.meat strong {
+    color: #fb923c;
+}
+
+.grocery-divider.pantry strong {
+    color: #a78bfa;
+}
+
+.grocery-divider.other strong {
+    color: #94a3b8;
+}
+
+.extracted-grocery-row {
+    grid-template-columns: 1fr 1fr 1fr 2em;
+}
+
+.extracted-grocery-row input {
     inline-size: 100%;
-    display: block;
-    margin-block: 0;
-    padding-block: 4px;
+    min-inline-size: 0;
 }
 
-td input {
-    padding-block: 10px;
-    padding-inline: 5px;
-    border: none;
-    outline: none;
+.extracted-grocery-row>.removeRowBtn {
+    padding: 0;
+    inline-size: 75%;
+    aspect-ratio: 1;
+    display: grid;
+    place-items: center;
+}
+
+.line-through {
+    text-decoration: line-through;
 }
 
 .glass-inner input {
@@ -477,10 +489,6 @@ tr:last-of-type {
 
 .divider-top .picked {
     /* color: var(--accent-light); */
-}
-
-tr.divider-top td {
-    padding-inline-start: 0px;
 }
 
 .line-through {

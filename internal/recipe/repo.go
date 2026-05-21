@@ -32,7 +32,6 @@ func (r *Repo) List(ctx context.Context, hid int) ([]Recipe, map[int][]RecipeIng
 	p.id,
 	p.name,
 	p.brand,
-	p.store,
 	p.category
 	FROM recipes r
 	INNER JOIN recipe_ingredient ri ON ri.recipe_id = r.id
@@ -64,7 +63,6 @@ func (r *Repo) List(ctx context.Context, hid int) ([]Recipe, map[int][]RecipeIng
 			&ri.Ingredient.Product.Id,
 			&ri.Ingredient.Product.Name,
 			&ri.Ingredient.Product.Brand,
-			&ri.Ingredient.Product.Store,
 			&ri.Ingredient.Product.Category,
 		)
 
@@ -91,7 +89,6 @@ func (r *Repo) Ingredients(ctx context.Context, recipeID, hid int) ([]RecipeIngr
 	p.id,
 	p.name,
 	p.brand,
-	p.store,
 	p.category
 	FROM recipes r
 	INNER JOIN recipe_ingredient ri ON ri.recipe_id=r.id
@@ -116,7 +113,6 @@ func (r *Repo) Ingredients(ctx context.Context, recipeID, hid int) ([]RecipeIngr
 			&ri.Ingredient.Product.Id,
 			&ri.Ingredient.Product.Name,
 			&ri.Ingredient.Product.Brand,
-			&ri.Ingredient.Product.Store,
 			&ri.Ingredient.Product.Category,
 		)
 

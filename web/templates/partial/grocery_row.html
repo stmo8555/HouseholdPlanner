@@ -1,33 +1,16 @@
 {{define "grocery_row"}}
-<tr data-id="{{.Id}}" class="changable">
-    <td>
-        <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls">
-            <input type="hidden" name="id" value="{{.Id}}">
-            <button type="submit">
-                <div class="checkbox {{if .Picked}}checked{{end}}"></div>
-                <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
-            </button>
-        </form>
-    </td>
+<div data-id="{{.Id}}" class="grocery-row changable {{if .Picked}}line-through{{end}}">
+    <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls">
+        <input type="hidden" name="id" value="{{.Id}}">
+        <button type="submit">
+            <div class="checkbox {{if .Picked}}checked{{end}}"></div>
+            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+        </button>
+    </form>
 
-    <td data-field="name">
-        <span>{{.Ingredient.Product.Name}}</span>
-    </td>
-
-    <td data-field="amount">
-        <span>{{.Ingredient.Amount}}</span>
-    </td>
-
-    <td data-field="brand">
-        <span>{{.Ingredient.Product.Brand}}</span>
-    </td>
-
-    <td data-field="store">
-        <span>{{.Ingredient.Product.Store}}</span>
-    </td>
-
-    <td>
-        <button class="edit-btn" type="button">⋮</button>
-    </td>
-</tr>
+    <span data-field="name">{{.Ingredient.Product.Name}}</span>
+    <span data-field="amount">{{.Ingredient.Amount}}</span>
+    <span data-field="brand">{{.Ingredient.Product.Brand}}</span>
+    <button class="edit-btn" type="button">⋮</button>
+</div>
 {{end}}

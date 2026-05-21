@@ -41,8 +41,7 @@ document.body.addEventListener("click", event => {
     if (!button)
         return;
 
-    const parentRow = button.closest("tr");
-    parentRow.remove();
+    button.closest(".extracted-grocery-row").remove();
 });
 
 document.getElementById('extract-button')?.addEventListener("click", () => {

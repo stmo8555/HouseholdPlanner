@@ -26,7 +26,7 @@ func CreateRepo(db *pgxpool.Pool) *Repo {
 
 func (r *Repo) getTopProducts(ctx context.Context, householdID int) ([]product.Product, error) {
 	sql := `
-		SELECT p.id, p.name, p.brand, p.store, p.category
+		SELECT p.id, p.name, p.brand, p.category
 		FROM groceries_history gh
 		INNER JOIN products p ON gh.product_id=p.id
 		WHERE household_id = $1
@@ -91,7 +91,6 @@ func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) 
 		p.id,
 		p.name,
 		p.brand,
-		p.store,
 		p.category,
 		g.amount,
 		g.household_id,
@@ -119,7 +118,6 @@ func (r *Repo) List(ctx context.Context, sortBy, order string, householdID int) 
 			&g.Ingredient.Product.Id,
 			&g.Ingredient.Product.Name,
 			&g.Ingredient.Product.Brand,
-			&g.Ingredient.Product.Store,
 			&g.Ingredient.Product.Category,
 			&g.Ingredient.Amount,
 			&g.HouseholdID,

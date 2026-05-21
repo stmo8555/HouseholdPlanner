@@ -38,10 +38,6 @@
                         <label for="2">Brand</label>
                         <input class="glass-inner" id="2" type="text" name="brand">
                     </li>
-                    <li>
-                        <label for="4">Store</label>
-                        <input class="glass-inner" id="4" type="text" name="store">
-                    </li>
                 </ul>
                 <button class="inline-size-full margin-inline-auto block" type="submit">
                     <span>Add</span>
@@ -84,10 +80,6 @@
                             <label for="edit-brand">Brand</label>
                             <input class="glass-inner" id="edit-brand" name="brand">
                         </li>
-                        <li>
-                            <label for="edit-store">Store</label>
-                            <input class="glass-inner" id="edit-store" name="store">
-                        </li>
                     </ul>
 
                     <div class="flex gap-6px">
@@ -116,7 +108,7 @@
                 <h2><label for="smart-add">Smart Add</label></h2>
 
                 <textarea id="smart-add" class="glass-inner margin-block-end-24px"
-                    placeholder='Add groceries... (try: "10 bananas, 5L milk from willys"' name="text"
+                    placeholder='Add groceries... (try: "10 bananas, 5L Arla milk"' name="text"
                     required></textarea>
                 <button class="inline-size-full margin-inline-auto block" type="submit">
                     <span>Add</span>
@@ -139,33 +131,24 @@
         </main>
         <script type="module" src="/static/script.js"></script>
         <script>
-            function initGroceryList() {
-                document.querySelectorAll(".edit-btn").forEach(button => {
-                    button.onclick = () => {
-                        const row = button.closest("tr");
+            document.body.addEventListener("click", event => {
+                const button = event.target.closest(".edit-btn");
+                if (!button)
+                    return;
 
-                        const id = row.dataset.id.trim();
-                        const name = row.querySelector('[data-field="name"] span').textContent.trim();
-                        const amount = row.querySelector('[data-field="amount"] span').textContent.trim();
-                        const brand = row.querySelector('[data-field="brand"] span').textContent.trim();
-                        const store = row.querySelector('[data-field="store"] span').textContent.trim();
+                const row = button.closest(".grocery-row");
 
-                        document.querySelectorAll(".edit-id").forEach(e => e.value = id);
-                        document.getElementById("edit-name").value = name;
-                        document.getElementById("edit-amount").value = amount;
-                        document.getElementById("edit-brand").value = brand;
-                        document.getElementById("edit-store").value = store;
+                const id = row.dataset.id.trim();
+                const name = row.querySelector('[data-field="name"]').textContent.trim();
+                const amount = row.querySelector('[data-field="amount"]').textContent.trim();
+                const brand = row.querySelector('[data-field="brand"]').textContent.trim();
 
-                        document.getElementById("edit-modal").showModal();
-                    };
-                });
-            }
+                document.querySelectorAll(".edit-id").forEach(e => e.value = id);
+                document.getElementById("edit-name").value = name;
+                document.getElementById("edit-amount").value = amount;
+                document.getElementById("edit-brand").value = brand;
 
-            initGroceryList()
-            document.body.addEventListener("htmx:afterSwap", event => {
-                if (event.detail.target.matches(".grocery-list")) {
-                    initGroceryList();
-                }
+                document.getElementById("edit-modal").showModal();
             });
         </script>
     </div>

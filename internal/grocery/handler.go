@@ -52,7 +52,6 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 	products := c.PostFormArray("name")
 	amounts := c.PostFormArray("amount")
 	brands := c.PostFormArray("brand")
-	stores := c.PostFormArray("store")
 
 	ingredients := make([]ingredient.Ingredient, len(products))
 	for i := range ingredients {
@@ -60,7 +59,6 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 			Product: product.Product{
 				Name:     products[i],
 				Brand:    brands[i],
-				Store:    stores[i],
 				Category: "",
 			},
 			Amount: amounts[i],
@@ -135,7 +133,6 @@ func (h *Handler) Add(c *gin.Context) {
 		Product: product.Product{
 			Name:     c.PostForm("name"),
 			Brand:    c.PostForm("brand"),
-			Store:    c.PostForm("store"),
 			Category: "",
 		},
 		Amount: c.PostForm("amount"),
@@ -219,7 +216,6 @@ func (h *Handler) Edit(c *gin.Context) {
 	prod := product.Product{
 		Name:     c.PostForm("name"),
 		Brand:    c.PostForm("brand"),
-		Store:    c.PostForm("store"),
 		Category: "",
 	}
 
