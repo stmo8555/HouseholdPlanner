@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{{template "head" .}}
+{{template "layouts/head" .}}
 
 <body>
     <div class="background">
-        {{template "header" .}}
+        {{template "layouts/header" .}}
         <main>
             <div class="margin-block-end-24px">
                 <button class="add-toggler">Add Recipe</button>
@@ -33,7 +33,6 @@
 
             {{template "recipe-list" .}}
         </main>
-        {{template "footer" .}}
         <script type="module" src="/static/script.js"></script>
     </div>
 </body>

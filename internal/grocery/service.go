@@ -13,7 +13,7 @@ type Service struct {
 	ingredientExtractor *ingredient.Extractor
 }
 
-func CreateService(repo IRepo, product *product.Service, ingredient *ingredient.Extractor) *Service {
+func NewService(repo IRepo, product *product.Service, ingredient *ingredient.Extractor) *Service {
 	if repo == nil || product == nil || ingredient == nil {
 		panic("service not initialized")
 	}
@@ -25,11 +25,19 @@ func CreateService(repo IRepo, product *product.Service, ingredient *ingredient.
 	}
 }
 
-func (s *Service) GetTopProducts(ctx context.Context, householdID int) ([]string, error) {
-	products, err := s.repo.getTopProducts(ctx, householdID)
+func (s *Service) GroceryLists(ctx context.Context, hid int) ([]GroceryList, error) {
+	return s.repo.GroceryLists(ctx, hid)
+}
+
+func (s *Service) CreateList(ctx context.Context, name string, hid int) error {
+	return s.repo.CreateList(ctx, name, hid)
+}
+
+func (s *Service) TopProducts(ctx context.Context, householdID int) ([]string, error) {
+	products, err := s.repo.TopProducts(ctx, householdID)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	strSlice := make([]string, 0, len(products))
@@ -41,37 +49,37 @@ func (s *Service) GetTopProducts(ctx context.Context, householdID int) ([]string
 	return strSlice, err
 }
 
-func (s *Service) AddGroceries(ctx context.Context, ingredients []ingredient.Ingredient, hid int) error {
+func (s *Service) CreateGroceries(ctx context.Context, ingredients []ingredient.Ingredient, groceryListID, hid int) error {
 	groceries := make([]Grocery, 0, len(ingredients))
 	for i := range ingredients {
 		if ingredients[i].ProductID == 0 {
 			id, err := s.productService.GetID(ctx, ingredients[i].Product)
 
 			if err != nil {
-				panic(err)
+				return err
 			}
 
 			ingredients[i].ProductID = id
 		}
 		groceries = append(groceries, Grocery{
-			Ingredient:  ingredients[i],
-			HouseholdID: hid,
-			Picked:      false,
+			Ingredient:    ingredients[i],
+			GroceryListID: groceryListID,
+			HouseholdID:   hid,
+			Picked:        false,
 		})
 	}
 
-	return s.repo.AddGroceries(ctx, groceries)
+	return s.repo.CreateGroceries(ctx, groceries)
 }
 
-func (s *Service) SmartAdd(ctx context.Context, text string) ([]ingredient.Ingredient, error) {
+func (s *Service) ParseGroceries(ctx context.Context, text string) ([]ingredient.Ingredient, error) {
 	return s.ingredientExtractor.FromText(ctx, text)
 }
 
-func (s *Service) List(ctx context.Context, sortBy, order string, householdID int) (GroceriesView, error) {
+func (s *Service) GroceriesView(ctx context.Context, sortBy, order string, groceryListID, householdID int) (GroceriesView, error) {
 	allowedSorts := map[string]string{
 		"product": "p.name",
 		"brand":   "p.brand",
-		"store":   "p.store",
 		"amount":  "g.amount",
 	}
 
@@ -81,7 +89,7 @@ func (s *Service) List(ctx context.Context, sortBy, order string, householdID in
 		column = "p.name"
 	}
 
-	groceries, err := s.repo.List(ctx, column, order, householdID)
+	groceries, err := s.repo.Groceries(ctx, column, order, groceryListID, householdID)
 
 	if err != nil {
 		return GroceriesView{}, err
@@ -115,15 +123,15 @@ func (s *Service) TogglePicked(ctx context.Context, id, householdID int) error {
 	return s.repo.TogglePicked(ctx, id, householdID)
 }
 
-func (s *Service) Delete(ctx context.Context, groceryID, householdId int) error {
-	return s.repo.Delete(ctx, groceryID, householdId)
+func (s *Service) DeleteGrocery(ctx context.Context, groceryID, householdId int) error {
+	return s.repo.DeleteGrocery(ctx, groceryID, householdId)
 }
 
-func (s *Service) DeletePicked(ctx context.Context, householdId int) error {
-	return s.repo.DeletePicked(ctx, householdId)
+func (s *Service) DeletePicked(ctx context.Context, groceryListID, householdId int) error {
+	return s.repo.DeletePicked(ctx, groceryListID, householdId)
 }
 
-func (s *Service) Edit(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
+func (s *Service) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
 	productID, err := s.productService.GetID(ctx, ing.Product)
 	if err != nil {
 		panic(err)
@@ -131,7 +139,5 @@ func (s *Service) Edit(ctx context.Context, ing ingredient.Ingredient, groceryID
 
 	ing.ProductID = productID
 
-
-
-	return s.repo.Edit(ctx, ing, groceryID, householdID)
+	return s.repo.UpdateGrocery(ctx, ing, groceryID, householdID)
 }

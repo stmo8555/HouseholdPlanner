@@ -1,4 +1,4 @@
-{{define "grocery_list"}}
+{{define "groceries/list"}}
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
         <h2>Shopping ({{.Total}})</h2>
@@ -36,7 +36,7 @@
         </div>
         {{end}}
         {{range .Data.Dairy}}
-        {{template "grocery_row" .}}
+        {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
@@ -47,7 +47,7 @@
         </div>
         {{end}}
         {{range .Data.FruitAndVegetables}}
-        {{template "grocery_row" .}}
+        {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
@@ -58,7 +58,7 @@
         </div>
         {{end}}
         {{range .Data.MeatAndFish}}
-        {{template "grocery_row" .}}
+        {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
@@ -69,7 +69,7 @@
         </div>
         {{end}}
         {{range .Data.Pantry}}
-        {{template "grocery_row" .}}
+        {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
@@ -80,7 +80,7 @@
         </div>
         {{end}}
         {{range .Data.Other}}
-        {{template "grocery_row" .}}
+        {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
@@ -89,14 +89,14 @@
             <strong>Picked ({{len .Data.Picked}})</strong>
         </div>
         {{range .Data.Picked}}
-        {{template "grocery_row" .}}
+        {{template "groceries/row" .}}
         {{end}}
         {{end}}
     </div>
 
     {{if gt (len .Data.Picked) 0}}
     <button hx-post="/groceries/delete/picked" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-filter-controls" class="block margin-inline-auto inline-size-full margin-block-start-24px" type="submit">
+        hx-include="#grocery-filter-controls, #grocery-list-id" class="block margin-inline-auto inline-size-full margin-block-start-24px" type="submit">
         <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
         Done
     </button>

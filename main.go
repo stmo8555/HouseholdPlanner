@@ -5,7 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"html/template"
+	"io/fs"
 	"os"
+	"path/filepath"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -47,14 +49,12 @@ func main() {
 	ingredientExtractor = ingredient.CreateExtractor(aiService)
 	loginService = login.CreateService(login.CreateRepo(pool))
 	todoService = todo.CreateService(todo.CreateRepo(pool), aiService)
-	groceryService = grocery.CreateService(grocery.CreateRepo(pool), productService, ingredientExtractor)
+	groceryService = grocery.NewService(grocery.NewRepo(pool), productService, ingredientExtractor)
 	recipeService = recipe.CreateService(recipe.CreateRepo(pool), productService, ingredientExtractor)
 
-	tmpl := template.Must(template.ParseGlob("web/templates/*.html"))
-	tmpl = template.Must(tmpl.ParseGlob("web/templates/partial/*.html"))
+	tmpl := template.Must(parseTemplates("web/templates"))
 
 	r := gin.Default()
-	// r.LoadHTMLGlob("web/templates/*.html")
 	r.SetHTMLTemplate(tmpl)
 	r.Static("/static/", "web/static")
 	setupLogin(r)
@@ -104,22 +104,22 @@ func setupRecipes(r *gin.RouterGroup) {
 }
 
 func setupGroceries(r *gin.RouterGroup) {
-	handler := grocery.CreateHandler(groceryService, ingredientExtractor)
+	handler := grocery.NewHandler(groceryService, ingredientExtractor)
 
 	r.GET("/", func(c *gin.Context) {
 		c.Redirect(302, "/groceries")
 	})
-
-	r.GET("/groceries", handler.List)
-	r.GET("/groceries/list", handler.ListPartial)
+	r.GET("/groceries", handler.OverviewPage)
+	r.GET("/groceries/list", handler.ListPage)
 	r.POST("/groceries", handler.TogglePicked)
-	r.POST("/groceries/add", handler.Add)
+	r.POST("/groceries/add", handler.CreateGroceries)
+	r.POST("/groceries/add-list", handler.CreateList)
 	r.POST("/groceries/smartadd", handler.SmartAdd)
-	r.POST("/groceries/edit", handler.Edit)
-	r.POST("/groceries/delete", handler.Delete)
+	r.POST("/groceries/edit", handler.UpdateGrocery)
+	r.POST("/groceries/delete", handler.DeleteGrocery)
 	r.POST("/groceries/delete/picked", handler.DeletePicked)
-	r.POST("/groceries/extract", handler.IngredientsFromRecipe)
-	r.POST("/groceries/extracted", handler.AcceptExtractedGroceries)
+	r.POST("/groceries/extract", handler.ExtractFromRecipe)
+	r.POST("/groceries/extracted", handler.SaveExtracted)
 }
 
 // func setupHome(r *gin.RouterGroup) {
@@ -171,4 +171,27 @@ func loadFoodMap(path string) (map[string]string, error) {
 	}
 
 	return m, nil
+}
+
+func parseTemplates(patternRoot string) (*template.Template, error) {	
+	tmpl := template.New("")
+
+	err := filepath.WalkDir(patternRoot, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() || filepath.Ext(path) != ".html" {
+			return nil
+		}
+
+		_, err = tmpl.ParseFiles(path)
+		return err
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return tmpl, nil
 }

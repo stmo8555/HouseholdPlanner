@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 
-{{template "head" .}}
+{{template "layouts/head" .}}
 
 <body>
     <div class="background">
-        {{template "header" .}}
+        {{template "layouts/header" .}}
         <main>
             <fieldset class="margin-block-end-24px">
                 <legend class="sr-only">Action buttons</legend>
@@ -34,7 +34,6 @@
                 {{end}}
             </div>
         </main>
-        {{template "footer" .}}
         <script type="module" src="/static/script.js"></script>
         <script>
             const add_recipe_btn = document.getElementById('add-recipe');

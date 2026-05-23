@@ -1,3 +1,4 @@
+{{define "groceries/extract_review_page"}}
 <main>
     <div class="margin-block-end-24px flex gap-6px">
         <button type="submit" form="extractedForm">Save</button>
@@ -8,7 +9,8 @@
 
     <form action="/groceries/extracted" id="extractedForm" method="POST" class="glass container">
         <h2>Extracted From Recipe</h2>
-        <input type="hidden" name="redirect_path" value="{{.RedirectPath}}">
+        <input type="hidden" name="redirect-path" value="{{.RedirectPath}}">
+        <input type="hidden" name="grocery-list-id" value="{{.GroceryListID}}">
 
         <div class="grocery-grid extracted-grocery-grid">
             <div class="grocery-row extracted-grocery-row grocery-header">
@@ -21,9 +23,9 @@
             {{if gt (len .Ingredients) 0}}
             {{range .Ingredients}}
             <div class="grocery-row extracted-grocery-row">
-                <input class="glass-inner" name="name" value="{{.Product.Name}}">
-                <input class="glass-inner" name="amount" value="{{.Amount}}">
-                <input class="glass-inner" name="brand" value="{{.Product.Brand}}">
+                <input type="text" class="glass-inner" name="name" value="{{.Product.Name}}">
+                <input type="text" class="glass-inner" name="amount" value="{{.Amount}}">
+                <input type="text" class="glass-inner" name="brand" value="{{.Product.Brand}}">
                 <button type="button" class="removeRowBtn">×</button>
             </div>
             {{end}}
@@ -31,3 +33,4 @@
         </div>
     </form>
 </main>
+{{end}}

@@ -15,7 +15,7 @@ type Handler struct {
 	ingredientExtractor *ingredient.Extractor
 }
 
-func CreateHandler(s *Service, ingredient *ingredient.Extractor) *Handler {
+func NewHandler(s *Service, ingredient *ingredient.Extractor) *Handler {
 	if s == nil || ingredient == nil {
 		panic("nil service for handler")
 	}
@@ -26,13 +26,17 @@ func CreateHandler(s *Service, ingredient *ingredient.Extractor) *Handler {
 	}
 }
 
-func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
+func (h *Handler) ExtractFromRecipe(c *gin.Context) {
 	link := c.PostForm("link")
 
 	if strings.TrimSpace(link) == "" {
-		c.AbortWithStatus(500)
-		c.String(500, "Empty link")
-		return
+		panic("no link")
+	}
+
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+
+	if err != nil {
+		panic(err)
 	}
 
 	ingredients, err := h.ingredientExtractor.FromRecipeURL(c, link)
@@ -41,13 +45,19 @@ func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
 		panic(err)
 	}
 
-	h.ExtractedView(c, ingredients)
+	h.ExtractReviewPage(c, ingredients, groceryListID)
 }
 
-func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
+func (h *Handler) SaveExtracted(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	redirectPath := c.PostForm("redirect_path")
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	redirectPath := c.PostForm("redirect-path")
 
 	products := c.PostFormArray("name")
 	amounts := c.PostFormArray("amount")
@@ -65,52 +75,75 @@ func (h *Handler) AcceptExtractedGroceries(c *gin.Context) {
 		}
 	}
 
-	err := h.service.AddGroceries(c, ingredients, hid)
+	err = h.service.CreateGroceries(c, ingredients, groceryListID, hid)
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	if !strings.HasPrefix(redirectPath, "/") {
-		c.AbortWithStatus(500)
-		c.String(500, errors.New("Redirect variable does not start with /. Value: "+redirectPath).Error())
-		return
+		panic(errors.New("Redirect variable does not start with /. Value: " + redirectPath).Error())
 	}
 
 	c.Redirect(303, redirectPath)
 }
 
-func (h *Handler) List(c *gin.Context) {
+func (h *Handler) OverviewPage(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	data, err := h.groceryListData(c, hid)
+	lists, err := h.service.GroceryLists(c, hid)
 	if err != nil {
 		c.String(500, err.Error())
 		return
 	}
 
+	data := gin.H{"Lists": lists}
 	data["Title"] = "Groceries"
 	data["CurrentPath"] = c.Request.URL.Path
 
 	c.HTML(200, "groceries.html", data)
 }
 
-func (h *Handler) ListPartial(c *gin.Context) {
+func (h *Handler) ListPage(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	data, err := h.groceryListData(c, hid)
+	groceryListID, err := strconv.Atoi(c.Query("list-id"))
+
 	if err != nil {
 		c.String(500, err.Error())
 		return
 	}
 
-	c.HTML(200, "grocery_list", data)
+	data, err := h.buildListViewData(c, groceryListID, hid)
+	if err != nil {
+		c.String(500, err.Error())
+		return
+	}
+
+	data["GroceryListID"] = groceryListID
+
+	c.HTML(200, "groceries/list_page", data)
+}
+
+func (h *Handler) RenderListPartial(c *gin.Context, groceryListID int) {
+	hid := c.GetInt("household_id")
+
+	data, err := h.buildListViewData(c, groceryListID, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	c.HTML(200, "groceries/list", data)
 }
 
 func (h *Handler) TogglePicked(c *gin.Context) {
 	hid := c.GetInt("household_id")
+
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+
+	if err != nil {
+		panic(err)
+	}
 
 	id, err := strconv.Atoi(c.PostForm("id"))
 	if err != nil {
@@ -119,15 +152,47 @@ func (h *Handler) TogglePicked(c *gin.Context) {
 	}
 
 	if err := h.service.TogglePicked(c, id, hid); err != nil {
+		panic(err)
+	}
+
+	h.RenderListPartial(c, groceryListID)
+}
+
+func (h *Handler) CreateList(c *gin.Context) {
+	hid := c.GetInt("household_id")
+	name := c.PostForm("name")
+
+	if strings.TrimSpace(name) == "" {
+		c.AbortWithStatus(500)
+		c.String(500, "Empty text")
+		return
+	}
+
+	err := h.service.CreateList(c.Request.Context(), name, hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	lists, err := h.service.GroceryLists(c, hid)
+	if err != nil {
 		c.String(500, err.Error())
 		return
 	}
 
-	h.ListPartial(c)
+	data := gin.H{"Lists": lists}
+
+	c.HTML(200, "groceries/overview_page", data)
 }
 
-func (h *Handler) Add(c *gin.Context) {
+func (h *Handler) CreateGroceries(c *gin.Context) {
 	hid := c.GetInt("household_id")
+
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	if err != nil {
+		panic(err)
+	}
+
 	ingredients := make([]ingredient.Ingredient, 0, 1)
 	ingredients = append(ingredients, ingredient.Ingredient{
 		Product: product.Product{
@@ -138,79 +203,90 @@ func (h *Handler) Add(c *gin.Context) {
 		Amount: c.PostForm("amount"),
 	})
 
-	err := h.service.AddGroceries(c, ingredients, hid)
+	err = h.service.CreateGroceries(c, ingredients, groceryListID, hid)
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
-	h.ListPartial(c)
+	h.RenderListPartial(c, groceryListID)
 }
 
-func (h *Handler) ExtractedView(c *gin.Context, ingredients []ingredient.Ingredient) {
+func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ingredient, groceryListID int) {
 	data := gin.H{
-		"Ingredients":  ingredients,
-		"CancelURL":    "/groceries",
-		"RedirectPath": "/groceries",
+		"Ingredients":   ingredients,
+		"CancelURL":     "/groceries",
+		"RedirectPath":  "/groceries",
+		"GroceryListID": groceryListID,
 	}
 
-	c.HTML(200, "groceries_extraction.html", data)
+	c.HTML(200, "groceries/extract_review_page", data)
 }
 
 func (h *Handler) SmartAdd(c *gin.Context) {
 	text := c.PostForm("text")
 
-	if strings.TrimSpace(text) == "" {
-		c.AbortWithStatus(500)
-		c.String(500, "Empty text")
-		return
-	}
-
-	groceries, err := h.service.SmartAdd(c, text)
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
-	h.ExtractedView(c, groceries)
+	if strings.TrimSpace(text) == "" {
+		panic("no text")
+	}
+
+	groceries, err := h.service.ParseGroceries(c, text)
+
+	if err != nil {
+		panic(err)
+	}
+
+	h.ExtractReviewPage(c, groceries, groceryListID)
 }
 
-func (h *Handler) Delete(c *gin.Context) {
+func (h *Handler) DeleteGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 	groceryID, err := strconv.Atoi(c.PostForm("id"))
-	
-	if err != nil {
-		c.String(500, err.Error())
-		return
-	}
-
-	err = h.service.Delete(c, groceryID, hid)
 
 	if err != nil {
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
-	h.ListPartial(c)
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = h.service.DeleteGrocery(c, groceryID, hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	h.RenderListPartial(c, groceryListID)
 }
 
 func (h *Handler) DeletePicked(c *gin.Context) {
 	hid := c.GetInt("household_id")
-	err := h.service.DeletePicked(c, hid)
+
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
 
 	if err != nil {
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
-	h.ListPartial(c)
+	err = h.service.DeletePicked(c, groceryListID, hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	h.RenderListPartial(c, groceryListID)
 }
 
-func (h *Handler) Edit(c *gin.Context) {
+func (h *Handler) UpdateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
 	prod := product.Product{
@@ -230,18 +306,22 @@ func (h *Handler) Edit(c *gin.Context) {
 		panic(err)
 	}
 
-	err = h.service.Edit(c, ing, id, hid)
+	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
-	h.ListPartial(c)
+	err = h.service.UpdateGrocery(c, ing, id, hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	h.RenderListPartial(c, groceryListID)
 }
 
-func (h *Handler) groceryListData(c *gin.Context, hid int) (gin.H, error) {
+func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin.H, error) {
 	sortBy := c.DefaultQuery("sort", c.DefaultPostForm("sort", "product"))
 	order := c.DefaultQuery("order", c.DefaultPostForm("order", "asc"))
 	filter := c.DefaultQuery("filter", c.DefaultPostForm("filter", "all"))
@@ -255,12 +335,12 @@ func (h *Handler) groceryListData(c *gin.Context, hid int) (gin.H, error) {
 		nextOrder = "desc"
 	}
 
-	groceries, err := h.service.List(c, sortBy, order, hid)
+	groceries, err := h.service.GroceriesView(c, sortBy, order, groceryListID, hid)
 	if err != nil {
 		return nil, err
 	}
 
-	topProducts, err := h.service.GetTopProducts(c, hid)
+	topProducts, err := h.service.TopProducts(c, hid)
 	if err != nil {
 		return nil, err
 	}
