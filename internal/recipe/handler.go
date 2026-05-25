@@ -14,7 +14,7 @@ type Handler struct {
 	groceryService *grocery.Service
 }
 
-func CreateHandler(s *Service, gs *grocery.Service) *Handler {
+func NewHandler(s *Service, gs *grocery.Service) *Handler {
 	if s == nil || gs == nil {
 		panic("nil services for handler")
 	}

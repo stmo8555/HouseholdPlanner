@@ -15,7 +15,7 @@ type Service struct {
 	FoodCategories map[string]string
 }
 
-func CreateService(repo *Repo, ai *ai.Service, lookUpTable map[string]string) *Service {
+func NewService(repo *Repo, ai *ai.Service, lookUpTable map[string]string) *Service {
 	if repo == nil || ai == nil || lookUpTable == nil {
 		panic("service not initialized")
 	}

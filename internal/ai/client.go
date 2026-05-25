@@ -14,7 +14,7 @@ type Client struct {
 	API openai.Client
 }
 
-func CreateClient() *Client {
+func NewClient() *Client {
 	return &Client{API: openai.NewClient()}
 }
 

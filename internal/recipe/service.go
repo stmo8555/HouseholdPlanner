@@ -21,7 +21,7 @@ type Service struct {
 	ingredientExtractor *ingredient.Extractor
 }
 
-func CreateService(repo IRepo, product *product.Service, ingredient *ingredient.Extractor) *Service {
+func NewService(repo IRepo, product *product.Service, ingredient *ingredient.Extractor) *Service {
 	if repo == nil || product == nil || ingredient == nil {
 		panic("service not initialized")
 	}

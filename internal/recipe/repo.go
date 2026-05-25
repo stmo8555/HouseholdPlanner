@@ -9,7 +9,7 @@ type Repo struct {
 	db *pgxpool.Pool
 }
 
-func CreateRepo(db *pgxpool.Pool) *Repo {
+func NewRepo(db *pgxpool.Pool) *Repo {
 	if db == nil {
 		panic("nil DB connection")
 	}

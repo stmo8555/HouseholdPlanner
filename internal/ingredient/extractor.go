@@ -18,7 +18,7 @@ type Extractor struct {
 	AIService *ai.Service
 }
 
-func CreateExtractor(ai *ai.Service) *Extractor {
+func NewExtractor(ai *ai.Service) *Extractor {
 	if ai == nil {
 		panic(errors.New("Extractor not initialized"))
 	}

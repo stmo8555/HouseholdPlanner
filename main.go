@@ -44,13 +44,13 @@ func main() {
 
 	defer pool.Close()
 
-	aiService = ai.CreateService(ai.CreateClient())
-	productService = product.CreateService(product.CreateRepo(pool), aiService, foodMap)
-	ingredientExtractor = ingredient.CreateExtractor(aiService)
-	loginService = login.CreateService(login.CreateRepo(pool))
+	aiService = ai.NewService(ai.NewClient())
+	productService = product.NewService(product.NewRepo(pool), aiService, foodMap)
+	ingredientExtractor = ingredient.NewExtractor(aiService)
+	loginService = login.NewService(login.NewRepo(pool))
 	todoService = todo.CreateService(todo.CreateRepo(pool), aiService)
 	groceryService = grocery.NewService(grocery.NewRepo(pool), productService, ingredientExtractor)
-	recipeService = recipe.CreateService(recipe.CreateRepo(pool), productService, ingredientExtractor)
+	recipeService = recipe.NewService(recipe.NewRepo(pool), productService, ingredientExtractor)
 
 	tmpl := template.Must(parseTemplates("web/templates"))
 
@@ -74,7 +74,7 @@ func main() {
 }
 
 func setupLogin(r *gin.Engine) {
-	handler := login.CreateHandler(loginService)
+	handler := login.NewHandler(loginService)
 
 	r.GET("/login", handler.Login)
 	r.POST("/login", handler.Authenticate)
@@ -84,7 +84,7 @@ func setupLogin(r *gin.Engine) {
 }
 
 func setupTodos(r *gin.RouterGroup) {
-	handler := todo.CreateHandler(todoService)
+	handler := todo.NewHandler(todoService)
 
 	r.GET("/todos", handler.List)
 	r.POST("/todos/add", handler.Add)
@@ -97,7 +97,7 @@ func setupTodos(r *gin.RouterGroup) {
 }
 
 func setupRecipes(r *gin.RouterGroup) {
-	handler := recipe.CreateHandler(recipeService, groceryService)
+	handler := recipe.NewHandler(recipeService, groceryService)
 	r.GET("/recipes", handler.List)
 	r.POST("/recipes/add", handler.Add)
 	r.POST("/recipes/extract", handler.IngredientsFromRecipe)
@@ -173,7 +173,7 @@ func loadFoodMap(path string) (map[string]string, error) {
 	return m, nil
 }
 
-func parseTemplates(patternRoot string) (*template.Template, error) {	
+func parseTemplates(patternRoot string) (*template.Template, error) {
 	tmpl := template.New("")
 
 	err := filepath.WalkDir(patternRoot, func(path string, d fs.DirEntry, err error) error {

@@ -13,7 +13,7 @@ type Service struct {
 	repo           *Repo
 }
 
-func CreateService(repo *Repo) *Service {
+func NewService(repo *Repo) *Service {
 	if repo == nil {
 		panic("service not initialized")
 	}

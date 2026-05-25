@@ -9,7 +9,7 @@ type Handler struct {
 	service *Service
 }
 
-func CreateHandler(s *Service) *Handler {
+func NewHandler(s *Service) *Handler {
 	if s == nil {
 		panic("nil service for handler")
 	}

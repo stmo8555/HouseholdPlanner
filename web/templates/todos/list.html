@@ -1,4 +1,4 @@
-{{define "todo-list"}}
+{{define "todos/list"}}
 <article class="todo-list" aria-labelledby="todo-list-heading">
     <h2 id="todo-list-heading" class="sr-only">Todo list</h2>
 
@@ -7,7 +7,7 @@
         <h2>Overdue</h2>
         <ul class="glass">
             {{range .Overdue}}
-            {{template "todo-li" .}}
+            {{template "todos/todo" .}}
             {{end}}
         </ul>
         {{end}}
@@ -18,7 +18,7 @@
         <h2>Today</h2>
         <ul class="glass">
             {{range .Today}}
-            {{template "todo-li" .}}
+            {{template "todos/todo" .}}
             {{end}}
         </ul>
         {{end}}
@@ -29,7 +29,7 @@
         <h2>Soon</h2>
         <ul class="glass">
             {{range .Soon}}
-            {{template "todo-li" .}}
+            {{template "todos/todo" .}}
             {{end}}
         </ul>
         {{end}}
@@ -40,7 +40,7 @@
         <h2>Later</h2>
         <ul class="glass">
             {{range .TheRest}}
-            {{template "todo-li" .}}
+            {{template "todos/todo" .}}
             {{end}}
         </ul>
         {{end}}

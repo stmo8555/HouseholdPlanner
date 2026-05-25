@@ -12,7 +12,7 @@ type Handler struct {
 	Service *Service
 }
 
-func CreateHandler(s *Service) *Handler {
+func NewHandler(s *Service) *Handler {
 	if s == nil {
 		panic("nil service for handler")
 	}
@@ -39,9 +39,7 @@ func (h *Handler) Add(c *gin.Context) {
 	freqInt, err := strconv.Atoi(frequency)
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	todo := Todo{Task: task, Repeat: Repeat(repeat), Frequency: freqInt, HouseholdID: hid}
@@ -51,16 +49,12 @@ func (h *Handler) Add(c *gin.Context) {
 	}
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	err = h.Service.AddTodo(c, todo)
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	h.ListPartial(c)
@@ -80,9 +74,6 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 
 	if err != nil {
 		panic(err)
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
 	}
 
 	h.ListPartial(c)
@@ -94,9 +85,7 @@ func (h *Handler) MarkDone(c *gin.Context) {
 	id, err := parseID(c)
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	err = h.Service.MarkDone(c, id, hid)
@@ -116,9 +105,7 @@ func (h *Handler) MarkUnDone(c *gin.Context) {
 	id, err := parseID(c)
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	err = h.Service.MarkUnDone(c, id, hid)
@@ -130,9 +117,7 @@ func (h *Handler) List(c *gin.Context) {
 	data, err := h.todoListData(c)
 
 	if err != nil {
-		c.AbortWithStatus(500)
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	data["Title"] = "Todos"
@@ -150,7 +135,7 @@ func (h *Handler) ListPartial(c *gin.Context) {
 		return
 	}
 
-	c.HTML(200, "todo-list", data)
+	c.HTML(200, "todos/list", data)
 }
 
 func parseID(c *gin.Context) (int, error) {
@@ -164,9 +149,7 @@ func (h *Handler) todoListData(c *gin.Context) (gin.H, error) {
 	todoList, err := h.Service.List(c, hid)
 
 	if err != nil {
-		c.AbortWithError(500, err)
-		c.String(500, err.Error())
-		return nil, err
+		panic(err)
 	}
 
 	return gin.H{

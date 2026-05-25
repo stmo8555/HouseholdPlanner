@@ -10,7 +10,7 @@ type Service struct {
 	client *Client
 }
 
-func CreateService(client *Client) *Service {
+func NewService(client *Client) *Service {
 	if client == nil {
 		panic("nil ai client")
 	}
