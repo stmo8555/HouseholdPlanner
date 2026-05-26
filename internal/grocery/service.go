@@ -25,8 +25,28 @@ func NewService(repo IRepo, product *product.Service, ingredient *ingredient.Ext
 	}
 }
 
-func (s *Service) GroceryLists(ctx context.Context, hid int) ([]GroceryList, error) {
-	return s.repo.GroceryLists(ctx, hid)
+func (s *Service) GroceryLists(ctx context.Context, hid int) ([]GroceryListView, error) {
+	groceryLists, err := s.repo.GroceryLists(ctx, hid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	groceryListsStats, err := s.repo.GroceryListsStats(ctx, hid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	groceryListsView := make([]GroceryListView, 0, len(groceryLists))
+	for _, v := range groceryLists {
+		groceryListsView = append(groceryListsView, GroceryListView{
+			GroceryList: v,
+			GroceryListStats: groceryListsStats[v.ID],
+		})
+	}
+
+	return groceryListsView, nil
 }
 
 func (s *Service) CreateList(ctx context.Context, name string, hid int) error {

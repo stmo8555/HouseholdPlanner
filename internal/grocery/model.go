@@ -12,19 +12,11 @@ type GroceryListStats struct {
     ListID    int
     Total     int
     Picked    int
-    Unpicked  int
 }
 
 type GroceryListView struct {
-    ID          int
-    Name        string
-    HouseholdID int
-
-    Total       int
-    Picked      int
-    Unpicked    int
-    Duplicates  int
-    Categories  map[string]int
+	GroceryList GroceryList
+	GroceryListStats GroceryListStats
 }
 
 type Grocery struct {

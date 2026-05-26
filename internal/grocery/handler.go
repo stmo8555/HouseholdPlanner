@@ -2,6 +2,7 @@ package grocery
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -107,17 +108,15 @@ func (h *Handler) OverviewPage(c *gin.Context) {
 func (h *Handler) ListPage(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceryListID, err := strconv.Atoi(c.Query("list-id"))
+	groceryListID, err := strconv.Atoi(c.Query("grocery-list-id"))
 
 	if err != nil {
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	data, err := h.buildListViewData(c, groceryListID, hid)
 	if err != nil {
-		c.String(500, err.Error())
-		return
+		panic(err)
 	}
 
 	data["GroceryListID"] = groceryListID
@@ -125,6 +124,15 @@ func (h *Handler) ListPage(c *gin.Context) {
 	c.HTML(200, "groceries/list_page", data)
 }
 
+func (h *Handler) List(c *gin.Context) {
+	groceryListID, err := strconv.Atoi(c.Query("grocery-list-id"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	h.RenderListPartial(c, groceryListID)
+}
 func (h *Handler) RenderListPartial(c *gin.Context, groceryListID int) {
 	hid := c.GetInt("household_id")
 
@@ -185,7 +193,7 @@ func (h *Handler) CreateList(c *gin.Context) {
 	c.HTML(200, "groceries/overview_page", data)
 }
 
-func (h *Handler) CreateGroceries(c *gin.Context) {
+func (h *Handler) CreateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
 	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
@@ -209,14 +217,23 @@ func (h *Handler) CreateGroceries(c *gin.Context) {
 		panic(err)
 	}
 
-	h.RenderListPartial(c, groceryListID)
+	data, err := h.buildListViewData(c, groceryListID, hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	data["OOB"] = true
+	c.HTML(200, "groceries/add_response", data)
 }
 
 func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ingredient, groceryListID int) {
+
+	path := fmt.Sprintf("/groceries/list?grocery-list-id=%d", groceryListID)
 	data := gin.H{
 		"Ingredients":   ingredients,
-		"CancelURL":     "/groceries",
-		"RedirectPath":  "/groceries",
+		"CancelURL":     path,
+		"RedirectPath":  path,
 		"GroceryListID": groceryListID,
 	}
 
@@ -374,5 +391,6 @@ func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin
 		"Order":       order,
 		"NextOrder":   nextOrder,
 		"Filter":      filter,
+		"OOB":         false,
 	}, nil
 }

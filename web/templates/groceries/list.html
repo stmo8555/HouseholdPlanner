@@ -2,12 +2,9 @@
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
         <h2>Shopping ({{.Total}})</h2>
-        <div class="grocery-filter" id="grocery-filter-controls">
-            <input type="hidden" name="sort" value="{{.Sort}}">
-            <input type="hidden" name="order" value="{{.Order}}">
-
+        <div class="grocery-filter">
             <select hx-get="/groceries/list" hx-target=".grocery-list" hx-swap="outerHTML"
-                hx-include="#grocery-filter-controls" hx-indicator="#grocery-filter-spinner" name="filter"
+                hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
                 class="glass-inner">
                 <option value="all" {{if eq .Filter "all" }}selected{{end}}>All</option>
                 <option value="dairy" {{if eq .Filter "dairy" }}selected{{end}}>Dairy</option>
@@ -19,7 +16,7 @@
             </select>
         </div>
     </div>
-
+ 
     <div class="grocery-grid">
         <div class="grocery-row grocery-header">
             <div></div>
@@ -96,7 +93,7 @@
 
     {{if gt (len .Data.Picked) 0}}
     <button hx-post="/groceries/delete/picked" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-filter-controls, #grocery-list-id" class="block margin-inline-auto inline-size-full margin-block-start-24px" type="submit">
+        hx-include="#grocery-list-state" class="block margin-inline-auto inline-size-full margin-block-start-24px" type="submit">
         <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
         Done
     </button>

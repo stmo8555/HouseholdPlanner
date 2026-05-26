@@ -12,6 +12,7 @@ type IRepo interface {
 	CreateList(ctx context.Context, name string, hid int) error
 	Groceries(ctx context.Context, sortBy, order string, groceryListID, householdID int) ([]Grocery, error)
 	GroceryLists(ctx context.Context, hid int) ([]GroceryList, error)
+	GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error)
 	TogglePicked(ctx context.Context, id, householdID int) error
 	DeleteGrocery(ctx context.Context, groceryID, householdId int) error
 	DeletePicked(ctx context.Context, groceryListID, householdId int) error

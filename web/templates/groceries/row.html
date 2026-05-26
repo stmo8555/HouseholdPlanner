@@ -1,6 +1,6 @@
 {{define "groceries/row"}}
 <div data-id="{{.ID}}" class="grocery-row changable">
-    <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-filter-controls, #grocery-list-id">
+    <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-list-state">
         <input type="hidden" name="id" value="{{.ID}}">
         <button type="submit">
             <div class="checkbox {{if .Picked}}checked{{end}}"></div>

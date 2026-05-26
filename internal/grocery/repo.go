@@ -95,7 +95,43 @@ func (r *Repo) CreateGroceries(ctx context.Context, groceries []Grocery) error {
 
 	return tx.Commit(ctx)
 }
+func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error) {
+	sql := `
+	SELECT
+    	gl.id,
+    	COUNT(g.id) AS total,
+    	COUNT(g.id) FILTER (WHERE g.picked) AS picked
+	FROM grocery_lists gl
+	LEFT JOIN groceries g ON g.grocery_list_id = gl.id
+	WHERE gl.household_id = $1
+	GROUP BY gl.id
+	ORDER BY gl.id;
+	`
 
+	rows, err := r.db.Query(ctx, sql, hid)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	groceryListsStats := make(map[int]GroceryListStats)
+
+	for rows.Next() {
+		var g GroceryListStats
+
+		err := rows.Scan(
+			&g.ListID,
+			&g.Total,
+			&g.Picked,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		groceryListsStats[g.ListID] = g
+	}
+	return groceryListsStats, nil
+}
 func (r *Repo) GroceryLists(ctx context.Context, hid int) ([]GroceryList, error) {
 	sql := `
 	SELECT id, name, household_id FROM grocery_lists

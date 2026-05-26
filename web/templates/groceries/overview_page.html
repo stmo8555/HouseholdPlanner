@@ -1,32 +1,6 @@
 {{define "groceries/overview_page"}}
 <main>
-    <section class="grocery-insights container glass" aria-labelledby="grocery-insights-title">
-        <h2 id="grocery-insights-title">Insights</h2>
-        <p>Duplicates, amounts, categories</p>
-    </section>
-
-    <section id="grocery-lists" aria-labelledby="grocery-lists-title">
-        <h2 id="grocery-lists-title">Grocery Lists</h2>
-
-        {{range .Lists}}
-        <article class="grocery-list-card card glass flex space-between">
-            <div>
-                <h3>{{.Name}}</h3>
-                <small>10 groceries</small>
-            </div>
-
-            <div class="flex align-items gap-6px">
-                <form hx-get="/groceries/list" hx-swap="outerHTML" hx-target="main">
-                    <input type="hidden" name="list-id" value={{.ID}}>
-                    <button type="submit">Open</button>
-                </form>
-                <button type="button">Edit</button>
-            </div>
-        </article>
-        {{end}}
-    </section>
-
-    <form hx-post="/groceries/add-list" hx-target="#grocery-lists" hx-swap="outerHTML"
+    <form hx-post="/groceries/add-list" hx-target="main" hx-swap="outerHTML"
         hx-on::after-request="if(event.detail.successful) this.reset();" class="add-list">
         <label for="add-list" class="sr-only">List Name</label>
         <input autocomplete="off" type="text" id="add-list" name="name" class="glass-inner" placeholder="List name...">
@@ -36,5 +10,30 @@
             <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
         </button>
     </form>
+
+    <section id="grocery-lists" aria-labelledby="grocery-lists-title">
+        <h2 id="grocery-lists-title">Grocery Lists</h2>
+
+        {{range .Lists}}
+        <article class="grocery-list-card card glass flex space-between">
+            <div>
+                <h3>{{.GroceryList.Name}}</h3>
+                {{if eq .GroceryListStats.Total 0}}
+                <small>Empty</small>
+                {{else}}
+                <small>{{.GroceryListStats.Picked}} of {{.GroceryListStats.Total}} Picked</small>
+                {{end}}
+            </div>
+
+            <div class="flex align-items gap-6px">
+                <form hx-get="/groceries/list-page" hx-swap="outerHTML" hx-target="main">
+                    <input type="hidden" name="grocery-list-id" value={{.GroceryList.ID}}>
+                    <button type="submit">Open</button>
+                </form>
+                <button type="button">Edit</button>
+            </div>
+        </article>
+        {{end}}
+    </section>
 </main>
 {{end}}

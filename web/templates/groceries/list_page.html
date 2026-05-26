@@ -1,6 +1,10 @@
 {{define "groceries/list_page"}}
 <main>
-    <input type="hidden" id="grocery-list-id" name="grocery-list-id" value="{{.GroceryListID}}">
+    <fieldset id="grocery-list-state" hidden>
+        <input type="hidden" id="grocery-list-id" name="grocery-list-id" value="{{.GroceryListID}}">
+        <input type="hidden" name="sort" value="{{.Sort}}">
+        <input type="hidden" name="order" value="{{.Order}}">
+    </fieldset>
 
     <div class="margin-block-end-24px">
         <a href="/groceries" class="back-button button-styling">Back</a>
@@ -10,16 +14,12 @@
     </div>
 
     <form class="glass container add-form add-grocery-form hidden" hx-post="/groceries/add" hx-target=".grocery-list"
-        hx-swap="outerHTML" hx-include="#grocery-filter-controls, #grocery-list-id"
+        hx-swap="outerHTML" hx-include="#grocery-list-state"
         hx-on::after-request="if(event.detail.successful) {this.reset(); syncDueDateControls(); initTodoFilters();}">
 
         <h2>Add Grocery</h2>
         <p class="margin-block-end-12px"><strong>Quick Select</strong></p>
-        <div class="quick-select margin-block-end-24px">
-            {{range .TopProducts}}
-            <button type="button" class="quick-btn">{{.}}</button>
-            {{end}}
-        </div>
+        {{template "groceries/quick_select" .}}
         <ul class="margin-block-end-24px">
             <li>
                 <label for="product-input">Product <small>(required)</small></label>
@@ -83,7 +83,7 @@
         </form>
         <form hx-post="/groceries/edit" hx-target=".grocery-list" hx-swap="outerHTML"
             hx-on::after-request=" if(event.detail.successful) { this.closest('dialog').close(); }"
-            hx-include="#grocery-filter-controls, #grocery-list-id" class="edit-grocery-form">
+            hx-include="#grocery-list-state" class="edit-grocery-form">
 
             <input type="hidden" name="id" class="edit-id">
             <ul class="margin-block-end-24px">
@@ -115,7 +115,7 @@
 
         <form id="delete-form" hx-post="/groceries/delete" hx-target=".grocery-list" hx-swap="outerHTML"
             hx-on::after-request=" if(event.detail.successful) { this.closest('dialog').close(); }"
-            hx-include="#grocery-filter-controls, #grocery-list-id">
+            hx-include="#grocery-list-state">
 
             <input type="hidden" name="id" class="edit-id">
         </form>
