@@ -9,8 +9,59 @@
         {{template "groceries/overview_page" .}}
         <script type="module" src="/static/script.js"></script>
         <script>
+            document.addEventListener("click", (event) => {
+                const button = event.target.closest(".edit-grocery-list-btn")
+                if (!button) return
+
+                const editModal = document.querySelector("#edit-grocery-list-modal")
+                const editModalTitle = document.querySelector("#edit-modal-title")
+                const editNameInput = document.querySelector("#edit-name")
+                const transferSelect = document.querySelector("#transfer-list-select")
+
+                const currentCard = button.closest(".grocery-list-card")
+                const currentId = currentCard.dataset.listId
+                const currentName = currentCard.dataset.listName
+
+                editModalTitle.textContent = currentName
+                editNameInput.value = currentName
+
+                editModal.querySelectorAll(".grocery-list-id").forEach((input) => {
+                    input.value = currentId
+                })
+
+                transferSelect.innerHTML = ""
+
+                document.querySelectorAll(".grocery-list-card").forEach((card) => {
+                    const id = card.dataset.listId
+                    const name = card.dataset.listName
+
+                    if (id === currentId) return
+
+                    const option = document.createElement("option")
+                    option.value = id
+                    option.textContent = name
+
+                    transferSelect.append(option)
+                })
+
+                const transferForm = transferSelect.closest('form')
+                const transferBtn = transferForm.querySelector('button')
+
+                if (transferSelect.options.length === 0) {
+                    transferSelect.disabled = true
+                    transferBtn.disabled = true
+                    transferForm.classList.add('darken')
+                } else {
+                    transferSelect.disabled = false
+                    transferBtn.disabled = false
+                    transferForm.classList.remove('darken')
+                }
+
+                editModal.showModal()
+            })
+
             document.body.addEventListener("click", event => {
-                const button = event.target.closest(".edit-btn");
+                const button = event.target.closest(".edit-grocery-btn");
                 if (!button)
                     return;
 

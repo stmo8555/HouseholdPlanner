@@ -24,77 +24,38 @@ func NewRepo(db *pgxpool.Pool) *Repo {
 	}
 }
 
-func (r *Repo) TopProducts(ctx context.Context, householdID int) ([]product.Product, error) {
+func (r *Repo) GroceryLists(ctx context.Context, hid int) ([]GroceryList, error) {
 	sql := `
-		SELECT p.id, p.name, p.brand, p.category
-		FROM groceries_history gh
-		INNER JOIN products p ON gh.product_id=p.id
-		WHERE household_id = $1
-		ORDER BY times_added DESC
-		LIMIT 10;
+	SELECT id, name, household_id FROM grocery_lists
+	WHERE household_id = $1;
 	`
 
-	rows, err := r.db.Query(ctx, sql, householdID)
+	rows, err := r.db.Query(ctx, sql, hid)
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 
-	return pgx.CollectRows(rows, pgx.RowToStructByName[product.Product])
-}
+	var groceryLists []GroceryList
 
-func upsertHistory(tx pgx.Tx, ctx context.Context, grocery Grocery) error {
-	sql := `
-	INSERT INTO groceries_history (household_id, product_id)
-	VALUES ($1, $2)
-	ON CONFLICT (household_id, product_id)
-	DO UPDATE SET times_added = groceries_history.times_added + 1;
-	`
+	for rows.Next() {
+		var g GroceryList
 
-	_, err := tx.Exec(ctx, sql, grocery.HouseholdID, grocery.Ingredient.ProductID)
-	return err
-}
-
-func (r *Repo) CreateList(ctx context.Context, name string, hid int) error {
-	sql := `
-	INSERT INTO grocery_lists 
-	(name, household_id)
-	VALUES ($1, $2)
-	`
-
-	_, err := r.db.Exec(ctx, sql, name, hid)
-
-	return err
-}
-
-func (r *Repo) CreateGroceries(ctx context.Context, groceries []Grocery) error {
-
-	sql := `
-	INSERT INTO groceries 
-	(product_id, amount, grocery_list_id, household_id)
-	VALUES ($1, $2, $3, $4)
-	`
-
-	tx, err := r.db.Begin(ctx)
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback(ctx)
-
-	for _, grocery := range groceries {
-		_, err = tx.Exec(ctx, sql, grocery.Ingredient.ProductID, grocery.Ingredient.Amount, grocery.GroceryListID, grocery.HouseholdID)
+		err := rows.Scan(
+			&g.ID,
+			&g.Name,
+			&g.HouseholdID,
+		)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
-		err = upsertHistory(tx, ctx, grocery)
-
-		if err != nil {
-			return err
-		}
+		groceryLists = append(groceryLists, g)
 	}
 
-	return tx.Commit(ctx)
+	return groceryLists, rows.Err()
 }
+
 func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error) {
 	sql := `
 	SELECT
@@ -130,38 +91,92 @@ func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryL
 
 		groceryListsStats[g.ListID] = g
 	}
-	return groceryListsStats, nil
+
+	return groceryListsStats, rows.Err()
 }
-func (r *Repo) GroceryLists(ctx context.Context, hid int) ([]GroceryList, error) {
+
+func (r *Repo) CreateList(ctx context.Context, name string, hid int) error {
 	sql := `
-	SELECT id, name, household_id FROM grocery_lists
-	WHERE household_id = $1;
+	INSERT INTO grocery_lists 
+	(name, household_id)
+	VALUES ($1, $2)
 	`
 
-	rows, err := r.db.Query(ctx, sql, hid)
+	_, err := r.db.Exec(ctx, sql, name, hid)
+
+	return err
+}
+
+func (r *Repo) UpdateGroceryList(ctx context.Context, newName string, groceryListID int, hid int) error {
+	sql := `
+	UPDATE grocery_lists 
+	SET name = $1
+	WHERE id = $2 AND household_id = $3;
+	`
+	_, err := r.db.Exec(ctx, sql, newName, groceryListID, hid)
+
+	return err
+}
+
+func (r *Repo) DeleteGroceryList(ctx context.Context, groceryListID int, hid int) error {
+	sql := `
+	DELETE FROM grocery_lists
+	WHERE id = $1 AND household_id = $2;
+	`
+	_, err := r.db.Exec(ctx, sql, groceryListID, hid)
+
+	return err
+}
+
+func (r *Repo) TransferGroceries(ctx context.Context, groceryListTargetID int, groceryListID int, hid int) error {
+	sql := `
+    UPDATE groceries 
+    SET grocery_list_id = $1
+    WHERE grocery_list_id = $2 
+      AND household_id = $3
+      AND EXISTS (
+        SELECT 1 FROM grocery_lists
+        WHERE id = $1 AND household_id = $3
+      );
+    `
+	res, err := r.db.Exec(ctx, sql, groceryListTargetID, groceryListID, hid)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	defer rows.Close()
 
-	var groceryLists []GroceryList
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("target list not found in household or source list is empty")
+	}
 
-	for rows.Next() {
-		var g GroceryList
+	return nil
+}
 
-		err := rows.Scan(
-			&g.ID,
-			&g.Name,
-			&g.HouseholdID,
-		)
+func (r *Repo) CreateGroceries(ctx context.Context, groceries []Grocery) error {
+	sql := `
+	INSERT INTO groceries 
+	(product_id, amount, grocery_list_id, household_id)
+	VALUES ($1, $2, $3, $4)
+	`
+
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	for _, grocery := range groceries {
+		_, err = tx.Exec(ctx, sql, grocery.Ingredient.ProductID, grocery.Ingredient.Amount, grocery.GroceryListID, grocery.HouseholdID)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		groceryLists = append(groceryLists, g)
+		err = upsertHistory(tx, ctx, grocery)
+		if err != nil {
+			return err
+		}
 	}
 
-	return groceryLists, rows.Err()
+	return tx.Commit(ctx)
 }
 
 func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListID, householdID int) ([]Grocery, error) {
@@ -216,13 +231,13 @@ func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListI
 	return groceries, rows.Err()
 }
 
-func (r *Repo) TogglePicked(ctx context.Context, id, householdID int) error {
+func (r *Repo) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
 	sql := `
 	UPDATE groceries
-	SET picked = NOT picked 
-	WHERE id=$1 AND household_id=$2;
+    SET product_id=$1, amount=$2
+    WHERE id=$3 AND household_id=$4;
 	`
-	_, err := r.db.Exec(ctx, sql, id, householdID)
+	_, err := r.db.Exec(ctx, sql, ing.ProductID, ing.Amount, groceryID, householdID)
 
 	return err
 }
@@ -244,16 +259,48 @@ func (r *Repo) DeletePicked(ctx context.Context, groceryListID, householdID int)
 	`
 
 	_, err := r.db.Exec(ctx, sql, groceryListID, householdID)
+
 	return err
 }
 
-func (r *Repo) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
+func (r *Repo) TogglePicked(ctx context.Context, id, householdID int) error {
 	sql := `
 	UPDATE groceries
-    SET product_id=$1, amount=$2
-    WHERE id=$3 AND household_id=$4;
+	SET picked = NOT picked 
+	WHERE id=$1 AND household_id=$2;
 	`
-	_, err := r.db.Exec(ctx, sql, ing.ProductID, ing.Amount, groceryID, householdID)
+	_, err := r.db.Exec(ctx, sql, id, householdID)
+
+	return err
+}
+
+func (r *Repo) TopProducts(ctx context.Context, householdID int) ([]product.Product, error) {
+	sql := `
+		SELECT p.id, p.name, p.brand, p.category
+		FROM groceries_history gh
+		INNER JOIN products p ON gh.product_id=p.id
+		WHERE household_id = $1
+		ORDER BY times_added DESC
+		LIMIT 10;
+	`
+
+	rows, err := r.db.Query(ctx, sql, householdID)
+	if err != nil {
+		return nil, err
+	}
+
+	return pgx.CollectRows(rows, pgx.RowToStructByName[product.Product])
+}
+
+func upsertHistory(tx pgx.Tx, ctx context.Context, grocery Grocery) error {
+	sql := `
+	INSERT INTO groceries_history (household_id, product_id)
+	VALUES ($1, $2)
+	ON CONFLICT (household_id, product_id)
+	DO UPDATE SET times_added = groceries_history.times_added + 1;
+	`
+
+	_, err := tx.Exec(ctx, sql, grocery.HouseholdID, grocery.Ingredient.ProductID)
 
 	return err
 }

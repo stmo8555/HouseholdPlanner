@@ -1,7 +1,9 @@
 package grocery
 
 import (
+	"cmp"
 	"context"
+	"slices"
 
 	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
@@ -41,10 +43,14 @@ func (s *Service) GroceryLists(ctx context.Context, hid int) ([]GroceryListView,
 	groceryListsView := make([]GroceryListView, 0, len(groceryLists))
 	for _, v := range groceryLists {
 		groceryListsView = append(groceryListsView, GroceryListView{
-			GroceryList: v,
+			GroceryList:      v,
 			GroceryListStats: groceryListsStats[v.ID],
 		})
 	}
+
+	slices.SortFunc(groceryListsView, func(a, b GroceryListView) int {
+		return cmp.Compare(b.GroceryListStats.Total, a.GroceryListStats.Total)
+	})
 
 	return groceryListsView, nil
 }
@@ -53,20 +59,16 @@ func (s *Service) CreateList(ctx context.Context, name string, hid int) error {
 	return s.repo.CreateList(ctx, name, hid)
 }
 
-func (s *Service) TopProducts(ctx context.Context, householdID int) ([]string, error) {
-	products, err := s.repo.TopProducts(ctx, householdID)
+func (s *Service) UpdateGroceryList(ctx context.Context, newName string, groceryListID int, hid int) error {
+	return s.repo.UpdateGroceryList(ctx, newName, groceryListID, hid)
+}
 
-	if err != nil {
-		return nil, err
-	}
+func (s *Service) DeleteGroceryList(ctx context.Context, groceryListID int, hid int) error {
+	return s.repo.DeleteGroceryList(ctx, groceryListID, hid)
+}
 
-	strSlice := make([]string, 0, len(products))
-
-	for _, v := range products {
-		strSlice = append(strSlice, v.Name)
-	}
-
-	return strSlice, err
+func (s *Service) TransferGroceries(ctx context.Context, groceryListTargetID int, groceryListID int, hid int) error {
+	return s.repo.TransferGroceries(ctx, groceryListTargetID, groceryListID, hid)
 }
 
 func (s *Service) CreateGroceries(ctx context.Context, ingredients []ingredient.Ingredient, groceryListID, hid int) error {
@@ -143,6 +145,17 @@ func (s *Service) TogglePicked(ctx context.Context, id, householdID int) error {
 	return s.repo.TogglePicked(ctx, id, householdID)
 }
 
+func (s *Service) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
+	productID, err := s.productService.GetID(ctx, ing.Product)
+	if err != nil {
+		return err
+	}
+
+	ing.ProductID = productID
+
+	return s.repo.UpdateGrocery(ctx, ing, groceryID, householdID)
+}
+
 func (s *Service) DeleteGrocery(ctx context.Context, groceryID, householdId int) error {
 	return s.repo.DeleteGrocery(ctx, groceryID, householdId)
 }
@@ -151,13 +164,18 @@ func (s *Service) DeletePicked(ctx context.Context, groceryListID, householdId i
 	return s.repo.DeletePicked(ctx, groceryListID, householdId)
 }
 
-func (s *Service) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
-	productID, err := s.productService.GetID(ctx, ing.Product)
+func (s *Service) TopProducts(ctx context.Context, householdID int) ([]string, error) {
+	products, err := s.repo.TopProducts(ctx, householdID)
+
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	ing.ProductID = productID
+	strSlice := make([]string, 0, len(products))
 
-	return s.repo.UpdateGrocery(ctx, ing, groceryID, householdID)
+	for _, v := range products {
+		strSlice = append(strSlice, v.Name)
+	}
+
+	return strSlice, err
 }

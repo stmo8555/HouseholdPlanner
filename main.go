@@ -106,15 +106,16 @@ func setupRecipes(r *gin.RouterGroup) {
 func setupGroceries(r *gin.RouterGroup) {
 	handler := grocery.NewHandler(groceryService, ingredientExtractor)
 
-	r.GET("/", func(c *gin.Context) {
-		c.Redirect(302, "/groceries")
-	})
+	r.GET("/", func(c *gin.Context) { c.Redirect(302, "/groceries") })
 	r.GET("/groceries", handler.OverviewPage)
 	r.GET("/groceries/list-page", handler.ListPage)
 	r.GET("/groceries/list", handler.List)
+	r.POST("/groceries/list/delete", handler.DeleteGroceryList)
+	r.POST("/groceries/list/transfer", handler.TransferGroceryList)
+	r.POST("/groceries/list/edit", handler.UpdateGroceryList)
 	r.POST("/groceries", handler.TogglePicked)
 	r.POST("/groceries/add", handler.CreateGrocery)
-	r.POST("/groceries/add-list", handler.CreateList)
+	r.POST("/groceries/list/add", handler.CreateList)
 	r.POST("/groceries/smartadd", handler.SmartAdd)
 	r.POST("/groceries/edit", handler.UpdateGrocery)
 	r.POST("/groceries/delete", handler.DeleteGrocery)
