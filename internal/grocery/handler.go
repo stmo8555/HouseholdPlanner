@@ -47,10 +47,11 @@ func (h *Handler) ListPage(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
 	groceryListID, err := strconv.Atoi(c.Query("grocery-list-id"))
-
 	if err != nil {
 		panic(err)
 	}
+
+	listName := c.Query("list-name")
 
 	data, err := h.buildListViewData(c, groceryListID, hid)
 	if err != nil {
@@ -58,6 +59,7 @@ func (h *Handler) ListPage(c *gin.Context) {
 	}
 
 	data["GroceryListID"] = groceryListID
+	data["ListName"] = listName
 
 	c.HTML(200, "groceries/list_page", data)
 }

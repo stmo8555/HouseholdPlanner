@@ -30,8 +30,9 @@
             </div>
 
             <div class="flex align-items gap-6px">
-                <form hx-get="/groceries/list-page" hx-swap="outerHTML" hx-target="main">
-                    <input type="hidden" name="grocery-list-id" value={{.GroceryList.ID}}>
+                <form hx-get="/groceries/list/page" hx-swap="outerHTML" hx-target="main">
+                    <input type="hidden" name="grocery-list-id" value="{{.GroceryList.ID}}">
+                    <input type="hidden" name="list-name" value="{{.GroceryList.Name}}">
                     <button type="submit">Open</button>
                 </form>
                 <button type="button" class="edit-grocery-list-btn">Edit</button>

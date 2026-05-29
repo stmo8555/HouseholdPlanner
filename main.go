@@ -108,8 +108,8 @@ func setupGroceries(r *gin.RouterGroup) {
 
 	r.GET("/", func(c *gin.Context) { c.Redirect(302, "/groceries") })
 	r.GET("/groceries", handler.OverviewPage)
-	r.GET("/groceries/list-page", handler.ListPage)
 	r.GET("/groceries/list", handler.List)
+	r.GET("/groceries/list/page", handler.ListPage)
 	r.POST("/groceries/list/delete", handler.DeleteGroceryList)
 	r.POST("/groceries/list/transfer", handler.TransferGroceryList)
 	r.POST("/groceries/list/edit", handler.UpdateGroceryList)
