@@ -1,27 +1,4 @@
-{{define "groceries/edit_modal"}}
-<!-- <dialog id="edit-modal" open> -->
-<!--     <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
-<!--         hx-include="#grocery-list-state" -->
-<!--         hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"> -->
-<!---->
-<!---->
-<!--         <h3>Edit grocery</h3> -->
-<!---->
-<!--         <input name="name" value="{{.Ingredient.Product.Name}}" required> -->
-<!--         <input name="amount" value="{{.Ingredient.Amount}}"> -->
-<!--         <input name="brand" value="{{.Ingredient.Product.Brand}}"> -->
-<!---->
-<!--         <button type="submit">Save</button> -->
-<!--     </form> -->
-<!---->
-<!--     <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
-<!--         hx-include="#grocery-list-state" -->
-<!--         hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"> -->
-<!--         <button type="submit">Delete</button> -->
-<!--     </form> -->
-<!-- </dialog> -->
-<!---->
-<!---->
+{{define "groceries/edit_grocery"}}
 <dialog class="glass card" id="edit-modal"  hx-on::after-request="if(event.detail.successful) { this.remove(); }">
 
     <form class="flex align-items" method="dialog" onsubmit="this.closest('dialog').remove()">

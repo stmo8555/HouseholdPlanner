@@ -111,6 +111,7 @@ func setupGroceries(r *gin.RouterGroup) {
 
 	// Grocery lists
 	r.POST("/groceries/lists", handler.CreateList)
+	r.GET("/groceries/lists/:id/edit", handler.EditGroceryListForm)
 	r.GET("/groceries/lists/:id", handler.ListPage)
 	r.PATCH("/groceries/lists/:id", handler.UpdateGroceryList)
 	r.DELETE("/groceries/lists/:id", handler.DeleteGroceryList)

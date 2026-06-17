@@ -306,7 +306,7 @@ func (h *Handler) EditGroceryForm(c *gin.Context) {
 		"Grocery": item,
 	}
 
-	c.HTML(200, "groceries/edit_modal", data)
+	c.HTML(200, "groceries/edit_grocery", data)
 }
 
 func (h *Handler) UpdateGrocery(c *gin.Context) {
