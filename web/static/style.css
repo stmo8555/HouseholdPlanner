@@ -820,6 +820,21 @@ form.htmx-request button span {
     border-radius: 0 16px 16px 0;
 }
 
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 32px 16px;
+    text-align: center;
+}
+
+.empty-state p {
+    margin: 0;
+    color: var(--text-lightly-dimmed);
+}
+
 /* =========================
    Todo pages
 ========================= */
