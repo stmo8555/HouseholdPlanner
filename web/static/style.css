@@ -826,13 +826,38 @@ form.htmx-request button span {
     align-items: center;
     gap: 8px;
     width: 100%;
-    padding: 32px 16px;
     text-align: center;
 }
 
 .empty-state p {
     margin: 0;
     color: var(--text-lightly-dimmed);
+}
+
+.empty-state-help {
+    margin: 8px 0 0;
+    max-width: 420px;
+    text-align: left;
+}
+
+.empty-state-help dt {
+    font-weight: 600;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+}
+
+.empty-state-help dt:first-child {
+    padding-top: 0;
+    border-top: none;
+}
+
+.empty-state-help dd {
+    margin: 4px 0 12px;
+    color: var(--text-lightly-dimmed);
+}
+
+.empty-state-help dd:last-child {
+    margin-bottom: 0;
 }
 
 /* =========================

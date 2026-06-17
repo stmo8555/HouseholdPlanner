@@ -94,21 +94,13 @@ func (h *Handler) RenderListPartial(c *gin.Context, groceryListID int) {
 		panic(err)
 	}
 
-	lists, err := h.service.GroceryLists(c, hid)
+	list, err := h.service.GroceryList(c, groceryListID, hid)
 	if err != nil {
 		panic(err)
 	}
 
-	var listName string
-	for _, l := range lists {
-		if l.GroceryList.ID == groceryListID {
-			listName = l.GroceryList.Name
-			break
-		}
-	}
-
 	data["ListID"] = groceryListID
-	data["ListName"] = listName
+	data["ListName"] = list.Name
 
 	c.HTML(200, "groceries/list", data)
 }
@@ -274,7 +266,13 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 		panic(err)
 	}
 
+	list, err := h.service.GroceryList(c, groceryListID, hid)
+	if err != nil {
+		panic(err)
+	}
+
 	data["ListID"] = groceryListID
+	data["ListName"] = list.Name
 	data["OOB"] = true
 	c.HTML(200, "groceries/add_response", data)
 }

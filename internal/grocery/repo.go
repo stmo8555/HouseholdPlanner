@@ -56,6 +56,24 @@ func (r *Repo) GroceryLists(ctx context.Context, hid int) ([]GroceryList, error)
 	return groceryLists, rows.Err()
 }
 
+func (r *Repo) GroceryList(ctx context.Context, groceryListID, hid int) (GroceryList, error) {
+	sql := `
+	SELECT id, name, household_id 
+	FROM grocery_lists
+	WHERE id = $1 AND household_id = $2;
+	`
+
+	var g GroceryList
+	row := r.db.QueryRow(ctx, sql, groceryListID, hid)
+	err := row.Scan(
+		&g.ID,
+		&g.Name,
+		&g.HouseholdID,
+	)
+
+	return g, err
+}
+
 func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error) {
 	sql := `
 	SELECT

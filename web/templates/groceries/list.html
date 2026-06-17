@@ -1,4 +1,5 @@
 {{define "groceries/list"}}
+{{if gt .Total 0}}
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
         <h2>{{.ListName}} ({{.Total}})</h2>
@@ -16,7 +17,7 @@
             </select>
         </div>
     </div>
- 
+
     <div class="grocery-grid">
         <div class="grocery-row grocery-header">
             <div></div>
@@ -93,10 +94,49 @@
 
     {{if gt (len .Data.Picked) 0}}
     <button hx-delete="/groceries/lists/{{.ListID}}/items/picked" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state" class="block margin-inline-auto inline-size-full margin-block-start-24px" type="submit">
+        hx-include="#grocery-list-state" class="block margin-inline-auto inline-size-full margin-block-start-24px"
+        type="submit">
         {{template "spinner" .}}
         Done
     </button>
     {{end}}
 </section>
+{{else if eq .Filter "all"}}
+<section class='glass container grocery-list empty-state'>
+    <h3>The list {{.ListName}} is empty</h3>
+    <p>Use the buttons above to get started:</p>
+    <dl class="empty-state-help">
+        <dt>Add Grocery</dt>
+        <dd>Add a single item by hand with product, amount and brand.</dd>
+        <dt>Smart Add</dt>
+        <dd>Type a whole list in plain text (e.g. "10 bananas, 5L Arla milk") and let AI sort it out.</dd>
+        <dt>Extract</dt>
+        <dd>Paste a recipe link to pull its ingredients into the list.</dd>
+    </dl>
+</section>
+{{else}}
+<section class='glass container grocery-list'>
+    <div class='flex space-between'>
+        <h2>{{.ListName}} ({{.Total}})</h2>
+        <div class="grocery-filter">
+            <select hx-get="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list" hx-swap="outerHTML"
+                hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
+                class="glass-inner">
+                <option value="all" {{if eq .Filter "all" }}selected{{end}}>All</option>
+                <option value="dairy" {{if eq .Filter "dairy" }}selected{{end}}>Dairy</option>
+                <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
+                    Vegetables</option>
+                <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & Fish</option>
+                <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
+                <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="empty-state">
+        <h3>No items in this category</h3>
+        <p>Try a different filter or add some groceries.</p>
+    </div>
+</section>
+{{end}}
 {{end}}

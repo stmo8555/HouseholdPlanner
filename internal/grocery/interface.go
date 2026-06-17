@@ -9,6 +9,7 @@ import (
 
 type IRepo interface {
 	GroceryLists(ctx context.Context, hid int) ([]GroceryList, error)
+	GroceryList(ctx context.Context, groceryListID, hid int) (GroceryList, error)
 	GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error)
 
 	CreateList(ctx context.Context, name string, hid int) error

@@ -59,6 +59,10 @@ func (s *Service) GroceryLists(ctx context.Context, hid int) ([]GroceryListView,
 	return groceryListsView, nil
 }
 
+func (s *Service) GroceryList(ctx context.Context, groceryListID, hid int) (GroceryList, error) {
+	return s.repo.GroceryList(ctx, groceryListID, hid)
+}
+
 func (s *Service) CreateList(ctx context.Context, name string, hid int) error {
 	return s.repo.CreateList(ctx, name, hid)
 }
