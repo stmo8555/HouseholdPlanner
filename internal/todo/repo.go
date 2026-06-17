@@ -84,6 +84,13 @@ func (r *Repo) MarkUnDone(ctx context.Context, id, hid int) error {
 	return err
 }
 
+func (r *Repo) Delete(ctx context.Context, id, hid int) error {
+	query := `DELETE FROM todos WHERE id=$1 AND household_id=$2`
+	_, err := r.DB.Exec(ctx, query, id, hid)
+
+	return err
+}
+
 func (r *Repo) RemoveCompletedOlderThan(ctx context.Context, cutoff time.Time) error {
 	query := `
 		DELETE FROM todos

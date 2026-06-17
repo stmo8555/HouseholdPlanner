@@ -91,6 +91,7 @@ func setupTodos(r *gin.RouterGroup) {
 	r.POST("/todos/smartadd", handler.SmartAdd)
 	r.POST("/todos/done", handler.MarkDone)
 	r.POST("/todos/undo", handler.MarkUnDone)
+	r.POST("/todos/delete", handler.Delete)
 
 	todo.RunCleanup(context.Background(), todoService)
 	todo.ScheduleRepeats(context.Background(), todoService)

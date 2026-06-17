@@ -4,9 +4,15 @@
         <strong>{{.Task}}</strong>
         <small>{{ .DueLabel }}</small>
     </div>
-    <form hx-post="/todos/done" hx-swap="outerHTML" hx-target=".todo-list">
-        <button type="submit" name="id" value="{{.Id}}">Done</button>
-        <small>{{ .RepeatLabel }}</small>
-    </form>
+    <div class="todo-actions flex gap-6px">
+        <form hx-post="/todos/done" hx-swap="outerHTML" hx-target=".todo-list">
+            <button type="submit" name="id" value="{{.Id}}">Done</button>
+            <small>{{ .RepeatLabel }}</small>
+        </form>
+        <form hx-post="/todos/delete" hx-swap="outerHTML" hx-target=".todo-list"
+            hx-confirm="Delete this task?">
+            <button type="submit" name="id" value="{{.Id}}">Delete</button>
+        </form>
+    </div>
 </li>
 {{end}}

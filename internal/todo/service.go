@@ -66,6 +66,10 @@ func (s *Service) MarkUnDone(ctx context.Context, id, hid int) error {
 	return s.Repo.MarkUnDone(ctx, id, hid)
 }
 
+func (s *Service) Delete(ctx context.Context, id, hid int) error {
+	return s.Repo.Delete(ctx, id, hid)
+}
+
 func (s *Service) RemoveOldCompleted(ctx context.Context) error {
 	cutoff := time.Now().UTC().Add(-7 * 24 * time.Hour)
 	return s.Repo.RemoveCompletedOlderThan(ctx, cutoff)

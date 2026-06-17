@@ -1,6 +1,28 @@
 {{define "todos/list"}}
-<article class="todo-list" aria-labelledby="todo-list-heading">
+{{$hasTasks := or (gt (len .Overdue) 0) (gt (len .Today) 0) (gt (len .Soon) 0) (gt (len .TheRest) 0) (gt (len .Completed) 0)}}
+<article class="todo-list" data-active-filter="all" aria-labelledby="todo-list-heading">
     <h2 id="todo-list-heading" class="sr-only">Todo list</h2>
+
+    {{if $hasTasks}}
+    <fieldset class="todo-filter glass">
+        <legend class="sr-only">Filter todos</legend>
+
+        <input type="radio" id="allFilter" name="filter" value="all" checked>
+        <label for="allFilter">All</label>
+
+        <input type="radio" id="todayFilter" name="filter" value="today">
+        <label for="todayFilter">Today</label>
+
+        <input type="radio" id="soonFilter" name="filter" value="soon">
+        <label for="soonFilter">Soon</label>
+
+        <input type="radio" id="overdueFilter" name="filter" value="overdue">
+        <label for="overdueFilter">Overdue</label>
+
+        <input type="radio" id="completedFilter" name="filter" value="completed">
+        <label for="completedFilter">Completed</label>
+    </fieldset>
+    {{end}}
 
     <section class="todo-overdue" data-filter-section="overdue">
         {{if gt (len .Overdue) 0}}
@@ -10,6 +32,10 @@
             {{template "todos/todo" .}}
             {{end}}
         </ul>
+        {{else}}
+        <div class="empty-state container glass filter-empty">
+            <h3>Nothing overdue — you're caught up</h3>
+        </div>
         {{end}}
     </section>
 
@@ -21,6 +47,10 @@
             {{template "todos/todo" .}}
             {{end}}
         </ul>
+        {{else}}
+        <div class="empty-state container glass filter-empty">
+            <h3>Nothing due today</h3>
+        </div>
         {{end}}
     </section>
 
@@ -32,6 +62,10 @@
             {{template "todos/todo" .}}
             {{end}}
         </ul>
+        {{else}}
+        <div class="empty-state container glass filter-empty">
+            <h3>Nothing coming up soon</h3>
+        </div>
         {{end}}
     </section>
 
@@ -56,15 +90,38 @@
             {{range .Completed}}
             <li class="todo">
                 <strong>{{.Task}}</strong>
-                <form hx-post="/todos/undo" hx-swap="outerHTML" hx-target=".todo-list"
-                    hx-on::after-swap="initTodoPage()">
-                    <button type="submit" name="id" value="{{.Id}}">Undo</button>
-                    <small>{{ .RepeatLabel }}</small>
-                </form>
+                <div class="todo-actions flex gap-6px">
+                    <form hx-post="/todos/undo" hx-swap="outerHTML" hx-target=".todo-list"
+                        hx-on::after-swap="initTodoPage()">
+                        <button type="submit" name="id" value="{{.Id}}">Undo</button>
+                        <small>{{ .RepeatLabel }}</small>
+                    </form>
+                    <form hx-post="/todos/delete" hx-swap="outerHTML" hx-target=".todo-list"
+                        hx-confirm="Delete this task?">
+                        <button type="submit" name="id" value="{{.Id}}">Delete</button>
+                    </form>
+                </div>
             </li>
             {{end}}
         </ul>
+        {{else}}
+        <div class="empty-state container glass filter-empty">
+            <h3>Nothing completed yet</h3>
+        </div>
         {{end}}
     </section>
+
+    {{if not $hasTasks}}
+    <div class="empty-state container glass margin-block-start-24px">
+        <h3>No tasks yet</h3>
+        <p>Use the buttons above to get started:</p>
+        <dl class="empty-state-help">
+            <dt>Add</dt>
+            <dd>Create a single task with a due date and optional repeat schedule.</dd>
+            <dt>Smart Add</dt>
+            <dd>Type a task in plain text (e.g. "clean window every sunday") and let AI sort it out.</dd>
+        </dl>
+    </div>
+    {{end}}
 </article>
 {{end}}

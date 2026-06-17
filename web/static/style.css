@@ -1039,6 +1039,19 @@ form.htmx-request button .checkbox {
     color: var(--text-lightly-dimmed);
 }
 
+.todo-actions {
+    align-items: flex-start;
+}
+
+.filter-empty {
+    display: none;
+}
+
+.todo-list:not([data-active-filter="all"]) [data-filter-section]:not(.hidden) .filter-empty {
+    display: block;
+    margin-block-start: 24px;
+}
+
 .todo strong {
     display: block;
 }

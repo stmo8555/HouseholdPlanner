@@ -72,27 +72,6 @@
                 <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
             </form>
 
-            <!--    filter -->
-            <fieldset class="todo-filter glass">
-                <legend class="sr-only">Filter todos</legend>
-
-                <input type="radio" id="allFilter" name="filter" value="all" checked>
-                <label for="allFilter">All</label>
-
-                <input type="radio" id="todayFilter" name="filter" value="today">
-                <label for="todayFilter">Today</label>
-
-                <input type="radio" id="soonFilter" name="filter" value="soon">
-                <label for="soonFilter">Soon</label>
-
-                <input type="radio" id="overdueFilter" name="filter" value="overdue">
-                <label for="overdueFilter">Overdue</label>
-
-                <input type="radio" id="completedFilter" name="filter" value="completed">
-                <label for="completedFilter">Completed</label>
-            </fieldset>
-            <!-- end of filter -->
-
             {{template "todos/list" .}}
 
         </main>
@@ -190,6 +169,9 @@
 
                 function applyFilter(selectedFilter) {
                     activeFilter = selectedFilter;
+
+                    const todoList = document.querySelector(".todo-list");
+                    if (todoList) todoList.dataset.activeFilter = selectedFilter;
 
                     todoSections.forEach(section => {
                         const sectionFilter = section.dataset.filterSection.toLowerCase();

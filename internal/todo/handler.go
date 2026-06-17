@@ -113,6 +113,26 @@ func (h *Handler) MarkUnDone(c *gin.Context) {
 	h.ListPartial(c)
 }
 
+func (h *Handler) Delete(c *gin.Context) {
+	hid := c.GetInt("household_id")
+
+	id, err := parseID(c)
+
+	if err != nil {
+		panic(err)
+	}
+
+	err = h.Service.Delete(c, id, hid)
+
+	if err != nil {
+		c.AbortWithStatus(500)
+		c.String(500, err.Error())
+		return
+	}
+
+	h.ListPartial(c)
+}
+
 func (h *Handler) List(c *gin.Context) {
 	data, err := h.todoListData(c)
 
