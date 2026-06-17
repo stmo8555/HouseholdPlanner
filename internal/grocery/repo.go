@@ -188,7 +188,7 @@ func (r *Repo) CreateGroceries(ctx context.Context, groceries []Grocery) error {
 	defer tx.Rollback(ctx)
 
 	for _, grocery := range groceries {
-		_, err = tx.Exec(ctx, sql, grocery.Ingredient.ProductID, grocery.Ingredient.Amount, grocery.GroceryListID, grocery.HouseholdID)
+		_, err = tx.Exec(ctx, sql, grocery.Ingredient.ProductID, grocery.Ingredient.Amount, grocery.ListID, grocery.HouseholdID)
 		if err != nil {
 			return err
 		}
@@ -240,7 +240,7 @@ func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListI
 			&g.Ingredient.Product.Brand,
 			&g.Ingredient.Product.Category,
 			&g.Ingredient.Amount,
-			&g.GroceryListID,
+			&g.ListID,
 			&g.HouseholdID,
 			&g.Picked,
 		)
@@ -282,7 +282,7 @@ func (r *Repo) Grocery(ctx context.Context, itemID int, hid int) (Grocery, error
 		&g.Ingredient.Product.Brand,
 		&g.Ingredient.Product.Category,
 		&g.Ingredient.Amount,
-		&g.GroceryListID,
+		&g.ListID,
 		&g.HouseholdID,
 		&g.Picked,
 	)

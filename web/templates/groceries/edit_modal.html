@@ -1,6 +1,6 @@
 {{define "groceries/edit_modal"}}
 <!-- <dialog id="edit-modal" open> -->
-<!--     <form hx-patch="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
+<!--     <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
 <!--         hx-include="#grocery-list-state" -->
 <!--         hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"> -->
 <!---->
@@ -14,7 +14,7 @@
 <!--         <button type="submit">Save</button> -->
 <!--     </form> -->
 <!---->
-<!--     <form hx-delete="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
+<!--     <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
 <!--         hx-include="#grocery-list-state" -->
 <!--         hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"> -->
 <!--         <button type="submit">Delete</button> -->
@@ -41,7 +41,7 @@
     </form>
 
     <!-- Edit Form -->
-    <form hx-patch="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
+    <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
         hx-include="#grocery-list-state" class="modal-form" id="edit-grocery-form">
 
         <h3>Edit grocery</h3>
@@ -71,7 +71,7 @@
     </form>
 
     <!-- Move Form -->
-    <form hx-patch="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.Grocery.ID}}/move" hx-target=".grocery-list"
+    <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/move" hx-target=".grocery-list"
         hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form{{if le (len .Lists) 1}} darken{{end}}"
         id="move-grocery-form">
 
@@ -82,7 +82,7 @@
             1}}disabled{{end}}>
 
             {{range .Lists}}
-            {{if ne .GroceryList.ID $.Grocery.GroceryListID}}
+            {{if ne .GroceryList.ID $.Grocery.ListID}}
             <option value="{{.GroceryList.ID}}">
                 {{.GroceryList.Name}}
             </option>
@@ -97,7 +97,7 @@
     </form>
 
     <!-- Delete Form -->
-    <form hx-delete="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
+    <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
         hx-include="#grocery-list-state" class="modal-form" id="delete-grocery-form">
 
         <h3>Delete this grocery</h3>

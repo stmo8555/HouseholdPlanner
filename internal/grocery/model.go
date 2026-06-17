@@ -24,7 +24,7 @@ type Grocery struct {
 	Ingredient    ingredient.Ingredient `json:"ingredient"`
 	HouseholdID   int                   `json:"household_id"`
 	Picked        bool                  `json:"picked"`
-	GroceryListID int
+	ListID int
 }
 
 type GroceriesView struct {

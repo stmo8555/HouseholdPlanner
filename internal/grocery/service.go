@@ -93,7 +93,7 @@ func (s *Service) CreateGroceries(ctx context.Context, ingredients []ingredient.
 		}
 		groceries = append(groceries, Grocery{
 			Ingredient:    ingredients[i],
-			GroceryListID: groceryListID,
+			ListID: groceryListID,
 			HouseholdID:   hid,
 			Picked:        false,
 		})
