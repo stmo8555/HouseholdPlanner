@@ -13,24 +13,6 @@ nav_toggle?.addEventListener("click", () => {
 });
 
 document.body.addEventListener("click", event => {
-    console.log("click")
-    const button = event.target.closest(".add-toggler");
-    if (!button)
-        return;
-
-    console.log("add clicked")
-    toggleAddForm()
-});
-
-document.body.addEventListener("click", event => {
-    const button = event.target.closest(".smart-add-toggler");
-    if (!button)
-        return;
-
-    toggleSmartAdd()
-});
-
-document.body.addEventListener("click", event => {
     const button = event.target.closest(".search-toggler");
     if (!button)
         return;
@@ -124,22 +106,6 @@ if (recipeCards.length > 0 && searchInput && matchInput) {
             card.hidden = !allTokensFound;
         });
     });
-}
-
-function toggleSmartAdd() {
-    document.querySelector(".smart-add-form").classList.toggle("hidden");
-    textArea.style.height = textArea.scrollHeight + "px";
-    textArea.style.overflowY = "hidden";
-    focusables.forEach(e => {
-        e.focus();
-    });
-}
-
-function toggleAddForm() {
-    document.querySelector(".add-form").classList.toggle("hidden");
-    // focusables.forEach(e => {
-    //     e.focus();
-    // });
 }
 
 function toggleSearch() {

@@ -98,7 +98,7 @@
                     </form>
                     <form hx-post="/todos/delete" hx-swap="outerHTML" hx-target=".todo-list"
                         hx-confirm="Delete this task?">
-                        <button type="submit" name="id" value="{{.Id}}">Delete</button>
+                        <button type="submit" name="id" value="{{.Id}}" class="delete-button">Delete</button>
                     </form>
                 </div>
             </li>

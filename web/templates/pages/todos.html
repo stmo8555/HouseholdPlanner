@@ -7,70 +7,81 @@
         {{template "layouts/header" .}}
         <main>
             <div class="margin-block-end-24px">
-                <button class="add-toggler">Add</button>
-                <button class="smart-add-toggler">Smart Add</button>
+                <button type="button" onclick="document.getElementById('add-task-dialog').showModal()">Add</button>
+                <button type="button" onclick="document.getElementById('smart-add-dialog').showModal()">Smart
+                    Add</button>
             </div>
-            <form class="glass container add-form todo-form hidden" hx-post="/todos/add" hx-swap="outerhtml"
-                hx-target=".todo-list" hx-on::after-request="
+
+            <dialog class="glass card add-dialog" id="add-task-dialog">
+                <form class="flex align-items" method="dialog">
+                    <h2>Add Task</h2>
+                    {{template "close_button" .}}
+                </form>
+
+                <form class="add-form todo-form" hx-post="/todos/add" hx-swap="outerHTML" hx-target=".todo-list"
+                    hx-on::after-request="
                             if(event.detail.successful) {
                                 this.reset();
                                 syncDueDateControls();
                                 initRepeatControls();
                             }
                             ">
-                <h2>Add Task</h2>
-                <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
-                    name="task" required>
-                <fieldset>
-                    <legend class="block margin-block-end-12px">Due</legend>
-                    <div class="flex gap-6px margin-block-end-12px">
-                        <input type="radio" id="today" name="due-choices" value="today" checked="true" class="">
-                        <label for="today" class="button-styling">Today</label>
+                    <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
+                        name="task" required>
+                    <fieldset>
+                        <legend class="block margin-block-end-12px">Due</legend>
+                        <div class="flex gap-6px margin-block-end-12px">
+                            <input type="radio" id="today" name="due-choices" value="today" checked="true" class="">
+                            <label for="today" class="button-styling">Today</label>
 
-                        <input type="radio" id="tomorrow" name="due-choices" value="tomorrow" class="">
-                        <label for="tomorrow" class="button-styling">Tomorrow</label>
+                            <input type="radio" id="tomorrow" name="due-choices" value="tomorrow" class="">
+                            <label for="tomorrow" class="button-styling">Tomorrow</label>
 
-                        <input type="radio" id="unspecified" name="due-choices" value="unspecified" class="">
-                        <label for="unspecified" class="button-styling">Unspecified</label>
+                            <input type="radio" id="unspecified" name="due-choices" value="unspecified" class="">
+                            <label for="unspecified" class="button-styling">Unspecified</label>
 
-                        <input type="radio" id="custom" name="due-choices" value="custom" class="">
-                        <label for="custom" class="button-styling">Custom</label>
-                    </div>
-                    <input name="due" type="date" id="datepicker" class="glass-inner hidden margin-block-end-12px">
-                </fieldset>
-
-                <fieldset id="repeat-field" class="margin-block-end-24px">
-                    <legend class="block margin-block-end-12px">Repeat</legend>
-
-                    <div class="flex space-between">
-                        <select id="repeat-dropdown" name="repeat" class="glass-inner">
-                            <option value="never">Never</option>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                        </select>
-                        <div class="repeat-frequency-container hidden">
-                            <span>Every</span>
-                            <button type="button" value="-1">-</button>
-                            <input class="glass-inner" type="number" name="frequency" value="1" min="1" max="99">
-                            <button type="button" value="1">+</button>
-                            <span id="repeat-unit"></span>
+                            <input type="radio" id="custom" name="due-choices" value="custom" class="">
+                            <label for="custom" class="button-styling">Custom</label>
                         </div>
-                    </div>
-                </fieldset>
-                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
-            </form>
+                        <input name="due" type="date" id="datepicker" class="glass-inner hidden margin-block-end-12px">
+                    </fieldset>
 
+                    <fieldset id="repeat-field" class="margin-block-end-24px">
+                        <legend class="block margin-block-end-12px">Repeat</legend>
 
-            <form class="smart-add-form container glass hidden" hx-post="/todos/smartadd" hx-target=".todo-list"
-                hx-swap="outerHTML">
-                <h2><label for="smart-add">Smart Add</label></h2>
+                        <div class="flex space-between">
+                            <select id="repeat-dropdown" name="repeat" class="glass-inner">
+                                <option value="never">Never</option>
+                                <option value="daily">Daily</option>
+                                <option value="weekly">Weekly</option>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                            <div class="repeat-frequency-container hidden">
+                                <span>Every</span>
+                                <button type="button" value="-1">-</button>
+                                <input class="glass-inner" type="number" name="frequency" value="1" min="1" max="99">
+                                <button type="button" value="1">+</button>
+                                <span id="repeat-unit"></span>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+                </form>
+            </dialog>
 
-                <textarea id="smart-add" class="glass-inner margin-block-end-12px"
-                    placeholder='Add a task... (try: "clean window every sunday")' name="text" required></textarea>
-                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
-            </form>
+            <dialog class="glass card add-dialog" id="smart-add-dialog">
+                <form class="flex align-items" method="dialog">
+                    <h2><label for="smart-add">Smart Add</label></h2>
+                    {{template "close_button" .}}
+                </form>
+
+                <form class="smart-add-form" hx-post="/todos/smartadd" hx-target=".todo-list" hx-swap="outerHTML">
+                    <textarea id="smart-add" class="glass-inner margin-block-end-24px"
+                        placeholder='Add a task... (try: "clean window every sunday")' name="text" required></textarea>
+                    <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+                </form>
+            </dialog>
 
             {{template "todos/list" .}}
 

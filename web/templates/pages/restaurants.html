@@ -5,23 +5,27 @@
 
 
 <body>
-    <div>
-        ijkeafl</div>
     <div class="background">
         {{template "layouts/header" .}}
         <main>
             <fieldset class="margin-block-end-24px">
                 <legend class="sr-only">Action buttons</legend>
-                <button class="add-toggler">Add Recipe</button>
-                <!-- <button class="smart-add-toggler">Smart Add</button> -->
+                <button type="button"
+                    onclick="document.getElementById('add-recipe-dialog').showModal()">Add Recipe</button>
             </fieldset>
 
-            <form class="glass container add-form add-recipe-form hidden" method="post" action="/recipes/add">
-                <h2>Add Recipe</h2>
-                <input class="inline-size-full glass-inner focus margin-block-end-24px"
-                    placeholder="Add link to recipe..." id="1" type="text" name="link" required>
-                <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
-            </form>
+            <dialog class="glass card add-dialog" id="add-recipe-dialog">
+                <form class="flex align-items" method="dialog">
+                    <h2>Add Recipe</h2>
+                    {{template "close_button" .}}
+                </form>
+
+                <form class="add-form add-recipe-form" method="post" action="/recipes/add">
+                    <input class="inline-size-full glass-inner focus margin-block-end-24px"
+                        placeholder="Add link to recipe..." id="1" type="text" name="link" required>
+                    <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+                </form>
+            </dialog>
 
             <div class="grid-recipe">
                 {{range .Data}}
@@ -38,30 +42,6 @@
             </div>
         </main>
         <script type="module" src="/static/script.js"></script>
-        <script>
-            const add_recipe_btn = document.getElementById('add-recipe');
-            const overlay_recipe = document.getElementById("add-recipe-overlay");
-            const main = document.querySelector("main")
-            const add_recipe_modal = document.getElementById("add-recipe-modal"); // the inner modal content
-            const focusables = document.querySelectorAll(".focus");
-
-            add_recipe_btn.addEventListener("click", () => {
-                overlay_recipe.style.display = "block";
-                main.style.display = "none"
-                overlay_recipe.style.cursor = "pointer"
-                add_recipe_modal.style.cursor = "default"
-                focusables.forEach(e => {
-                    e.focus();
-                });
-            });
-
-            overlay_recipe.addEventListener("click", (e) => {
-                if (!add_recipe_modal.contains(e.target)) {
-                    overlay_recipe.style.display = "none";
-                    main.style.display = "block"
-                }
-            });
-        </script>
     </div>
 </body>
 
