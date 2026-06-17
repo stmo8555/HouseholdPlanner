@@ -7,7 +7,7 @@
         </form>
     </div>
 
-    <form action="/groceries/lists/{{.GroceryListID}}/extracted" id="extractedForm" method="POST"
+    <form action="/groceries/lists/{{.ListID}}/extracted" id="extractedForm" method="POST"
         class="glass container">
         <h2>Extracted From Recipe</h2>
         <input type="hidden" name="redirect-path" value="{{.RedirectPath}}">

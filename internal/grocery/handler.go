@@ -69,7 +69,7 @@ func (h *Handler) ListPage(c *gin.Context) {
 		}
 	}
 
-	data["GroceryListID"] = groceryListID
+	data["ListID"] = groceryListID
 	data["ListName"] = listName
 	data["Lists"] = lists
 
@@ -107,7 +107,7 @@ func (h *Handler) RenderListPartial(c *gin.Context, groceryListID int) {
 		}
 	}
 
-	data["GroceryListID"] = groceryListID
+	data["ListID"] = groceryListID
 	data["ListName"] = listName
 
 	c.HTML(200, "groceries/list", data)
@@ -190,6 +190,32 @@ func (h *Handler) DeleteGroceryList(c *gin.Context) {
 	c.HTML(200, "groceries/overview_page", data)
 }
 
+func (h *Handler) EditGroceryListForm(c *gin.Context) {
+	hid := c.GetInt("household_id")
+
+	groceryListID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		panic(err)
+	}
+
+	lists, err := h.service.GroceryLists(c, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, list := range lists {
+		if list.GroceryList.ID == groceryListID {
+			c.HTML(200, "edit-grocery-list", gin.H{
+				"List":  list,
+				"Lists": lists,
+			})
+			return
+		}
+	}
+
+	c.String(404, "grocery list not found")
+}
+
 func (h *Handler) TransferGroceryList(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
@@ -248,7 +274,7 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 		panic(err)
 	}
 
-	data["GroceryListID"] = groceryListID
+	data["ListID"] = groceryListID
 	data["OOB"] = true
 	c.HTML(200, "groceries/add_response", data)
 }
@@ -269,14 +295,14 @@ func (h *Handler) EditGroceryForm(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	lists, err := h.service.GroceryLists(c, hid)
 	if err != nil {
 		panic(err)
 	}
 
 	data := gin.H{
-		"Lists": lists,
+		"Lists":   lists,
 		"Grocery": item,
 	}
 
@@ -495,10 +521,10 @@ func (h *Handler) SaveExtracted(c *gin.Context) {
 func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ingredient, groceryListID int) {
 	path := fmt.Sprintf("/groceries/lists/%d", groceryListID)
 	data := gin.H{
-		"Ingredients":   ingredients,
-		"CancelURL":     path,
-		"RedirectPath":  path,
-		"GroceryListID": groceryListID,
+		"Ingredients":  ingredients,
+		"CancelURL":    path,
+		"RedirectPath": path,
+		"ListID":       groceryListID,
 	}
 
 	c.HTML(200, "groceries/extract_review_page", data)

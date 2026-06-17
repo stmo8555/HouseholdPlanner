@@ -11,7 +11,7 @@
         <button class="smart-add-toggler">Smart Add</button>
         <button id="extract-button">Extract</button>
     </div>
-    <form class="glass container add-form add-grocery-form hidden" hx-post="/groceries/lists/{{.GroceryListID}}/items"
+    <form class="glass container add-form add-grocery-form hidden" hx-post="/groceries/lists/{{.ListID}}/items"
         hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-list-state"
         hx-on::after-request="if(event.detail.successful) {this.reset(); syncDueDateControls(); initTodoFilters();}">
 
@@ -38,7 +38,7 @@
         </button>
     </form>
 
-    <form class="smart-add-form glass container hidden" hx-post="/groceries/lists/{{.GroceryListID}}/smart-add"
+    <form class="smart-add-form glass container hidden" hx-post="/groceries/lists/{{.ListID}}/smart-add"
         hx-target="main" hx-swap="outerHTML">
         <h2><label for="smart-add">Smart Add</label></h2>
 
@@ -50,7 +50,7 @@
         </button>
     </form>
 
-    <form class="extract-grocery-form glass container hidden" hx-post="/groceries/lists/{{.GroceryListID}}/extract"
+    <form class="extract-grocery-form glass container hidden" hx-post="/groceries/lists/{{.ListID}}/extract"
         hx-target="main" hx-swap="outerHTML">
         <h2>Extract Ingredients From Recipe</h2>
         <input class="inline-size-full glass-inner focus margin-block-end-24px" placeholder="Add link to recipe..."
