@@ -7,59 +7,77 @@
 
     <div class="margin-block-end-24px">
         <a href="/groceries" class="back-button button-styling">Back</a>
-        <button class="add-toggler">Add Grocery</button>
-        <button class="smart-add-toggler">Smart Add</button>
-        <button id="extract-button">Extract</button>
+        <button type="button" onclick="document.getElementById('add-grocery-dialog').showModal()">Add Grocery</button>
+        <button type="button" onclick="document.getElementById('smart-add-dialog').showModal()">Smart Add</button>
+        <button type="button" onclick="document.getElementById('extract-dialog').showModal()">Extract</button>
     </div>
-    <form class="glass container add-form add-grocery-form hidden" hx-post="/groceries/lists/{{.ListID}}/items"
-        hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-list-state"
-        hx-on::after-request="if(event.detail.successful) {this.reset(); syncDueDateControls(); initTodoFilters();}">
 
-        <h2>Add Grocery</h2>
-        <p class="margin-block-end-12px"><strong>Quick Select</strong></p>
-        {{template "groceries/quick_select" .}}
-        <ul class="margin-block-end-24px">
-            <li>
-                <label for="product-input">Product <small>(required)</small></label>
-                <input class="glass-inner focus" id="product-input" type="text" name="name" required>
-            </li>
-            <li>
-                <label for="3">Amount</label>
-                <input class="glass-inner" id="3" type="text" name="amount">
-            </li>
-            <li>
-                <label for="2">Brand</label>
-                <input class="glass-inner" id="2" type="text" name="brand">
-            </li>
-        </ul>
-        <button class="inline-size-full margin-inline-auto block" type="submit">
-            <span>Add</span>
-            {{template "spinner" .}}
-        </button>
-    </form>
+    <dialog class="glass card add-dialog" id="add-grocery-dialog">
+        <form class="flex align-items" method="dialog">
+            <h2>Add Grocery</h2>
+            {{template "close_button" .}}
+        </form>
 
-    <form class="smart-add-form glass container hidden" hx-post="/groceries/lists/{{.ListID}}/smart-add"
-        hx-target="main" hx-swap="outerHTML">
-        <h2><label for="smart-add">Smart Add</label></h2>
+        <form class="add-form add-grocery-form" hx-post="/groceries/lists/{{.ListID}}/items"
+            hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-list-state"
+            hx-on::after-request="if(event.detail.successful) {this.reset(); syncDueDateControls(); initTodoFilters();}">
 
-        <textarea id="smart-add" class="glass-inner margin-block-end-24px"
-            placeholder='Add groceries... (try: "10 bananas, 5L Arla milk"' name="text" required></textarea>
-        <button class="inline-size-full margin-inline-auto block" type="submit">
-            <span>Add</span>
-            {{template "spinner" .}}
-        </button>
-    </form>
+            <p class="margin-block-end-12px"><strong>Quick Select</strong></p>
+            {{template "groceries/quick_select" .}}
+            <ul class="margin-block-end-24px">
+                <li>
+                    <label for="product-input">Product <small>(required)</small></label>
+                    <input class="glass-inner focus" id="product-input" type="text" name="name" required>
+                </li>
+                <li>
+                    <label for="3">Amount</label>
+                    <input class="glass-inner" id="3" type="text" name="amount">
+                </li>
+                <li>
+                    <label for="2">Brand</label>
+                    <input class="glass-inner" id="2" type="text" name="brand">
+                </li>
+            </ul>
+            <button class="inline-size-full margin-inline-auto block" type="submit">
+                <span>Add</span>
+                {{template "spinner" .}}
+            </button>
+        </form>
+    </dialog>
 
-    <form class="extract-grocery-form glass container hidden" hx-post="/groceries/lists/{{.ListID}}/extract"
-        hx-target="main" hx-swap="outerHTML">
-        <h2>Extract Ingredients From Recipe</h2>
-        <input class="inline-size-full glass-inner focus margin-block-end-24px" placeholder="Add link to recipe..."
-            type="text" name="link" required>
-        <button class="inline-size-full margin-inline-auto block" type="submit">
-            <span>Add</span>
-            {{template "spinner" .}}
-        </button>
-    </form>
+    <dialog class="glass card add-dialog" id="smart-add-dialog">
+        <form class="flex align-items" method="dialog">
+            <h2><label for="smart-add">Smart Add</label></h2>
+            {{template "close_button" .}}
+        </form>
+
+        <form class="smart-add-form" hx-post="/groceries/lists/{{.ListID}}/smart-add" hx-target="main"
+            hx-swap="outerHTML">
+            <textarea id="smart-add" class="glass-inner margin-block-end-24px"
+                placeholder='Add groceries... (try: "10 bananas, 5L Arla milk"' name="text" required></textarea>
+            <button class="inline-size-full margin-inline-auto block" type="submit">
+                <span>Add</span>
+                {{template "spinner" .}}
+            </button>
+        </form>
+    </dialog>
+
+    <dialog class="glass card add-dialog" id="extract-dialog">
+        <form class="flex align-items" method="dialog">
+            <h2>Extract Ingredients From Recipe</h2>
+            {{template "close_button" .}}
+        </form>
+
+        <form class="extract-grocery-form" hx-post="/groceries/lists/{{.ListID}}/extract" hx-target="main"
+            hx-swap="outerHTML">
+            <input class="inline-size-full glass-inner focus margin-block-end-24px" placeholder="Add link to recipe..."
+                type="text" name="link" required>
+            <button class="inline-size-full margin-inline-auto block" type="submit">
+                <span>Add</span>
+                {{template "spinner" .}}
+            </button>
+        </form>
+    </dialog>
 
     <div id="modal-root"></div>
     {{template "groceries/list" .}}

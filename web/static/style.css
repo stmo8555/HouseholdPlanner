@@ -582,9 +582,14 @@ form.htmx-request button span {
 ========================= */
 
 #edit-grocery-list-modal[open],
-#edit-modal[open] {
+#edit-modal[open],
+.add-dialog[open] {
     display: grid;
     gap: 1.5rem;
+}
+
+.add-dialog :is(h2, h3) {
+    margin: 0;
 }
 
 #edit-grocery-list-modal :is(h2, h3),

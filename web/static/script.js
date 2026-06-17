@@ -56,16 +56,6 @@ document.body.addEventListener("click", event => {
 });
 
 document.body.addEventListener("click", event => {
-    const button = event.target.closest("#extract-button");
-    console.log("click")
-    if (!button)
-        return;
-
-    console.log("extract")
-    document.querySelector(".extract-grocery-form").classList.toggle("hidden");
-});
-
-document.body.addEventListener("click", event => {
     const button = event.target.closest(".quick-btn");
     if (!button)
         return;
