@@ -9,7 +9,6 @@ type Product struct {
 	Id       int    `json:"id"`
 	Name     string `json:"name"`
 	Brand    string `json:"brand"`
-	Store    string `json:"store"`
 	Category string `json:"category"`
 }
 
@@ -29,6 +28,5 @@ func capitalize(s string) string {
 func (p *Product) Normalize() {
 	p.Name = capitalize(p.Name)
 	p.Brand = capitalize(p.Brand)
-	p.Store = capitalize(p.Store)
 	p.Category = capitalize(p.Category)
 }

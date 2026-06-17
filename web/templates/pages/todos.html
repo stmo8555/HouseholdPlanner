@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-{{template "head" .}}
+{{template "layouts/head" .}}
 
 <body>
     <div class="background">
-        {{template "header" .}}
+        {{template "layouts/header" .}}
         <main>
             <div class="margin-block-end-24px">
                 <button class="add-toggler">Add</button>
@@ -93,10 +93,9 @@
             </fieldset>
             <!-- end of filter -->
 
-            {{template "todo-list" .}}
+            {{template "todos/list" .}}
 
         </main>
-        {{template "footer" .}}
         <script type="module" src="/static/script.js"></script>
         <script>
             function formatDate(date) {

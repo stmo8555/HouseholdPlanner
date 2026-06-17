@@ -1,15 +1,15 @@
-{{define "header"}}
+{{define "layouts/header"}}
 <header>
     <div class="header-items">
         <h1><a href="/">Household planner</a></h1>
         <button id="nav-toggle">≡</button>
         <nav id="primary-nav">
             <ul class="center-horizontal">
-                <li>
-                    <strong>
-                        <a href="/" class='{{if eq .CurrentPath "/"}}active mobile-nav-chosen{{end}}'>Home</a>
-                    </strong>
-                </li>
+                <!-- <li> -->
+                <!--     <strong> -->
+                <!--         <a href="/" class='{{if eq .CurrentPath "/"}}active mobile-nav-chosen{{end}}'>Home</a> -->
+                <!--     </strong> -->
+                <!-- </li> -->
                 <li>
                     <strong>
                         <a href="/todos"
@@ -22,18 +22,18 @@
                             class='{{if eq .CurrentPath "/groceries"}}active mobile-nav-chosen{{end}}'>Groceries</a>
                     </strong>
                 </li>
-                <li>
-                    <strong>
-                        <a href="/recipes"
-                            class='{{if eq .CurrentPath "/recipes"}}active mobile-nav-chosen{{end}}'>Recipes</a>
-                    </strong>
-                </li>
-                <li>
-                    <strong>
-                        <a href="/restaurants"
-                            class='{{if eq .CurrentPath "/restaurants"}}active mobile-nav-chosen{{end}}'>Restaurants</a>
-                    </strong>
-                </li>
+                <!-- <li> -->
+                <!--     <strong> -->
+                <!--         <a href="/recipes" -->
+                <!--             class='{{if eq .CurrentPath "/recipes"}}active mobile-nav-chosen{{end}}'>Recipes</a> -->
+                <!--     </strong> -->
+                <!-- </li> -->
+                <!-- <li> -->
+                <!--     <strong> -->
+                <!--         <a href="/restaurants" -->
+                <!--             class='{{if eq .CurrentPath "/restaurants"}}active mobile-nav-chosen{{end}}'>Restaurants</a> -->
+                <!--     </strong> -->
+                <!-- </li> -->
                 <li>
                     <strong>
                         <a href="/logout"

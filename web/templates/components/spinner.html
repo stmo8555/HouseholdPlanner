@@ -1,0 +1,14 @@
+{{define "spinner"}}
+<svg class="htmx-indicator" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" aria-label="Loading..." role="img">
+    <g>
+        <circle cx="12" cy="2" r="2" fill="currentColor" opacity="1"/>
+        <circle cx="19.07" cy="4.93" r="2" fill="currentColor" opacity="0.75"/>
+        <circle cx="22" cy="12" r="2" fill="currentColor" opacity="0.5"/>
+        <circle cx="19.07" cy="19.07" r="2" fill="currentColor" opacity="0.375"/>
+        <circle cx="12" cy="22" r="2" fill="currentColor" opacity="0.25"/>
+        <circle cx="4.93" cy="19.07" r="2" fill="currentColor" opacity="0.175"/>
+        <circle cx="2" cy="12" r="2" fill="currentColor" opacity="0.1"/>
+        <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="0.8s" repeatCount="indefinite"/>
+    </g>
+</svg>
+{{end}}

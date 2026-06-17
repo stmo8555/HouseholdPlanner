@@ -1,0 +1,36 @@
+{{define "groceries/extract_review_page"}}
+<main>
+    <div class="margin-block-end-24px flex gap-6px">
+        <button type="submit" form="extractedForm">Save</button>
+        <form action="{{.CancelURL}}" method="GET">
+            <button type="submit">Cancel</button>
+        </form>
+    </div>
+
+    <form action="/groceries/lists/{{.ListID}}/extracted" id="extractedForm" method="POST"
+        class="glass container">
+        <h2>Extracted From Recipe</h2>
+        <input type="hidden" name="redirect-path" value="{{.RedirectPath}}">
+
+        <div class="grocery-grid extracted-grocery-grid">
+            <div class="grocery-row extracted-grocery-row grocery-header">
+                <div>Product</div>
+                <div>Amount</div>
+                <div>Brand</div>
+                <div></div>
+            </div>
+
+            {{if gt (len .Ingredients) 0}}
+            {{range .Ingredients}}
+            <div class="grocery-row extracted-grocery-row">
+                <input type="text" class="glass-inner" name="name" value="{{.Product.Name}}">
+                <input type="text" class="glass-inner" name="amount" value="{{.Amount}}">
+                <input type="text" class="glass-inner" name="brand" value="{{.Product.Brand}}">
+                <button type="button" class="removeRowBtn">×</button>
+            </div>
+            {{end}}
+            {{end}}
+        </div>
+    </form>
+</main>
+{{end}}

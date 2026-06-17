@@ -11,7 +11,7 @@ type Repo struct {
 	db *pgxpool.Pool
 }
 
-func CreateRepo(db *pgxpool.Pool) *Repo {
+func NewRepo(db *pgxpool.Pool) *Repo {
 	if db == nil {
 		panic("nil DB connection")
 	}
@@ -21,13 +21,14 @@ func CreateRepo(db *pgxpool.Pool) *Repo {
 }
 
 func (r *Repo) Get(ctx context.Context, id int) (Product, error) {
-	rows, err := r.db.Query(
-		ctx,
-		`
-		SELECT id, name, brand, store, category
+	sql := `
+		SELECT id, name, brand, category
 		FROM products
 		WHERE id = $1
-		`,
+		`
+	rows, err := r.db.Query(
+		ctx,
+		sql,
 		id,
 	)
 	if err != nil {
@@ -40,36 +41,37 @@ func (r *Repo) Get(ctx context.Context, id int) (Product, error) {
 }
 
 func (r *Repo) GetID(ctx context.Context, p Product) (int, error) {
+	sql := `
+		SELECT id
+		FROM products
+		WHERE name=$1 AND brand=$2;
+		`
 	var id int
 
 	err := r.db.QueryRow(
 		ctx,
-		`
-		SELECT id
-		FROM products
-		WHERE name=$1 AND brand=$2 AND store=$3;
-		`,
+		sql,
 		p.Name,
 		p.Brand,
-		p.Store,
 	).Scan(&id)
 
 	return id, err
 }
 
 func (r *Repo) Add(ctx context.Context, p Product) (int, error) {
+
+	sql := `
+		INSERT INTO products (name, brand, category)
+		VALUES ($1, $2, $3)
+		RETURNING id
+		`
 	var id int
 
 	err := r.db.QueryRow(
 		ctx,
-		`
-		INSERT INTO products (name, brand, store, category)
-		VALUES ($1, $2, $3, $4)
-		RETURNING id
-		`,
+		sql,
 		p.Name,
 		p.Brand,
-		p.Store,
 		p.Category,
 	).Scan(&id)
 

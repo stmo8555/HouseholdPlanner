@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
-{{template "head" .}}
+{{template "layouts/head" .}}
 
 <body class="flower-power">
     <div class="background">
-        {{template "header" .}}
+        {{template "layouts/header" .}}
         <main>
             
             <form class="login-form" method="POST" action="/login">
@@ -17,7 +17,6 @@
                 <button class="login-button" type="submit">Login</button>
             </form>
         </main>
-        {{template "footer" .}}
         <script type="module" src="/static/script.js"></script>
         <script>
             document.querySelectorAll(".header-items").forEach(container => {

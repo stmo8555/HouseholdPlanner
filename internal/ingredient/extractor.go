@@ -18,7 +18,7 @@ type Extractor struct {
 	AIService *ai.Service
 }
 
-func CreateExtractor(ai *ai.Service) *Extractor {
+func NewExtractor(ai *ai.Service) *Extractor {
 	if ai == nil {
 		panic(errors.New("Extractor not initialized"))
 	}
@@ -40,7 +40,6 @@ func (e *Extractor) FromText(ctx context.Context, text string) ([]Ingredient, er
 			Product: product.Product{
 				Name:  v.Product,
 				Brand: v.Brand,
-				Store: v.Store,
 			},
 			Amount: v.Amount,
 		})
@@ -66,7 +65,6 @@ func (e *Extractor) FromRecipeURL(ctx context.Context, url string) ([]Ingredient
 			Product: product.Product{
 				Name:  v.Product,
 				Brand: v.Brand,
-				Store: v.Store,
 			},
 			Amount: v.Amount,
 		})

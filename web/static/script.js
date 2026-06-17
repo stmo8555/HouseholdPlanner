@@ -1,19 +1,5 @@
 import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.basic.min.mjs";
 
-const form = document.querySelector("form");
-const body = document.body;
-const focusables = document.querySelectorAll(".focus");
-
-// if (form && body.classList.contains("flower-power")) {
-//     form.addEventListener("submit", function(e) {
-//         e.preventDefault(); // stop immediate submit
-//
-//         body.classList.add("slide-out");
-//         setTimeout(() => {
-//             form.submit(); // now actually submit
-//         }, 800); // match CSS transition duration
-//     });
-// }
 const nav_toggle = document.getElementById("nav-toggle");
 const nav = document.getElementById("primary-nav")
 
@@ -26,12 +12,37 @@ nav_toggle?.addEventListener("click", () => {
     // todo: add event when doc is clicked to toggle of nav on mobile
 });
 
-document.querySelector(".add-toggler")?.addEventListener("click", toggleAddForm)
-document.querySelector(".smart-add-toggler")?.addEventListener("click", toggleSmartAdd);
-document.querySelector(".search-toggler")?.addEventListener("click", toggleSearch);
+document.body.addEventListener("click", event => {
+    console.log("click")
+    const button = event.target.closest(".add-toggler");
+    if (!button)
+        return;
 
-const textArea = document.getElementById('smart-add');
-textArea?.addEventListener("input", function() {
+    console.log("add clicked")
+    toggleAddForm()
+});
+
+document.body.addEventListener("click", event => {
+    const button = event.target.closest(".smart-add-toggler");
+    if (!button)
+        return;
+
+    toggleSmartAdd()
+});
+
+document.body.addEventListener("click", event => {
+    const button = event.target.closest(".search-toggler");
+    if (!button)
+        return;
+
+    toggleSearch()
+});
+
+document.body.addEventListener("click", event => {
+    const textArea = event.target.closest("input");
+    if (!textArea)
+        return;
+
     this.style.height = "auto";
     this.style.height = this.scrollHeight + "px";
 });
@@ -41,22 +52,27 @@ document.body.addEventListener("click", event => {
     if (!button)
         return;
 
-    const parentRow = button.closest("tr");
-    parentRow.remove();
+    button.closest(".extracted-grocery-row").remove();
 });
 
-document.getElementById('extract-button')?.addEventListener("click", () => {
+document.body.addEventListener("click", event => {
+    const button = event.target.closest("#extract-button");
+    console.log("click")
+    if (!button)
+        return;
+
+    console.log("extract")
     document.querySelector(".extract-grocery-form").classList.toggle("hidden");
-    focusables.forEach(e => {
-        e.focus();
-    });
 });
 
-document.querySelectorAll(".quick-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        document.getElementById("product-input").value = btn.textContent;
-    });
+document.body.addEventListener("click", event => {
+    const button = event.target.closest(".quick-btn");
+    if (!button)
+        return;
+
+    document.getElementById("product-input").value = button.textContent;
 });
+
 
 const recipeCards = [...document.querySelectorAll(".recipe-card")];
 const searchInput = document.getElementById("fuzzy-search");
@@ -119,6 +135,7 @@ if (recipeCards.length > 0 && searchInput && matchInput) {
         });
     });
 }
+
 function toggleSmartAdd() {
     document.querySelector(".smart-add-form").classList.toggle("hidden");
     textArea.style.height = textArea.scrollHeight + "px";
@@ -130,9 +147,9 @@ function toggleSmartAdd() {
 
 function toggleAddForm() {
     document.querySelector(".add-form").classList.toggle("hidden");
-    focusables.forEach(e => {
-        e.focus();
-    });
+    // focusables.forEach(e => {
+    //     e.focus();
+    // });
 }
 
 function toggleSearch() {

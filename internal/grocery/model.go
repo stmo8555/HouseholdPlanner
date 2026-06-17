@@ -2,11 +2,29 @@ package grocery
 
 import "github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 
+type GroceryList struct {
+	ID          int
+	Name        string
+	HouseholdID int
+}
+
+type GroceryListStats struct {
+    ListID    int
+    Total     int
+    Picked    int
+}
+
+type GroceryListView struct {
+	GroceryList GroceryList
+	GroceryListStats GroceryListStats
+}
+
 type Grocery struct {
-	Id          int                   `json:"id"`
-	Ingredient  ingredient.Ingredient `json:"ingredient"`
-	HouseholdID int                   `json:"household_id"`
-	Picked      bool                  `json:"picked"`
+	ID            int                   `json:"id"`
+	Ingredient    ingredient.Ingredient `json:"ingredient"`
+	HouseholdID   int                   `json:"household_id"`
+	Picked        bool                  `json:"picked"`
+	ListID int
 }
 
 type GroceriesView struct {
