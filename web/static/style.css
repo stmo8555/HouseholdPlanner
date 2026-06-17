@@ -409,18 +409,33 @@ select,
 }
 
 select {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6em;
     background: var(--input-bg);
     color: var(--text);
     border: 1px solid var(--input-border);
     border-radius: 12px;
-    padding: 0.6em 2.2em 0.6em 0.9em;
+    padding: 0.55em 0.9em;
     font: inherit;
     line-height: 1.2;
     cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+select:hover {
+    border-color: var(--accent);
+}
+
+select:focus-visible {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--shadow-accent);
 }
 
 select::picker-icon {
-    color: currentColor;
+    margin-inline-start: auto;
+    color: var(--text-lightly-dimmed);
     transition: rotate 0.2s ease;
 }
 
@@ -438,15 +453,20 @@ select:open::picker-icon {
 }
 
 select option {
-    background: var(--input-bg);
+    background: transparent;
     color: var(--text);
-    padding: 0.65em 0.8em;
+    padding: 0.55em 0.7em;
     border-radius: 8px;
+    cursor: pointer;
 }
 
-select option:hover,
+select option:hover {
+    background: var(--surface-strong);
+}
+
 select option:checked {
-    background: var(--input-shadow);
+    background: var(--accent);
+    color: var(--text);
 }
 
 /* =========================
@@ -556,24 +576,54 @@ dialog::backdrop {
    HTMX
 ========================= */
 
+/* Delayed indicators: the spinner is only revealed once a request has been
+   pending past a short threshold (--htmx-indicator-delay). Fast responses
+   complete — and usually swap their element away — before the threshold, so
+   the spinner is never flashed.
+
+   The reveal is an opacity cross-fade (NOT a display swap): animations don't
+   run on display:none elements, so a spinner hidden with display:none could
+   never animate itself back in. Instead every spinner is overlaid on its
+   button via absolute positioning and kept in the layout at opacity 0, so the
+   resting label/checkbox defines the button size and the fade can actually
+   run. Every spinner lives inside a button, so this needs no per-component
+   CSS. */
+:root {
+    --htmx-indicator-delay: 150ms;
+}
+
+button:has(.htmx-indicator) {
+    position: relative;
+}
+
 .htmx-indicator {
-    display: none;
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    opacity: 0;
+    pointer-events: none;
 }
 
+/* Spinner: faded in once the threshold passes. */
 .htmx-request .htmx-indicator {
-    display: inline-block;
+    animation: htmx-indicator-reveal 0.12s ease-out var(--htmx-indicator-delay) forwards;
 }
 
-.htmx-request.htmx-indicator {
-    display: inline-block;
+/* Resting content (label span / checkbox): faded out as the spinner appears.
+   It stays in the layout (opacity, not display) so the button keeps its size. */
+button.htmx-request span,
+button.htmx-request .checkbox,
+form.htmx-request button span,
+form.htmx-request button .checkbox {
+    animation: htmx-content-hide 0.12s ease-out var(--htmx-indicator-delay) forwards;
 }
 
-button.htmx-request span {
-    display: none;
+@keyframes htmx-indicator-reveal {
+    to { opacity: 1; }
 }
 
-form.htmx-request button span {
-    display: none;
+@keyframes htmx-content-hide {
+    to { opacity: 0; }
 }
 
 
