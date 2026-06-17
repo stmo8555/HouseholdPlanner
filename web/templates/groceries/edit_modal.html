@@ -1,0 +1,115 @@
+{{define "groceries/edit_modal"}}
+<!-- <dialog id="edit-modal" open> -->
+<!--     <form hx-patch="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
+<!--         hx-include="#grocery-list-state" -->
+<!--         hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"> -->
+<!---->
+<!---->
+<!--         <h3>Edit grocery</h3> -->
+<!---->
+<!--         <input name="name" value="{{.Ingredient.Product.Name}}" required> -->
+<!--         <input name="amount" value="{{.Ingredient.Amount}}"> -->
+<!--         <input name="brand" value="{{.Ingredient.Product.Brand}}"> -->
+<!---->
+<!--         <button type="submit">Save</button> -->
+<!--     </form> -->
+<!---->
+<!--     <form hx-delete="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.ID}}" hx-target=".grocery-list" hx-swap="outerHTML" -->
+<!--         hx-include="#grocery-list-state" -->
+<!--         hx-on::after-request="if(event.detail.successful) { this.closest('dialog').close(); }"> -->
+<!--         <button type="submit">Delete</button> -->
+<!--     </form> -->
+<!-- </dialog> -->
+<!---->
+<!---->
+<dialog class="glass card" id="edit-modal"  hx-on::after-request="if(event.detail.successful) { this.remove(); }">
+
+    <form class="flex align-items" method="dialog" onsubmit="this.closest('dialog').remove()">
+        <h2>Edit Grocery</h2>
+        <button class="close-button" type="submit">
+            <svg fill="#FFFFFF" height="1rem" width="1rem" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg"
+                xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 460.775 460.775" xml:space="preserve">
+                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_iconCarrier">
+                    <path
+                        d="M285.08,230.397L456.218,59.27c6.076-6.077,6.076-15.911,0-21.986L423.511,4.565c-2.913-2.911-6.866-4.55-10.992-4.55 c-4.127,0-8.08,1.639-10.993,4.55l-171.138,171.14L59.25,4.565c-2.913-2.911-6.866-4.55-10.993-4.55 c-4.126,0-8.08,1.639-10.992,4.55L4.558,37.284c-6.077,6.075-6.077,15.909,0,21.986l171.138,171.128L4.575,401.505 c-6.074,6.077-6.074,15.911,0,21.986l32.709,32.719c2.911,2.911,6.865,4.55,10.992,4.55c4.127,0,8.08-1.639,10.994-4.55 l171.117-171.12l171.118,171.12c2.913,2.911,6.866,4.55,10.993,4.55c4.128,0,8.081-1.639,10.992-4.55l32.709-32.719 c6.074-6.075,6.074-15.909,0-21.986L285.08,230.397z">
+                    </path>
+                </g>
+            </svg>
+        </button>
+    </form>
+
+    <!-- Edit Form -->
+    <form hx-patch="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
+        hx-include="#grocery-list-state" class="modal-form" id="edit-grocery-form">
+
+        <h3>Edit grocery</h3>
+        <small>Update the product, amount, and brand.</small>
+
+        <label for="edit-name">Product <small>(required)</small></label>
+        <input type="text" class="glass-inner focus" id="edit-name" name="name" value="{{.Grocery.Ingredient.Product.Name}}"
+            required>
+
+        <div class="field-row">
+            <div>
+                <label for="edit-amount">Amount</label>
+                <input class="glass-inner" type="text" id="edit-amount" name="amount" value="{{.Grocery.Ingredient.Amount}}">
+            </div>
+
+            <div>
+                <label for="edit-brand">Brand</label>
+                <input class="glass-inner" type="text" id="edit-brand" name="brand"
+                    value="{{.Grocery.Ingredient.Product.Brand}}">
+            </div>
+        </div>
+
+        <button type="submit">
+            <span>Save</span>
+            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+        </button>
+    </form>
+
+    <!-- Move Form -->
+    <form hx-patch="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.Grocery.ID}}/move" hx-target=".grocery-list"
+        hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form{{if le (len .Lists) 1}} darken{{end}}"
+        id="move-grocery-form">
+
+        <h3>Move to another list</h3>
+        <small>Move this grocery to a different list.</small>
+
+        <select id="transfer-list-select" name="grocery-list-target-id" class="flex" {{if le (len .Lists)
+            1}}disabled{{end}}>
+
+            {{range .Lists}}
+            {{if ne .GroceryList.ID $.Grocery.GroceryListID}}
+            <option value="{{.GroceryList.ID}}">
+                {{.GroceryList.Name}}
+            </option>
+            {{end}}
+            {{end}}
+        </select>
+
+        <button type="submit" {{if le (len .Lists) 1}}disabled{{end}}>
+            <span>Transfer</span>
+            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+        </button>
+    </form>
+
+    <!-- Delete Form -->
+    <form hx-delete="/groceries/lists/{{.Grocery.GroceryListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
+        hx-include="#grocery-list-state" class="modal-form" id="delete-grocery-form">
+
+        <h3>Delete this grocery</h3>
+
+        <div>
+            <small>This action cannot be undone.</small>
+
+            <button class="delete-button" type="submit">
+                <span>Delete</span>
+                <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            </button>
+        </div>
+    </form>
+</dialog>
+{{end}}

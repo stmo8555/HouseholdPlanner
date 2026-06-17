@@ -419,11 +419,6 @@ select {
     cursor: pointer;
 }
 
-select:hover,
-select:focus {
-    background: var(--input-shadow);
-}
-
 select::picker-icon {
     color: currentColor;
     transition: rotate 0.2s ease;
@@ -586,39 +581,61 @@ form.htmx-request button span {
    Grocery pages
 ========================= */
 
-#edit-grocery-list-modal[open] {
+#edit-grocery-list-modal[open],
+#edit-modal[open] {
     display: grid;
     gap: 1.5rem;
 }
 
-#edit-grocery-list-modal :is(h2, h3) {
+#edit-grocery-list-modal :is(h2, h3),
+#edit-modal :is(h2, h3) {
     margin: 0;
 }
 
-#edit-grocery-list-modal .modal-form {
+#edit-grocery-list-modal .modal-form,
+#edit-modal .modal-form {
     display: grid;
     gap: 0.75rem;
     padding-block-end: 1.5rem;
     border-bottom: 1px solid var(--text-dimmed);
 }
 
-#edit-grocery-list-modal .modal-form>div {
+#edit-grocery-list-modal .modal-form>div,
+#edit-modal .modal-form>div {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-#edit-grocery-list-modal .modal-form small {
+#edit-grocery-list-modal .modal-form small,
+#edit-modal .modal-form small {
     color: var(--text-lightly-dimmed)
 }
 
-#edit-grocery-list-modal .modal-form button {
+#edit-grocery-list-modal .modal-form button,
+#edit-modal .modal-form button {
     margin-inline-start: auto;
 }
 
-#edit-grocery-list-modal .modal-form:last-child {
+#edit-grocery-list-modal .modal-form:last-child,
+#edit-modal .modal-form:last-child {
     padding-block-end: 0;
     border-bottom: 0;
+}
+
+/* Edit grocery item modal: full-width inputs and side-by-side Amount/Brand */
+#edit-modal .modal-form .glass-inner {
+    inline-size: 100%;
+}
+
+#edit-modal #edit-grocery-form .field-row>div {
+    flex: 1;
+    display: grid;
+    gap: 0.35rem;
+}
+
+#edit-modal #move-grocery-form select {
+    inline-size: 100%;
 }
 
 .grocery-list-card h3 {
@@ -1120,6 +1137,17 @@ form.htmx-request button span {
 ========================= */
 .darken {
     opacity: 0.5;
+}
+
+button:disabled,
+select:disabled {
+    cursor: not-allowed;
+}
+
+button:disabled:hover,
+select:disabled:hover {
+    scale: 1;
+    box-shadow: none;
 }
 
 .grid-4 {

@@ -151,6 +151,29 @@ func (r *Repo) TransferGroceries(ctx context.Context, groceryListTargetID int, g
 	return nil
 }
 
+func (r *Repo) MoveGrocery(ctx context.Context, groceryID int, groceryListTargetID int, hid int) error {
+	sql := `
+    UPDATE groceries 
+    SET grocery_list_id = $1
+    WHERE id = $2 
+      AND household_id = $3
+      AND EXISTS (
+        SELECT 1 FROM grocery_lists
+        WHERE id = $1 AND household_id = $3
+      );
+    `
+	res, err := r.db.Exec(ctx, sql, groceryListTargetID, groceryID, hid)
+	if err != nil {
+		return err
+	}
+
+	if res.RowsAffected() == 0 {
+		return fmt.Errorf("grocery or target list not found in household")
+	}
+
+	return nil
+}
+
 func (r *Repo) CreateGroceries(ctx context.Context, groceries []Grocery) error {
 	sql := `
 	INSERT INTO groceries 
@@ -229,6 +252,42 @@ func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListI
 	}
 
 	return groceries, rows.Err()
+}
+
+func (r *Repo) Grocery(ctx context.Context, itemID int, hid int) (Grocery, error) {
+	sql := `
+	SELECT 
+		g.id,
+		g.product_id,
+		p.id,
+		p.name,
+		p.brand,
+		p.category,
+		g.amount,
+		g.grocery_list_id,
+		g.household_id,
+		g.picked
+	FROM groceries g
+	INNER JOIN products p ON g.product_id = p.id
+	WHERE g.id = $1 AND g.household_id = $2
+	`
+
+	var g Grocery
+	row := r.db.QueryRow(ctx, sql, itemID, hid)
+	err := row.Scan(
+		&g.ID,
+		&g.Ingredient.ProductID,
+		&g.Ingredient.Product.Id,
+		&g.Ingredient.Product.Name,
+		&g.Ingredient.Product.Brand,
+		&g.Ingredient.Product.Category,
+		&g.Ingredient.Amount,
+		&g.GroceryListID,
+		&g.HouseholdID,
+		&g.Picked,
+	)
+
+	return g, err
 }
 
 func (r *Repo) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {

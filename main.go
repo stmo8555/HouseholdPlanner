@@ -108,20 +108,26 @@ func setupGroceries(r *gin.RouterGroup) {
 
 	r.GET("/", func(c *gin.Context) { c.Redirect(302, "/groceries") })
 	r.GET("/groceries", handler.OverviewPage)
-	r.GET("/groceries/list", handler.List)
-	r.GET("/groceries/list/page", handler.ListPage)
-	r.POST("/groceries/list/delete", handler.DeleteGroceryList)
-	r.POST("/groceries/list/transfer", handler.TransferGroceryList)
-	r.POST("/groceries/list/edit", handler.UpdateGroceryList)
-	r.POST("/groceries", handler.TogglePicked)
-	r.POST("/groceries/add", handler.CreateGrocery)
-	r.POST("/groceries/list/add", handler.CreateList)
-	r.POST("/groceries/smartadd", handler.SmartAdd)
-	r.POST("/groceries/edit", handler.UpdateGrocery)
-	r.POST("/groceries/delete", handler.DeleteGrocery)
-	r.POST("/groceries/delete/picked", handler.DeletePicked)
-	r.POST("/groceries/extract", handler.ExtractFromRecipe)
-	r.POST("/groceries/extracted", handler.SaveExtracted)
+
+	// Grocery lists
+	r.POST("/groceries/lists", handler.CreateList)
+	r.GET("/groceries/lists/:id", handler.ListPage)
+	r.PATCH("/groceries/lists/:id", handler.UpdateGroceryList)
+	r.DELETE("/groceries/lists/:id", handler.DeleteGroceryList)
+	r.POST("/groceries/lists/:id/transfer", handler.TransferGroceryList)
+
+	// Items within a list
+	r.GET("/groceries/lists/:id/items", handler.List)
+	r.POST("/groceries/lists/:id/items", handler.CreateGrocery)
+	r.DELETE("/groceries/lists/:id/items/picked", handler.DeletePicked)
+	r.POST("/groceries/lists/:id/smart-add", handler.SmartAdd)
+	r.POST("/groceries/lists/:id/extract", handler.ExtractFromRecipe)
+	r.POST("/groceries/lists/:id/extracted", handler.SaveExtracted)
+	r.PATCH("/groceries/lists/:id/items/:itemId", handler.UpdateGrocery)
+	r.PATCH("/groceries/lists/:id/items/:itemId/move", handler.MoveGrocery)
+	r.DELETE("/groceries/lists/:id/items/:itemId", handler.DeleteGrocery)
+	r.PATCH("/groceries/lists/:id/items/:itemId/picked", handler.TogglePicked)
+	r.GET("/groceries/lists/:id/items/:itemId/edit", handler.EditGroceryForm)
 }
 
 // func setupHome(r *gin.RouterGroup) {

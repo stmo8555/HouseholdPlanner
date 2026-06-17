@@ -15,6 +15,10 @@ type Service struct {
 	ingredientExtractor *ingredient.Extractor
 }
 
+func (s *Service) Grocery(ctx context.Context, itemID, hid int) (Grocery, error) {
+	return s.repo.Grocery(ctx, itemID, hid)
+}
+
 func NewService(repo IRepo, product *product.Service, ingredient *ingredient.Extractor) *Service {
 	if repo == nil || product == nil || ingredient == nil {
 		panic("service not initialized")
@@ -69,6 +73,10 @@ func (s *Service) DeleteGroceryList(ctx context.Context, groceryListID int, hid 
 
 func (s *Service) TransferGroceries(ctx context.Context, groceryListTargetID int, groceryListID int, hid int) error {
 	return s.repo.TransferGroceries(ctx, groceryListTargetID, groceryListID, hid)
+}
+
+func (s *Service) MoveGrocery(ctx context.Context, groceryID int, groceryListTargetID int, hid int) error {
+	return s.repo.MoveGrocery(ctx, groceryID, groceryListTargetID, hid)
 }
 
 func (s *Service) CreateGroceries(ctx context.Context, ingredients []ingredient.Ingredient, groceryListID, hid int) error {

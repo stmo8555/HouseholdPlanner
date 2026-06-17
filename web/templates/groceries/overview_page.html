@@ -1,6 +1,6 @@
 {{define "groceries/overview_page"}}
 <main>
-    <form hx-post="/groceries/list/add" hx-target="main" hx-swap="outerHTML"
+    <form hx-post="/groceries/lists" hx-target="main" hx-swap="outerHTML"
         hx-on::after-request="if(event.detail.successful) this.reset();" class="add-list">
         <label for="add-list" class="sr-only">List Name</label>
         <input autocomplete="off" type="text" id="add-list" name="name" class="glass-inner"
@@ -30,9 +30,7 @@
             </div>
 
             <div class="flex align-items gap-6px">
-                <form hx-get="/groceries/list/page" hx-swap="outerHTML" hx-target="main">
-                    <input type="hidden" name="grocery-list-id" value="{{.GroceryList.ID}}">
-                    <input type="hidden" name="list-name" value="{{.GroceryList.Name}}">
+                <form hx-get="/groceries/lists/{{.GroceryList.ID}}" hx-swap="outerHTML" hx-target="main">
                     <button type="submit">Open</button>
                 </form>
                 <button type="button" class="edit-grocery-list-btn">Edit</button>
@@ -59,8 +57,8 @@
             </button>
         </form>
 
-        <form hx-post="/groceries/list/edit" hx-target="main" hx-swap="outerHTML" class="modal-form">
-            <input type="hidden" name="grocery-list-id" class="grocery-list-id">
+        <form id="list-rename-form" hx-patch="/groceries/lists" hx-target="main" hx-swap="outerHTML"
+            class="modal-form">
             <h3>Rename list</h3>
             <small>Change the name of this list.</small>
             <label class="sr-only" for="edit-name">List name</label>
@@ -71,16 +69,16 @@
             </button>
         </form>
 
-        <form hx-post="/groceries/list/transfer" hx-target="main" hx-swap="outerHTML" class="modal-form">
-            <input type="hidden" name="grocery-list-id" class="grocery-list-id">
+        <form id="list-transfer-form" hx-post="/groceries/lists" hx-target="main" hx-swap="outerHTML"
+            class="modal-form">
             <h3>Transfer groceries</h3>
             <small>Move all groceries in this list to another list.</small>
             <select id="transfer-list-select" name="grocery-list-target-id" class="flex"></select>
             <button>Transfer</button>
         </form>
 
-        <form hx-post="/groceries/list/delete" hx-target="main" hx-swap="outerHTML" class="modal-form" method="">
-            <input type="hidden" name="grocery-list-id" class="grocery-list-id">
+        <form id="list-delete-form" hx-delete="/groceries/lists" hx-target="main" hx-swap="outerHTML"
+            class="modal-form">
             <h3>Delete list</h3>
             <div>
                 <small>This will permanently delete the list and all its groceries.</small>

@@ -1,7 +1,7 @@
 {{define "groceries/row"}}
 <div data-id="{{.ID}}" class="grocery-row changable">
-    <form hx-post="/groceries" hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-list-state">
-        <input type="hidden" name="id" value="{{.ID}}">
+    <form hx-patch="/groceries/lists/{{.GroceryListID}}/items/{{.ID}}/picked" hx-target=".grocery-list"
+        hx-swap="outerHTML" hx-include="#grocery-list-state">
         <button type="submit">
             <div class="checkbox {{if .Picked}}checked{{end}}"></div>
             <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
@@ -11,6 +11,7 @@
     <span class="{{if .Picked}}line-through{{end}}" data-field="name">{{.Ingredient.Product.Name}}</span>
     <span class="{{if .Picked}}line-through{{end}}" data-field="amount">{{.Ingredient.Amount}}</span>
     <span class="{{if .Picked}}line-through{{end}}" data-field="brand">{{.Ingredient.Product.Brand}}</span>
-    <button class="edit-grocery-btn edit-btn" type="button">⋮</button>
+    <button type="button" hx-get="/groceries/lists/{{.GroceryListID}}/items/{{.ID}}/edit" hx-target="#modal-root"
+        hx-swap="innerHTML" class="edit-btn">⋮</button>
 </div>
 {{end}}

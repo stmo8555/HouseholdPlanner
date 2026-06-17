@@ -7,8 +7,17 @@
     <div class="background">
         {{template "layouts/header" .}}
         {{template "groceries/overview_page" .}}
+
         <script type="module" src="/static/script.js"></script>
         <script>
+            // Override the request path for forms whose target id is set dynamically.
+            // The form keeps a static hx-verb (so htmx binds the right method); we
+            // rewrite the URL here at request time via the form's data-hx-url.
+            document.body.addEventListener("htmx:configRequest", (event) => {
+                const url = event.detail.elt.dataset.hxUrl;
+                if (url) event.detail.path = url;
+            });
+
             document.addEventListener("click", (event) => {
                 const button = event.target.closest(".edit-grocery-list-btn")
                 if (!button) return
@@ -25,9 +34,10 @@
                 editModalTitle.textContent = currentName
                 editNameInput.value = currentName
 
-                editModal.querySelectorAll(".grocery-list-id").forEach((input) => {
-                    input.value = currentId
-                })
+                // Wire RESTful endpoints for this list
+                document.getElementById("list-rename-form").dataset.hxUrl = `/groceries/lists/${currentId}`
+                document.getElementById("list-transfer-form").dataset.hxUrl = `/groceries/lists/${currentId}/transfer`
+                document.getElementById("list-delete-form").dataset.hxUrl = `/groceries/lists/${currentId}`
 
                 transferSelect.innerHTML = ""
 
@@ -66,18 +76,32 @@
                     return;
 
                 const row = button.closest(".grocery-row");
+                const editModal = document.getElementById("edit-modal");
 
                 const id = row.dataset.id.trim();
                 const name = row.querySelector('[data-field="name"]').textContent.trim();
                 const amount = row.querySelector('[data-field="amount"]').textContent.trim();
                 const brand = row.querySelector('[data-field="brand"]').textContent.trim();
 
-                document.querySelectorAll(".edit-id").forEach(e => e.value = id);
                 document.getElementById("edit-name").value = name;
                 document.getElementById("edit-amount").value = amount;
                 document.getElementById("edit-brand").value = brand;
 
-                document.getElementById("edit-modal").showModal();
+                // Wire RESTful endpoints for this grocery item
+                document.getElementById("edit-grocery-form").dataset.hxUrl = `/groceries/items/${id}`;
+                document.getElementById("move-grocery-form").dataset.hxUrl = `/groceries/items/${id}/move`;
+                document.getElementById("delete-grocery-form").dataset.hxUrl = `/groceries/items/${id}`;
+
+                editModal.showModal();
+            });
+
+            document.body.addEventListener("htmx:afterSwap", (event) => {
+                if (event.detail.target.id !== "modal-root") return;
+
+                const dialog = event.detail.target.querySelector("dialog");
+                if (!dialog) return;
+
+                dialog.showModal();
             });
         </script>
     </div>

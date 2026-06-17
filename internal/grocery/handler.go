@@ -46,26 +46,38 @@ func (h *Handler) OverviewPage(c *gin.Context) {
 func (h *Handler) ListPage(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceryListID, err := strconv.Atoi(c.Query("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		panic(err)
 	}
-
-	listName := c.Query("list-name")
 
 	data, err := h.buildListViewData(c, groceryListID, hid)
 	if err != nil {
 		panic(err)
 	}
 
+	lists, err := h.service.GroceryLists(c, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	var listName string
+	for _, l := range lists {
+		if l.GroceryList.ID == groceryListID {
+			listName = l.GroceryList.Name
+			break
+		}
+	}
+
 	data["GroceryListID"] = groceryListID
 	data["ListName"] = listName
+	data["Lists"] = lists
 
 	c.HTML(200, "groceries/list_page", data)
 }
 
 func (h *Handler) List(c *gin.Context) {
-	groceryListID, err := strconv.Atoi(c.Query("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
@@ -81,6 +93,22 @@ func (h *Handler) RenderListPartial(c *gin.Context, groceryListID int) {
 	if err != nil {
 		panic(err)
 	}
+
+	lists, err := h.service.GroceryLists(c, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	var listName string
+	for _, l := range lists {
+		if l.GroceryList.ID == groceryListID {
+			listName = l.GroceryList.Name
+			break
+		}
+	}
+
+	data["GroceryListID"] = groceryListID
+	data["ListName"] = listName
 
 	c.HTML(200, "groceries/list", data)
 }
@@ -119,7 +147,7 @@ func (h *Handler) UpdateGroceryList(c *gin.Context) {
 		panic(errors.New("No new name"))
 	}
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		panic(err)
 	}
@@ -142,7 +170,7 @@ func (h *Handler) UpdateGroceryList(c *gin.Context) {
 func (h *Handler) DeleteGroceryList(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		panic(err)
 	}
@@ -165,7 +193,7 @@ func (h *Handler) DeleteGroceryList(c *gin.Context) {
 func (h *Handler) TransferGroceryList(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		panic(err)
 	}
@@ -193,7 +221,7 @@ func (h *Handler) TransferGroceryList(c *gin.Context) {
 func (h *Handler) CreateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		panic(err)
 	}
@@ -220,8 +248,39 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 		panic(err)
 	}
 
+	data["GroceryListID"] = groceryListID
 	data["OOB"] = true
 	c.HTML(200, "groceries/add_response", data)
+}
+
+func (h *Handler) EditGroceryForm(c *gin.Context) {
+	//   listID, err := strconv.Atoi(c.Param("listId"))
+	//   if err != nil {
+	// panic(err)
+	//   }
+	hid := c.GetInt("household_id")
+
+	itemID, err := strconv.Atoi(c.Param("itemId"))
+	if err != nil {
+		panic(err)
+	}
+
+	item, err := h.service.Grocery(c.Request.Context(), itemID, hid)
+	if err != nil {
+		panic(err)
+	}
+	
+	lists, err := h.service.GroceryLists(c, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	data := gin.H{
+		"Lists": lists,
+		"Grocery": item,
+	}
+
+	c.HTML(200, "groceries/edit_modal", data)
 }
 
 func (h *Handler) UpdateGrocery(c *gin.Context) {
@@ -238,20 +297,48 @@ func (h *Handler) UpdateGrocery(c *gin.Context) {
 		Amount:  c.PostForm("amount"),
 	}
 
-	id, err := strconv.Atoi(c.PostForm("id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	itemID, err := strconv.Atoi(c.Param("itemId"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	err = h.service.UpdateGrocery(c, ing, id, hid)
+	err = h.service.UpdateGrocery(c, ing, itemID, hid)
 
+	if err != nil {
+		panic(err)
+	}
+
+	h.RenderListPartial(c, groceryListID)
+}
+
+func (h *Handler) MoveGrocery(c *gin.Context) {
+	hid := c.GetInt("household_id")
+
+	groceryListID, err := strconv.Atoi(c.Param("id"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	itemID, err := strconv.Atoi(c.Param("itemId"))
+
+	if err != nil {
+		panic(err)
+	}
+
+	groceryListTargetID, err := strconv.Atoi(c.PostForm("grocery-list-target-id"))
+	if err != nil {
+		panic(err)
+	}
+
+	err = h.service.MoveGrocery(c, itemID, groceryListTargetID, hid)
 	if err != nil {
 		panic(err)
 	}
@@ -261,19 +348,19 @@ func (h *Handler) UpdateGrocery(c *gin.Context) {
 
 func (h *Handler) DeleteGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
-	groceryID, err := strconv.Atoi(c.PostForm("id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	itemID, err := strconv.Atoi(c.Param("itemId"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	err = h.service.DeleteGrocery(c, groceryID, hid)
+	err = h.service.DeleteGrocery(c, itemID, hid)
 
 	if err != nil {
 		panic(err)
@@ -284,20 +371,19 @@ func (h *Handler) DeleteGrocery(c *gin.Context) {
 
 func (h *Handler) TogglePicked(c *gin.Context) {
 	hid := c.GetInt("household_id")
-
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
 	}
 
-	id, err := strconv.Atoi(c.PostForm("id"))
+	itemID, err := strconv.Atoi(c.Param("itemId"))
+
 	if err != nil {
-		c.String(400, "invalid grocery id")
-		return
+		panic(err)
 	}
 
-	if err := h.service.TogglePicked(c, id, hid); err != nil {
+	if err := h.service.TogglePicked(c, itemID, hid); err != nil {
 		panic(err)
 	}
 
@@ -307,7 +393,7 @@ func (h *Handler) TogglePicked(c *gin.Context) {
 func (h *Handler) DeletePicked(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
@@ -325,7 +411,7 @@ func (h *Handler) DeletePicked(c *gin.Context) {
 func (h *Handler) SmartAdd(c *gin.Context) {
 	text := c.PostForm("text")
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
@@ -351,7 +437,7 @@ func (h *Handler) ExtractFromRecipe(c *gin.Context) {
 		panic("no link")
 	}
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
@@ -369,7 +455,7 @@ func (h *Handler) ExtractFromRecipe(c *gin.Context) {
 func (h *Handler) SaveExtracted(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	groceryListID, err := strconv.Atoi(c.PostForm("grocery-list-id"))
+	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
 		panic(err)
@@ -407,7 +493,7 @@ func (h *Handler) SaveExtracted(c *gin.Context) {
 }
 
 func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ingredient, groceryListID int) {
-	path := fmt.Sprintf("/groceries/list?grocery-list-id=%d", groceryListID)
+	path := fmt.Sprintf("/groceries/lists/%d", groceryListID)
 	data := gin.H{
 		"Ingredients":   ingredients,
 		"CancelURL":     path,
