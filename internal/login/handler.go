@@ -1,8 +1,10 @@
 package login
 
 import (
-	"github.com/gin-gonic/gin"
+	"errors"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 type Handler struct {
@@ -40,12 +42,21 @@ func (h *Handler) Authenticate(c *gin.Context) {
 
 	sessionID, err := h.service.Authenticate(c, uname, pwd)
 
-
 	if err == nil {
 		c.SetSameSite(http.SameSiteStrictMode)
 		c.SetCookie("session_id", sessionID, 0, "/", "", true, true)
 		c.Redirect(302, "/")
-	} else {
-		c.Redirect(302, "/login")
+		return
 	}
+
+	if errors.Is(err, errInvalidCredentials) {
+		data := gin.H{
+			"Title": "Login",
+			"Error": "Invalid username or password.",
+		}
+		c.HTML(http.StatusUnauthorized, "login.html", data)
+		return
+	}
+
+	c.String(http.StatusInternalServerError, "Login failed")
 }

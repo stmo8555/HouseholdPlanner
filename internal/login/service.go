@@ -2,15 +2,19 @@ package login
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
 const fakeHash = "$2a$10$7EqJtq98hPqEX7fNZaFWoOePaWxn96p36C1p0uZ1tcHTTX3e8DqGa"
 
+var errInvalidCredentials = errors.New("invalid username or password")
+
 type Service struct {
-	repo           *Repo
+	repo *Repo
 }
 
 func NewService(repo *Repo) *Service {
@@ -35,11 +39,16 @@ func (s *Service) Authenticate(ctx context.Context, uname, pwd string) (string, 
 
 	if err != nil {
 		bcrypt.CompareHashAndPassword([]byte(fakeHash), []byte(pwd))
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", errInvalidCredentials
+		}
+
 		return "", err
 	}
 
-	if bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(pwd)) != nil {
-		return "", err
+	err = bcrypt.CompareHashAndPassword([]byte(user.Hash), []byte(pwd))
+	if err != nil {
+		return "", errInvalidCredentials
 	}
 
 	session := Session{
