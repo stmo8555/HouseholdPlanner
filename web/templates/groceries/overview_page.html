@@ -4,7 +4,7 @@
         hx-on::after-request="if(event.detail.successful) this.reset();" class="add-list">
         <label for="add-list" class="sr-only">List Name</label>
         <input autocomplete="off" type="text" id="add-list" name="name" class="glass-inner"
-            placeholder="New grocery list...">
+            placeholder="New grocery list..." required>
         <button class="block" type="submit">
             <span>Add list</span>
             {{template "spinner" .}}
