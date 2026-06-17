@@ -43,7 +43,7 @@
 
         <button type="submit">
             <span>Save</span>
-            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            {{template "spinner" .}}
         </button>
     </form>
 
@@ -69,7 +69,7 @@
 
         <button type="submit" {{if le (len .Lists) 1}}disabled{{end}}>
             <span>Transfer</span>
-            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            {{template "spinner" .}}
         </button>
     </form>
 
@@ -84,7 +84,7 @@
 
             <button class="delete-button" type="submit">
                 <span>Delete</span>
-                <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+                {{template "spinner" .}}
             </button>
         </div>
     </form>

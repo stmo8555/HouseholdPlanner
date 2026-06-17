@@ -7,7 +7,7 @@
             placeholder="New grocery list...">
         <button class="block" type="submit">
             <span>Add list</span>
-            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            {{template "spinner" .}}
         </button>
     </form>
 

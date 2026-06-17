@@ -94,7 +94,7 @@
     {{if gt (len .Data.Picked) 0}}
     <button hx-delete="/groceries/lists/{{.ListID}}/items/picked" hx-target=".grocery-list" hx-swap="outerHTML"
         hx-include="#grocery-list-state" class="block margin-inline-auto inline-size-full margin-block-start-24px" type="submit">
-        <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+        {{template "spinner" .}}
         Done
     </button>
     {{end}}

@@ -4,7 +4,7 @@
         hx-swap="outerHTML" hx-include="#grocery-list-state">
         <button type="submit">
             <div class="checkbox {{if .Picked}}checked{{end}}"></div>
-            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            {{template "spinner" .}}
         </button>
     </form>
 

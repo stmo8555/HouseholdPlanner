@@ -34,7 +34,7 @@
         </ul>
         <button class="inline-size-full margin-inline-auto block" type="submit">
             <span>Add</span>
-            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            {{template "spinner" .}}
         </button>
     </form>
 
@@ -46,7 +46,7 @@
             placeholder='Add groceries... (try: "10 bananas, 5L Arla milk"' name="text" required></textarea>
         <button class="inline-size-full margin-inline-auto block" type="submit">
             <span>Add</span>
-            <img class="htmx-indicator" src="/static/assets/spinner.svg" alt="Loading...">
+            {{template "spinner" .}}
         </button>
     </form>
 
@@ -57,7 +57,7 @@
             type="text" name="link" required>
         <button class="inline-size-full margin-inline-auto block" type="submit">
             <span>Add</span>
-            <img class="htmx-indicator" src="/static/assets/spinner.gif" alt="Loading...">
+            {{template "spinner" .}}
         </button>
     </form>
 
