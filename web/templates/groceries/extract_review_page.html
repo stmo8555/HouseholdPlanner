@@ -2,13 +2,11 @@
 <main>
     <div class="margin-block-end-24px flex gap-6px">
         <button type="submit" form="extractedForm">Save</button>
-        <form action="{{.CancelURL}}" method="GET">
-            <button type="submit">Cancel</button>
-        </form>
+        <button type="button" hx-get="{{.CancelURL}}" hx-target="main" hx-swap="outerHTML">Cancel</button>
     </div>
 
-    <form action="/groceries/lists/{{.ListID}}/extracted" id="extractedForm" method="POST"
-        class="glass container">
+    <form hx-post="/groceries/lists/{{.ListID}}/extracted" hx-target="main" hx-swap="outerHTML"
+        id="extractedForm" class="glass container">
         <h2>Extracted From Recipe</h2>
         <input type="hidden" name="redirect-path" value="{{.RedirectPath}}">
 
