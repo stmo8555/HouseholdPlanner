@@ -9,28 +9,29 @@ type GroceryList struct {
 }
 
 type GroceryListStats struct {
-    ListID    int
-    Total     int
-    Picked    int
+	ListID int
+	Total  int
+	Picked int
 }
 
 type GroceryListView struct {
-	GroceryList GroceryList
+	GroceryList      GroceryList
 	GroceryListStats GroceryListStats
 }
 
 type Grocery struct {
-	ID            int                   `json:"id"`
-	Ingredient    ingredient.Ingredient `json:"ingredient"`
-	HouseholdID   int                   `json:"household_id"`
-	Picked        bool                  `json:"picked"`
-	ListID int
+	ID          int                   `json:"id"`
+	Ingredient  ingredient.Ingredient `json:"ingredient"`
+	HouseholdID int                   `json:"household_id"`
+	Picked      bool                  `json:"picked"`
+	ListID      int
 }
 
 type GroceriesView struct {
 	Dairy              []Grocery
 	FruitAndVegetables []Grocery
 	MeatAndFish        []Grocery
+	Frozen             []Grocery
 	Pantry             []Grocery
 	Other              []Grocery
 	Picked             []Grocery
@@ -40,6 +41,7 @@ func (g GroceriesView) Total() int {
 	return len(g.Pantry) +
 		len(g.FruitAndVegetables) +
 		len(g.MeatAndFish) +
+		len(g.Frozen) +
 		len(g.Dairy) +
 		len(g.Other)
 }

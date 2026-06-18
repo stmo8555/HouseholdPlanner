@@ -564,6 +564,8 @@ func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin
 		filteredGroceries.FruitAndVegetables = groceries.FruitAndVegetables
 	case "meatandfish":
 		filteredGroceries.MeatAndFish = groceries.MeatAndFish
+	case "frozen":
+		filteredGroceries.Frozen = groceries.Frozen
 	case "pantry":
 		filteredGroceries.Pantry = groceries.Pantry
 	case "other":
