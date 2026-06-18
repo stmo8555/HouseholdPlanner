@@ -1,15 +1,18 @@
 {{define "groceries/overview_page"}}
 <main>
-    <form hx-post="/groceries/lists" hx-target="main" hx-swap="outerHTML"
-        hx-on::after-request="if(event.detail.successful) this.reset();" class="add-list">
-        <label for="add-list" class="sr-only">List Name</label>
-        <input autocomplete="off" type="text" id="add-list" name="name" class="glass-inner"
-            placeholder="New grocery list..." required>
-        <button class="block" type="submit">
-            <span>Add list</span>
-            {{template "spinner" .}}
-        </button>
-    </form>
+    <section class="add-list-section" aria-labelledby="add-list-title">
+        <h2 id="add-list-title">Create a new list</h2>
+        <form hx-post="/groceries/lists" hx-target="main" hx-swap="outerHTML"
+            hx-on::after-request="if(event.detail.successful) this.reset();" class="add-list">
+            <label for="add-list" class="sr-only">List Name</label>
+            <input autocomplete="off" type="text" id="add-list" name="name" class="glass-inner"
+                placeholder="e.g. Weekly groceries" required>
+            <button class="block" type="submit">
+                <span>+ Add list</span>
+                {{template "spinner" .}}
+            </button>
+        </form>
+    </section>
 
     <div id="modal-root"></div>
 
