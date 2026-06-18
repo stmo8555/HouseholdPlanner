@@ -44,4 +44,7 @@
         </nav>
     </div>
 </header>
+{{if .CurrentPath}}
+{{template "notifications/bootstrap" .}}
+{{end}}
 {{end}}

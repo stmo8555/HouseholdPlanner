@@ -55,6 +55,73 @@ document.body.addEventListener("click", event => {
     document.getElementById("product-input").value = button.textContent;
 });
 
+let householdVersionSyncPending = false;
+
+function householdRequestVerb(detail) {
+    const verb = detail.requestConfig?.verb;
+    if (verb)
+        return verb.toLowerCase();
+
+    const trigger = detail.elt;
+    if (!trigger)
+        return "";
+
+    if (trigger.closest("[hx-post]")) return "post";
+    if (trigger.closest("[hx-put]")) return "put";
+    if (trigger.closest("[hx-patch]")) return "patch";
+    if (trigger.closest("[hx-delete]")) return "delete";
+
+    return "";
+}
+
+function householdRequestPath(detail) {
+    const path = detail.requestConfig?.path || detail.pathInfo?.requestPath || "";
+    if (!path)
+        return "";
+
+    return new URL(path, window.location.origin).pathname;
+}
+
+function syncHouseholdVersion() {
+    if (householdVersionSyncPending || !document.getElementById("household-sync-state") || !window.htmx)
+        return;
+
+    householdVersionSyncPending = true;
+    const request = window.htmx.ajax("GET", "/notifications/ack", {
+        target: "#household-sync-state",
+        swap: "innerHTML",
+    });
+
+    if (request?.finally) {
+        request.finally(() => {
+            householdVersionSyncPending = false;
+        });
+    } else {
+        setTimeout(() => {
+            householdVersionSyncPending = false;
+        }, 1000);
+    }
+}
+
+document.body.addEventListener("htmx:afterRequest", event => {
+    const detail = event.detail;
+    const status = detail.xhr?.status || 0;
+    const successful = detail.successful || (status >= 200 && status < 400);
+    if (!successful)
+        return;
+
+    if (detail.elt?.closest("#household-sync"))
+        return;
+
+    if (householdRequestPath(detail).startsWith("/notifications/"))
+        return;
+
+    if (!["post", "put", "patch", "delete"].includes(householdRequestVerb(detail)))
+        return;
+
+    syncHouseholdVersion();
+});
+
 
 const recipeCards = [...document.querySelectorAll(".recipe-card")];
 const searchInput = document.getElementById("fuzzy-search");

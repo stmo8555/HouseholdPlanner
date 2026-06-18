@@ -93,6 +93,7 @@ CREATE TABLE restaurants (
 
 -- Drop triggers if rerunning
 DROP TRIGGER IF EXISTS groceries_bump ON groceries;
+DROP TRIGGER IF EXISTS grocery_lists_bump ON grocery_lists;
 DROP TRIGGER IF EXISTS todos_bump ON todos;
 DROP TRIGGER IF EXISTS members_bump ON household_members;
 DROP TRIGGER IF EXISTS recipes_bump ON recipes;
@@ -118,6 +119,12 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER groceries_bump
 AFTER INSERT OR UPDATE OR DELETE
 ON groceries
+FOR EACH ROW
+EXECUTE FUNCTION bump_household_version();
+
+CREATE TRIGGER grocery_lists_bump
+AFTER INSERT OR UPDATE OR DELETE
+ON grocery_lists
 FOR EACH ROW
 EXECUTE FUNCTION bump_household_version();
 

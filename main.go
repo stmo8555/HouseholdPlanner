@@ -16,6 +16,7 @@ import (
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
 	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
+	"github.com/stmo8555/HouseholdPlanner/internal/notification"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
 	"github.com/stmo8555/HouseholdPlanner/internal/todo"
@@ -28,6 +29,7 @@ var productService *product.Service
 var ingredientExtractor *ingredient.Extractor
 var recipeService *recipe.Service
 var groceryService *grocery.Service
+var notificationService *notification.Service
 
 func main() {
 	pool, err := pgxpool.New(context.Background(), dbDSN())
@@ -51,6 +53,7 @@ func main() {
 	todoService = todo.CreateService(todo.CreateRepo(pool), aiService)
 	groceryService = grocery.NewService(grocery.NewRepo(pool), productService, ingredientExtractor)
 	recipeService = recipe.NewService(recipe.NewRepo(pool), productService, ingredientExtractor)
+	notificationService = notification.NewService(notification.NewRepo(pool))
 
 	tmpl := template.Must(parseTemplates("web/templates"))
 
@@ -65,12 +68,20 @@ func main() {
 	setupTodos(auth)
 	// setupRecipes(auth)
 	setupGroceries(auth)
+	setupNotifications(auth)
 	// setupHome(auth)
 
 	err = r.Run(":8080")
 	if err != nil {
 		panic(err)
 	}
+}
+
+func setupNotifications(r *gin.RouterGroup) {
+	handler := notification.NewHandler(notificationService)
+
+	r.GET("/notifications/household-version", handler.Check)
+	r.GET("/notifications/ack", handler.Ack)
 }
 
 func setupLogin(r *gin.Engine) {

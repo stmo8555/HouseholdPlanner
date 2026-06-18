@@ -35,7 +35,8 @@
             </div>
 
             <div class="flex align-items gap-6px">
-                <form hx-get="/groceries/lists/{{.GroceryList.ID}}" hx-swap="outerHTML" hx-target="main">
+                <form hx-get="/groceries/lists/{{.GroceryList.ID}}?partial=1" hx-swap="outerHTML" hx-target="main"
+                    hx-push-url="/groceries/lists/{{.GroceryList.ID}}">
                     <button type="submit">Open</button>
                 </form>
                 <button type="button" hx-get="/groceries/lists/{{.GroceryList.ID}}/edit" hx-target="#modal-root"

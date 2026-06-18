@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/jackc/pgx/v5"
 	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 )
@@ -51,6 +52,15 @@ func (h *Handler) ListPage(c *gin.Context) {
 		panic(err)
 	}
 
+	list, err := h.service.GroceryList(c, groceryListID, hid)
+	if errors.Is(err, pgx.ErrNoRows) {
+		h.renderDeletedList(c, groceryListID)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+
 	data, err := h.buildListViewData(c, groceryListID, hid)
 	if err != nil {
 		panic(err)
@@ -61,19 +71,33 @@ func (h *Handler) ListPage(c *gin.Context) {
 		panic(err)
 	}
 
-	var listName string
-	for _, l := range lists {
-		if l.GroceryList.ID == groceryListID {
-			listName = l.GroceryList.Name
-			break
-		}
+	data["ListID"] = groceryListID
+	data["ListName"] = list.Name
+	data["Lists"] = lists
+	data["Title"] = list.Name
+	data["CurrentPath"] = "/groceries"
+
+	if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
+		c.HTML(200, "groceries/list_page", data)
+		return
 	}
 
-	data["ListID"] = groceryListID
-	data["ListName"] = listName
-	data["Lists"] = lists
+	c.HTML(200, "grocery_list.html", data)
+}
 
-	c.HTML(200, "groceries/list_page", data)
+func (h *Handler) renderDeletedList(c *gin.Context, groceryListID int) {
+	data := gin.H{
+		"Title":       "List deleted",
+		"CurrentPath": "/groceries",
+		"ListID":      groceryListID,
+	}
+
+	if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
+		c.HTML(200, "groceries/list_deleted", data)
+		return
+	}
+
+	c.HTML(200, "grocery_list_deleted.html", data)
 }
 
 func (h *Handler) List(c *gin.Context) {
