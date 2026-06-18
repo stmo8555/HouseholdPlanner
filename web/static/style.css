@@ -895,7 +895,7 @@ form.htmx-request button .checkbox {
 
 .add-list input {
     flex: 1;
-    min-width: 0;
+    min-inline-size: 0;
     border: 0;
     border-radius: 14px 0 0 14px;
 }
@@ -912,10 +912,13 @@ form.htmx-request button .checkbox {
     flex-direction: column;
     align-items: center;
     gap: 8px;
-    width: 100%;
+    inline-size: 100%;
     text-align: center;
-    cursor: pointer;
     user-select: none;
+}
+
+label.empty-state {
+    cursor: pointer;
 }
 
 .empty-state p {
@@ -924,36 +927,34 @@ form.htmx-request button .checkbox {
 }
 
 .empty-state-help {
-    margin: 8px 0 0;
-    max-width: 420px;
+    margin-block-start: 16px;
+    inline-size: 100%;
+    max-inline-size: 420px;
     text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
-.empty-state-help dt,
-.empty-state-help dd {
+.empty-state-help-item {
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px 14px;
     cursor: pointer;
 }
 
 .empty-state-help dt {
     font-weight: 600;
-    padding-top: 12px;
-    border-top: 1px solid var(--border);
-}
-
-
-.empty-state-help dt:first-child {
-    padding-top: 0;
-    border-top: none;
+    margin-block-end: 2px;
 }
 
 .empty-state-help dd {
-    margin: 4px 0 12px;
+    margin: 0;
     color: var(--text-lightly-dimmed);
+    font-size: 0.875rem;
 }
 
-.empty-state-help dd:last-child {
-    margin-bottom: 0;
-}
 
 /* =========================
    Todo pages

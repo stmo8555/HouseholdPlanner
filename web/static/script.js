@@ -30,7 +30,7 @@ document.body.addEventListener("click", event => {
 });
 
 document.body.addEventListener("click", event => {
-    const dt = event.target.closest("[data-target]");
+    const dt = event.target.closest(".empty-state-help-item[data-target]");
     if (!dt) return;
     const btn = document.getElementById(dt.dataset.target);
     if (!btn) return;
