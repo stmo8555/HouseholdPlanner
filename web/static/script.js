@@ -20,13 +20,13 @@ document.body.addEventListener("click", event => {
     toggleSearch()
 });
 
-document.body.addEventListener("click", event => {
-    const textArea = event.target.closest("input");
+document.body.addEventListener("input", event => {
+    const textArea = event.target.closest("textarea");
     if (!textArea)
         return;
 
-    this.style.height = "auto";
-    this.style.height = this.scrollHeight + "px";
+    textArea.style.height = "auto";
+    textArea.style.height = textArea.scrollHeight + "px";
 });
 
 document.body.addEventListener("click", event => {
