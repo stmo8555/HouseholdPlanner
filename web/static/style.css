@@ -215,7 +215,7 @@ main {
 .glass-inner {
     background: var(--input-bg);
     border-radius: 18px;
-    border: 1px solid var(--input-border);
+    border: 2px solid var(--input-border);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.8),
         var(--input-shadow);
@@ -497,6 +497,12 @@ button {
     border-radius: 16px;
     padding: 5px 10px;
     max-inline-size: 500px;
+}
+
+button:focus-visible,
+button.focused {
+    outline: none;
+    box-shadow: inset 0 0 0 2px white;
 }
 
 button span {
@@ -873,6 +879,18 @@ form.htmx-request button .checkbox {
     display: flex;
     border: 2px solid var(--border);
     border-radius: 16px;
+    transition: border-color 0.2s ease;
+}
+
+.add-list:has(input:focus) {
+    border-color: var(--accent-dark);
+    animation: form-focus-pulse 0.5s ease-out;
+}
+
+@keyframes form-focus-pulse {
+    0%   { box-shadow: 0 0 0 0 var(--accent); }
+    60%  { box-shadow: 0 0 0 7px transparent; }
+    100% { box-shadow: 0 0 0 0 transparent; }
 }
 
 .add-list input {
@@ -896,6 +914,8 @@ form.htmx-request button .checkbox {
     gap: 8px;
     width: 100%;
     text-align: center;
+    cursor: pointer;
+    user-select: none;
 }
 
 .empty-state p {
@@ -909,11 +929,17 @@ form.htmx-request button .checkbox {
     text-align: left;
 }
 
+.empty-state-help dt,
+.empty-state-help dd {
+    cursor: pointer;
+}
+
 .empty-state-help dt {
     font-weight: 600;
     padding-top: 12px;
     border-top: 1px solid var(--border);
 }
+
 
 .empty-state-help dt:first-child {
     padding-top: 0;
@@ -1203,17 +1229,11 @@ form.htmx-request button .checkbox {
 
 .login-form input:focus {
     outline: none;
-    border-color: rgba(36, 59, 94, 0.4);
+    border-color: var(--accent-dark);
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        0 0 0 3px rgba(36, 59, 94, 0.12);
-
-    @media (prefers-color-scheme: dark) {
-        border-color: rgba(255, 255, 255, 0.45);
-        box-shadow:
-            inset 0 1px 0 rgba(255, 255, 255, 0.1),
-            0 0 0 3px rgba(255, 255, 255, 0.12);
-    }
+        0 0 0 3px var(--shadow-accent);
+    animation: form-focus-pulse 0.5s ease-out;
 }
 
 .login-error {

@@ -30,6 +30,16 @@ document.body.addEventListener("click", event => {
 });
 
 document.body.addEventListener("click", event => {
+    const dt = event.target.closest("[data-target]");
+    if (!dt) return;
+    const btn = document.getElementById(dt.dataset.target);
+    if (!btn) return;
+    btn.focus();
+    btn.classList.add("focused");
+    btn.addEventListener("blur", () => btn.classList.remove("focused"), { once: true });
+});
+
+document.body.addEventListener("click", event => {
     const button = event.target.closest(".removeRowBtn");
     if (!button)
         return;
