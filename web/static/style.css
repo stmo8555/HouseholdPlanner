@@ -219,6 +219,21 @@ main {
     box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.8),
         var(--input-shadow);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input.glass-inner,
+textarea.glass-inner {
+    padding: 10px 12px;
+}
+
+.glass-inner:focus {
+    outline: none;
+    border-color: var(--accent-dark);
+    box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.8),
+        0 0 0 3px var(--shadow-accent);
+    animation: form-focus-pulse 0.5s ease-out;
 }
 
 body.flower-power::before {
@@ -375,6 +390,7 @@ nav ul li a {
 input {
     outline: unset;
     border: unset;
+    font-size: 1rem;
 }
 
 input::placeholder,
@@ -387,7 +403,6 @@ input[type="text"] {
     display: block;
     padding: 12px;
     inline-size: 100%;
-    font-size: inherit;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -660,6 +675,11 @@ form.htmx-request button .checkbox {
     gap: 1.5rem;
 }
 
+.add-dialog button[type="submit"] {
+    padding: 10px 12px;
+    max-inline-size: unset;
+}
+
 .add-dialog :is(h2, h3) {
     margin: 0;
 }
@@ -846,15 +866,6 @@ form.htmx-request button .checkbox {
     gap: 5px;
 }
 
-.extract-grocery-form input {
-    font-size: inherit;
-}
-
-.edit-grocery-form input,
-.add-grocery-form input {
-    font-size: inherit;
-    padding: 5px;
-}
 
 .edit-btn {
     color: var(--text);
@@ -974,7 +985,6 @@ label.empty-state {
     display: block;
     padding: 12px;
     inline-size: 100%;
-    font-size: inherit;
 }
 
 .todo-form input[type="radio"] {
@@ -1015,7 +1025,6 @@ label.empty-state {
 .todo-form .repeat-frequency-container input {
     display: inline-block;
     text-align: center;
-    font-size: inherit;
     padding: 6px 12px;
 }
 
@@ -1235,17 +1244,8 @@ label.empty-state {
     padding: 12px 14px;
     margin-block-end: 18px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.login-form input:focus {
-    outline: none;
-    border-color: var(--accent-dark);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        0 0 0 3px var(--shadow-accent);
-    animation: form-focus-pulse 0.5s ease-out;
-}
 
 .login-error {
     background: linear-gradient(to bottom, #8f3d5a, #742d47);
