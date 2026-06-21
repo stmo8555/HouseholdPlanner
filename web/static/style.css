@@ -284,7 +284,7 @@ header {
     display: flex;
 }
 
-.header-items button {
+#nav-toggle {
     font-size: 3rem;
     display: inline-block;
     z-index: 200;
@@ -299,6 +299,21 @@ header {
 .header-items a.active {
     background-position: 100% 100%;
     background-size: 100% 2px;
+}
+
+/* Logout is a POST form; make its button look like a nav link */
+.logout-form {
+    margin: 0;
+    display: contents;
+}
+
+.nav-link-button {
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 nav {
@@ -322,7 +337,8 @@ nav ul li {
     border-block-end: solid rgba(255, 255, 255, 0.2) 1px;
 }
 
-nav ul li a {
+nav ul li a,
+nav ul li .nav-link-button {
     display: block;
     padding: 15px;
 }
@@ -356,7 +372,8 @@ nav ul li a {
         border: none;
     }
 
-    nav ul li a {
+    nav ul li a,
+    nav ul li .nav-link-button {
         padding: 0;
         text-decoration: none;
         display: inline-block;
@@ -370,7 +387,8 @@ nav ul li a {
             background-position 0s 0.3s;
     }
 
-    nav a:hover {
+    nav a:hover,
+    nav .nav-link-button:hover {
         background-position: 100% 100%;
         background-size: 100% 2px;
     }
@@ -1299,16 +1317,19 @@ label.empty-state {
 
 
 .login-error {
-    background: linear-gradient(to bottom, #8f3d5a, #742d47);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-    border-radius: 16px;
-    color: #fff;
-    font-weight: 600;
-    padding: 12px;
+    background: color-mix(in srgb, #e8a23d 16%, transparent);
+    border: 1px solid color-mix(in srgb, #c9821f 40%, transparent);
+    border-radius: 10px;
+    color: color-mix(in srgb, #9a661a 78%, var(--text));
+    font-weight: 500;
+    padding: 12px 14px;
     margin-block-end: 20px;
     word-break: normal;
-    text-align: center;
-    box-shadow: 0 4px 14px rgba(116, 45, 71, 0.4);
+    text-align: start;
+}
+
+.login-error::before {
+    content: "⚠ ";
 }
 
 .login-button {

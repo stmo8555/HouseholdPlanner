@@ -91,7 +91,7 @@ func setupLogin(r *gin.Engine) {
 
 	r.GET("/login", handler.Login)
 	r.POST("/login", handler.Authenticate)
-	r.GET("/logout", handler.Logout)
+	r.POST("/logout", handler.Logout)
 
 	login.RunCleanup(context.Background(), loginService)
 }

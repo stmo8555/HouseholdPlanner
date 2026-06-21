@@ -36,8 +36,9 @@
                 <!-- </li> -->
                 <li>
                     <strong>
-                        <a href="/logout"
-                            class='{{if eq .CurrentPath "/logout"}}active mobile-nav-chosen{{end}}'>Logout</a>
+                        <form method="POST" action="/logout" class="logout-form">
+                            <button type="submit" class="nav-link-button">Logout</button>
+                        </form>
                     </strong>
                 </li>
             </ul>
