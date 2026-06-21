@@ -2,6 +2,7 @@
 <header>
     <div class="header-items">
         <h1><a href="/">Household planner</a></h1>
+        {{if ne .Title "Login"}}
         <button id="nav-toggle">≡</button>
         <nav id="primary-nav">
             <ul class="center-horizontal">
@@ -41,6 +42,7 @@
                 </li>
             </ul>
         </nav>
+        {{end}}
     </div>
 </header>
 {{end}}
