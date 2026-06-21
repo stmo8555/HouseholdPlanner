@@ -5,7 +5,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/jackc/pgx/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -39,7 +38,7 @@ func (s *Service) Authenticate(ctx context.Context, uname, pwd string) (string, 
 
 	if err != nil {
 		bcrypt.CompareHashAndPassword([]byte(fakeHash), []byte(pwd))
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, ErrNotFound) {
 			return "", errInvalidCredentials
 		}
 

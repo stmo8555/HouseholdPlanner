@@ -6,7 +6,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/jackc/pgx/v5"
 	"github.com/stmo8555/HouseholdPlanner/internal/ai"
 )
 
@@ -43,10 +42,8 @@ func (s *Service) GetID(ctx context.Context, p Product) (int, error) {
 	}
 
 	id, err := s.Repo.GetID(ctx, p)
-
-	found := err != pgx.ErrNoRows
-	if found {
-		return id, err
+	if !errors.Is(err, ErrNotFound) {
+		return id, err // err == nil (found) or a real error
 	}
 
 	p.Category = s.categoryFor(p.Name)

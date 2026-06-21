@@ -2,6 +2,7 @@ package product
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -54,6 +55,9 @@ func (r *Repo) GetID(ctx context.Context, p Product) (int, error) {
 		p.Name,
 		p.Brand,
 	).Scan(&id)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return id, ErrNotFound
+	}
 
 	return id, err
 }

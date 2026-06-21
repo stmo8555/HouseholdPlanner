@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5"
 	"github.com/stmo8555/HouseholdPlanner/internal/household"
 	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
@@ -65,7 +64,7 @@ func (h *Handler) ListPage(c *gin.Context) {
 	}
 
 	list, err := h.service.GroceryList(c, groceryListID, hid)
-	if errors.Is(err, pgx.ErrNoRows) {
+	if errors.Is(err, ErrNotFound) {
 		h.renderDeletedList(c, groceryListID)
 		return
 	}

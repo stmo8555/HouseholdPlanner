@@ -59,6 +59,7 @@ func main() {
 	tmpl := template.Must(parseTemplates("web/templates"))
 
 	r := gin.Default()
+	r.TrustedPlatform = gin.PlatformCloudflare
 	r.SetHTMLTemplate(tmpl)
 	r.Static("/static/", "web/static")
 	setupLogin(r)
@@ -66,13 +67,13 @@ func main() {
 	auth := r.Group("/")
 	auth.Use(login.AuthMiddleware(loginService))
 
-	setupTodos(auth)
+	// setupTodos(auth)
 	// setupRecipes(auth)
 	setupGroceries(auth)
 	setupNotifications(auth)
 	// setupHome(auth)
 
-	err = r.Run(":8080")
+	err = r.Run("localhost:8080")
 	if err != nil {
 		panic(err)
 	}

@@ -2,6 +2,9 @@ package login
 
 import (
 	"context"
+	"errors"
+
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -51,6 +54,9 @@ func (r *Repo) User(ctx context.Context, uname string) (User, error) {
 	var hash string
 
 	err := r.db.QueryRow(ctx, sql, uname).Scan(&uid, &hash)
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = ErrNotFound
+	}
 
 	return User{
 		ID:    uid,
@@ -85,6 +91,9 @@ func (r *Repo) getSession(ctx context.Context, id string) (Session, error) {
 		&session.ExpiresAt,
 		&session.HouseholdID,
 	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		err = ErrNotFound
+	}
 
 	return session, err
 }

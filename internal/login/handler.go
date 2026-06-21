@@ -3,12 +3,42 @@ package login
 import (
 	"errors"
 	"net/http"
+	"sync"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron/v3"
+	"golang.org/x/time/rate"
 )
+
+func (h *Handler) startCleanup() {
+	c := cron.New()
+	_, err := c.AddFunc("@every 5m", func() {
+		cutoff := time.Now().Add(-15 * time.Minute)
+
+		h.limiter.Range(func(key, value any) bool {
+			if value.(*loginLimiter).lastSeen.Before(cutoff) {
+				h.limiter.Delete(key)
+			}
+
+			return true
+		})
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	c.Start()
+}
+
+type loginLimiter struct {
+	limiter  *rate.Limiter
+	lastSeen time.Time
+}
 
 type Handler struct {
 	service *Service
+	limiter sync.Map
 }
 
 func NewHandler(s *Service) *Handler {
@@ -16,9 +46,14 @@ func NewHandler(s *Service) *Handler {
 		panic("nil service for handler")
 	}
 
-	return &Handler{
+	handler := Handler{
 		service: s,
+		limiter: sync.Map{},
 	}
+
+	handler.startCleanup()
+
+	return &handler
 }
 
 func (h *Handler) Login(c *gin.Context) {
@@ -37,6 +72,22 @@ func (h *Handler) Logout(c *gin.Context) {
 }
 
 func (h *Handler) Authenticate(c *gin.Context) {
+	ip := c.ClientIP()
+
+	v, _ := h.limiter.LoadOrStore(ip, &loginLimiter{
+		limiter:  rate.NewLimiter(rate.Every(10*time.Second/3), 3),
+		lastSeen: time.Now(),
+	})
+	ll := v.(*loginLimiter)
+	ll.lastSeen = time.Now()
+
+	if !ll.limiter.Allow() {
+		c.JSON(http.StatusTooManyRequests, gin.H{
+			"error": "rate limit exceeded",
+		})
+		return
+	}
+
 	uname := c.PostForm("uname")
 	pwd := c.PostForm("pwd")
 

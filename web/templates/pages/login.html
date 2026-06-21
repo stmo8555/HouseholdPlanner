@@ -15,7 +15,7 @@
                 {{end}}
 
                 <label for="uname">Username</label>
-                <input class="glass-inner" type="text" id="uname" name="uname" required>
+                <input class="glass-inner" type="text" id="uname" name="uname" required autofocus>
 
                 <label for="pwd">Password</label>
                 <input class="glass-inner" type="password" id="pwd" name="pwd" required>
@@ -25,13 +25,13 @@
         </main>
         <script type="module" src="/static/script.js"></script>
         <script>
-            document.querySelectorAll(".header-items").forEach(container => {
-                container.querySelectorAll(":scope > *").forEach(child => {
-                    if (child.tagName !== "H1") {
-                        child.remove();
-                    }
-                });
-            });
+            // document.querySelectorAll(".header-items").forEach(container => {
+            //     container.querySelectorAll(":scope > *").forEach(child => {
+            //         if (child.tagName !== "H1") {
+            //             child.remove();
+            //         }
+            //     });
+            // });
         </script>
     </div>
 </body>

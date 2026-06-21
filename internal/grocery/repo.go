@@ -2,6 +2,7 @@ package grocery
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v5"
@@ -70,6 +71,9 @@ func (r *Repo) GroceryList(ctx context.Context, groceryListID, hid int) (Grocery
 		&g.Name,
 		&g.HouseholdID,
 	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return g, ErrNotFound
+	}
 
 	return g, err
 }
@@ -304,6 +308,9 @@ func (r *Repo) Grocery(ctx context.Context, itemID int, hid int) (Grocery, error
 		&g.HouseholdID,
 		&g.Picked,
 	)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return g, ErrNotFound
+	}
 
 	return g, err
 }
