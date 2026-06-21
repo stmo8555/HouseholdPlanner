@@ -47,7 +47,7 @@
 
 - [ ] **Replace handler panics/raw errors with safe responses** — repos now return domain `ErrNotFound` (good start), but most handlers still `panic` on error. Map errors to proper HTTP responses instead of relying on the recovery middleware.
 - [ ] **Fix frontend JS runtime errors** — clear any console errors in the served pages.
-- [ ] **Disable or finish Todo Smart Add** — the `todos` routes are commented out in `main.go`; either finish the feature or keep it disabled rather than shipping a half-wired endpoint.
+- [x] **Disable or finish Todo Smart Add** — the `todos` routes are commented out in `main.go`; either finish the feature or keep it disabled rather than shipping a half-wired endpoint.
 
 ## Project hygiene
 
