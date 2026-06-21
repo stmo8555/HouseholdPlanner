@@ -55,7 +55,6 @@ document.body.addEventListener("click", event => {
     document.getElementById("product-input").value = button.textContent;
 });
 
-
 const recipeCards = [...document.querySelectorAll(".recipe-card")];
 const searchInput = document.getElementById("fuzzy-search");
 const matchInput = document.getElementById("fuzzy-match");

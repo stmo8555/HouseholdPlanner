@@ -610,6 +610,52 @@ dialog::backdrop {
 
 
 /* =========================
+   Household notifications
+========================= */
+
+.household-notification {
+    position: fixed;
+    inset-inline: 12px;
+    inset-block-end: 12px;
+    z-index: 300;
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+}
+
+.household-notification strong {
+    display: block;
+    margin-block-end: 4px;
+}
+
+.household-notification p {
+    margin: 0;
+    color: var(--text-lightly-dimmed);
+    word-break: normal;
+}
+
+.household-notification-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.notification-dismiss {
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+@media screen and (min-width: 700px) {
+    .household-notification {
+        inset-inline: auto 24px;
+        inset-block-end: 24px;
+        inline-size: min(360px, calc(100dvw - 48px));
+    }
+}
+
+
+/* =========================
    HTMX
 ========================= */
 

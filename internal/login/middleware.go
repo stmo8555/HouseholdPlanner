@@ -11,23 +11,20 @@ func AuthMiddleware(s *Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionID, err := c.Cookie("session_id")
 		if err != nil {
-			c.Redirect(http.StatusFound, "/login")
-			c.Abort()
+			redirectToLogin(c)
 			return
 		}
 
 		session, err := s.GetSession(c.Request.Context(), sessionID)
 		if err != nil {
-			c.Redirect(http.StatusFound, "/login")
-			c.Abort()
+			redirectToLogin(c)
 			return
 		}
 
 		if time.Now().UTC().After(session.ExpiresAt) {
 			s.repo.RemoveSession(c.Request.Context(), sessionID)
 
-			c.Redirect(http.StatusFound, "/login")
-			c.Abort()
+			redirectToLogin(c)
 			return
 		}
 
@@ -36,4 +33,15 @@ func AuthMiddleware(s *Service) gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func redirectToLogin(c *gin.Context) {
+	if c.GetHeader("HX-Request") == "true" {
+		c.Header("HX-Redirect", "/login")
+		c.AbortWithStatus(http.StatusUnauthorized)
+		return
+	}
+
+	c.Redirect(http.StatusFound, "/login")
+	c.Abort()
 }
