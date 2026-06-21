@@ -14,6 +14,7 @@ import (
 
 	"github.com/stmo8555/HouseholdPlanner/internal/ai"
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
+	"github.com/stmo8555/HouseholdPlanner/internal/household"
 	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
 	"github.com/stmo8555/HouseholdPlanner/internal/notification"
@@ -29,7 +30,7 @@ var productService *product.Service
 var ingredientExtractor *ingredient.Extractor
 var recipeService *recipe.Service
 var groceryService *grocery.Service
-var notificationService *notification.Service
+var householdService *household.Service
 
 func main() {
 	pool, err := pgxpool.New(context.Background(), dbDSN())
@@ -53,7 +54,7 @@ func main() {
 	todoService = todo.CreateService(todo.CreateRepo(pool), aiService)
 	groceryService = grocery.NewService(grocery.NewRepo(pool), productService, ingredientExtractor)
 	recipeService = recipe.NewService(recipe.NewRepo(pool), productService, ingredientExtractor)
-	notificationService = notification.NewService(notification.NewRepo(pool))
+	householdService = household.NewService(household.NewRepo(pool))
 
 	tmpl := template.Must(parseTemplates("web/templates"))
 
@@ -78,7 +79,7 @@ func main() {
 }
 
 func setupNotifications(r *gin.RouterGroup) {
-	handler := notification.NewHandler(notificationService)
+	handler := notification.NewHandler(householdService)
 
 	r.GET("/notifications/household-version", handler.Check)
 	r.GET("/notifications/ack", handler.Ack)
@@ -116,7 +117,7 @@ func setupRecipes(r *gin.RouterGroup) {
 }
 
 func setupGroceries(r *gin.RouterGroup) {
-	handler := grocery.NewHandler(groceryService, ingredientExtractor)
+	handler := grocery.NewHandler(groceryService, householdService, ingredientExtractor)
 
 	r.GET("/", func(c *gin.Context) { c.Redirect(302, "/groceries") })
 	r.GET("/groceries", handler.OverviewPage)

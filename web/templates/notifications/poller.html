@@ -1,6 +1,5 @@
 {{define "notifications/poller"}}
-<input id="household-version-input" type="hidden" name="known_version" value="{{.KnownVersion}}">
-
+{{template "household/version_input" .}}
 {{if .Changed}}
 <section class="household-notification glass" role="status" aria-live="polite">
     <div>
@@ -9,8 +8,8 @@
     </div>
     <div class="household-notification-actions">
         <button type="button" onclick="window.location.reload()">Refresh</button>
-        <button type="button" class="notification-dismiss" hx-get="/notifications/ack"
-            hx-target="#household-sync-state" hx-swap="innerHTML">Dismiss</button>
+        <button type="button" class="notification-dismiss" hx-get="/notifications/ack" hx-target="#household-sync-state"
+            hx-swap="innerHTML">Dismiss</button>
     </div>
 </section>
 {{end}}

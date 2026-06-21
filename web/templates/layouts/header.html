@@ -12,8 +12,7 @@
                 <!-- </li> -->
                 <li>
                     <strong>
-                        <a href="/todos"
-                            class='{{if eq .CurrentPath "/todos"}}active mobile-nav-chosen{{end}}'>Todo</a>
+                        <a href="/todos" class='{{if eq .CurrentPath "/todos"}}active mobile-nav-chosen{{end}}'>Todo</a>
                     </strong>
                 </li>
                 <li>
@@ -44,7 +43,4 @@
         </nav>
     </div>
 </header>
-{{if .CurrentPath}}
-{{template "notifications/bootstrap" .}}
-{{end}}
 {{end}}

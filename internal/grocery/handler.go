@@ -8,22 +8,25 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5"
+	"github.com/stmo8555/HouseholdPlanner/internal/household"
 	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 )
 
 type Handler struct {
 	service             *Service
+	householdService    *household.Service
 	ingredientExtractor *ingredient.Extractor
 }
 
-func NewHandler(s *Service, ingredient *ingredient.Extractor) *Handler {
-	if s == nil || ingredient == nil {
+func NewHandler(s *Service, householdService *household.Service, ingredient *ingredient.Extractor) *Handler {
+	if s == nil || householdService == nil || ingredient == nil {
 		panic("nil service for handler")
 	}
 
 	return &Handler{
 		service:             s,
+		householdService:    householdService,
 		ingredientExtractor: ingredient,
 	}
 }
@@ -37,7 +40,16 @@ func (h *Handler) OverviewPage(c *gin.Context) {
 		return
 	}
 
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
+
+	if err != nil {
+		panic(err)
+	}
+
 	data := gin.H{"Lists": lists}
+
+	data["OOB"] = false
+	data["HouseholdVersion"] = version
 	data["Title"] = "Groceries"
 	data["CurrentPath"] = c.Request.URL.Path
 
@@ -71,16 +83,25 @@ func (h *Handler) ListPage(c *gin.Context) {
 		panic(err)
 	}
 
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	data["OOB"] = false
+	data["HouseholdVersion"] = version
+
 	data["ListID"] = groceryListID
 	data["ListName"] = list.Name
 	data["Lists"] = lists
 	data["Title"] = list.Name
 	data["CurrentPath"] = "/groceries"
 
-	if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
-		c.HTML(200, "groceries/list_page", data)
-		return
-	}
+	// if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
+	// 	c.HTML(200, "groceries/list_page", data)
+	// 	return
+	// }
 
 	c.HTML(200, "grocery_list.html", data)
 }
@@ -92,10 +113,10 @@ func (h *Handler) renderDeletedList(c *gin.Context, groceryListID int) {
 		"ListID":      groceryListID,
 	}
 
-	if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
-		c.HTML(200, "groceries/list_deleted", data)
-		return
-	}
+	// if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
+	// 	c.HTML(200, "groceries/list_deleted", data)
+	// 	return
+	// }
 
 	c.HTML(200, "grocery_list_deleted.html", data)
 }
@@ -123,6 +144,14 @@ func (h *Handler) RenderListPartial(c *gin.Context, groceryListID int) {
 		panic(err)
 	}
 
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
+
+	if err != nil {
+		panic(err)
+	}
+
+	data["OOB"] = true
+	data["HouseholdVersion"] = version
 	data["ListID"] = groceryListID
 	data["ListName"] = list.Name
 
@@ -150,7 +179,16 @@ func (h *Handler) CreateList(c *gin.Context) {
 		panic(err)
 	}
 
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
+
+	if err != nil {
+		panic(err)
+	}
+
 	data := gin.H{"Lists": lists}
+
+	data["OOB"] = true
+	data["HouseholdVersion"] = version
 
 	c.HTML(200, "groceries/overview_page", data)
 }
@@ -178,8 +216,16 @@ func (h *Handler) UpdateGroceryList(c *gin.Context) {
 		panic(err)
 	}
 
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
+
+	if err != nil {
+		panic(err)
+	}
+
 	data := gin.H{"Lists": lists}
 
+	data["OOB"] = true
+	data["HouseholdVersion"] = version
 	c.HTML(200, "groceries/overview_page", data)
 }
 
@@ -201,7 +247,16 @@ func (h *Handler) DeleteGroceryList(c *gin.Context) {
 		panic(err)
 	}
 
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
+
+	if err != nil {
+		panic(err)
+	}
+
 	data := gin.H{"Lists": lists}
+
+	data["OOB"] = true
+	data["HouseholdVersion"] = version
 
 	c.HTML(200, "groceries/overview_page", data)
 }
@@ -219,6 +274,7 @@ func (h *Handler) EditGroceryListForm(c *gin.Context) {
 		panic(err)
 	}
 
+	// todo: You can query the list you want
 	for _, list := range lists {
 		if list.GroceryList.ID == groceryListID {
 			c.HTML(200, "edit-grocery-list", gin.H{
@@ -255,10 +311,21 @@ func (h *Handler) TransferGroceryList(c *gin.Context) {
 		panic(err)
 	}
 
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
+
+	if err != nil {
+		panic(err)
+	}
+
 	data := gin.H{"Lists": lists}
+
+	data["OOB"] = true
+	data["HouseholdVersion"] = version
 
 	c.HTML(200, "groceries/overview_page", data)
 }
+
+
 
 func (h *Handler) CreateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
@@ -294,7 +361,14 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	
+	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
 
+	if err != nil {
+		panic(err)
+	}
+
+	data["HouseholdVersion"] = version
 	data["ListID"] = groceryListID
 	data["ListName"] = list.Name
 	data["OOB"] = true

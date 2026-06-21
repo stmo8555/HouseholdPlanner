@@ -5,23 +5,24 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/stmo8555/HouseholdPlanner/internal/household"
 )
 
 type Handler struct {
-	service *Service
+	householdService *household.Service
 }
 
-func NewHandler(service *Service) *Handler {
-	if service == nil {
+func NewHandler(householdService *household.Service) *Handler {
+	if householdService == nil {
 		panic("nil service for handler")
 	}
 
-	return &Handler{service: service}
+	return &Handler{householdService: householdService}
 }
 
 func (h *Handler) Check(c *gin.Context) {
 	householdID := c.GetInt("household_id")
-	currentVersion, err := h.service.HouseholdVersion(c.Request.Context(), householdID)
+	currentVersion, err := h.householdService.HouseholdVersion(c.Request.Context(), householdID)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
@@ -33,21 +34,23 @@ func (h *Handler) Check(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "notifications/poller", gin.H{
-		"KnownVersion": knownVersion,
-		"Changed":      currentVersion > knownVersion,
+		"OOB":              false,
+		"HouseholdVersion": knownVersion,
+		"Changed":          currentVersion > knownVersion,
 	})
 }
 
 func (h *Handler) Ack(c *gin.Context) {
 	householdID := c.GetInt("household_id")
-	currentVersion, err := h.service.HouseholdVersion(c.Request.Context(), householdID)
+	currentVersion, err := h.householdService.HouseholdVersion(c.Request.Context(), householdID)
 	if err != nil {
 		c.String(http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	c.HTML(http.StatusOK, "notifications/poller", gin.H{
-		"KnownVersion": currentVersion,
-		"Changed":      false,
+		"OOB":              false,
+		"HouseholdVersion": currentVersion,
+		"Changed":          false,
 	})
 }

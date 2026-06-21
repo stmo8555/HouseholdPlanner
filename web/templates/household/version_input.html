@@ -1,0 +1,4 @@
+{{define "household/version_input"}}
+<input id="household-version-input" type="hidden" name="known_version"
+       value="{{.HouseholdVersion}}" {{if .OOB}}hx-swap-oob="true"{{end}}>
+{{end}}

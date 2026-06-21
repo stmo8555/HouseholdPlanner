@@ -1,8 +1,8 @@
 {{define "notifications/bootstrap"}}
-<div id="household-sync" hx-get="/notifications/household-version" hx-trigger="load, every 10s"
+<div id="household-sync" hx-get="/notifications/household-version" hx-trigger="every 10s"
     hx-include="#household-version-input" hx-target="#household-sync-state" hx-swap="innerHTML">
     <div id="household-sync-state">
-        <input id="household-version-input" type="hidden" name="known_version" value="">
+        {{template "household/version_input" .}}
     </div>
 </div>
 {{end}}

@@ -1,4 +1,5 @@
 {{define "groceries/list"}}
+{{if .OOB}}{{template "household/version_input" .}}{{end}}
 {{if or (gt .Total 0) (gt (len .Data.Picked) 0)}}
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
