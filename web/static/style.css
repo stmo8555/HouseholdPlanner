@@ -230,9 +230,7 @@ textarea.glass-inner {
 .glass-inner:focus {
     outline: none;
     border-color: var(--accent-dark);
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.8),
-        0 0 0 3px var(--shadow-accent);
+    box-shadow: 0 0 0 3px var(--shadow-accent);
     animation: form-focus-pulse 0.5s ease-out;
 }
 
@@ -601,6 +599,8 @@ dialog[open] {
     position: fixed;
     inset: 0;
     margin: auto;
+    block-size: fit-content;
+    max-block-size: calc(100dvh - 2rem);
 }
 
 dialog::backdrop {
