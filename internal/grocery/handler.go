@@ -113,11 +113,6 @@ func (h *Handler) renderDeletedList(c *gin.Context, groceryListID int) {
 		"ListID":      groceryListID,
 	}
 
-	// if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
-	// 	c.HTML(200, "groceries/list_deleted", data)
-	// 	return
-	// }
-
 	c.HTML(200, "grocery_list_deleted.html", data)
 }
 
@@ -274,7 +269,6 @@ func (h *Handler) EditGroceryListForm(c *gin.Context) {
 		panic(err)
 	}
 
-	// todo: You can query the list you want
 	for _, list := range lists {
 		if list.GroceryList.ID == groceryListID {
 			c.HTML(200, "edit-grocery-list", gin.H{
@@ -325,8 +319,6 @@ func (h *Handler) TransferGroceryList(c *gin.Context) {
 	c.HTML(200, "groceries/overview_page", data)
 }
 
-
-
 func (h *Handler) CreateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
@@ -361,7 +353,7 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
-	
+
 	version, err := h.householdService.HouseholdVersion(c.Request.Context(), hid)
 
 	if err != nil {
@@ -376,10 +368,6 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 }
 
 func (h *Handler) EditGroceryForm(c *gin.Context) {
-	//   listID, err := strconv.Atoi(c.Param("listId"))
-	//   if err != nil {
-	// panic(err)
-	//   }
 	hid := c.GetInt("household_id")
 
 	itemID, err := strconv.Atoi(c.Param("itemId"))

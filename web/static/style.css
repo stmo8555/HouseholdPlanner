@@ -880,6 +880,7 @@ form.htmx-request button .checkbox {
 
 .extracted-grocery-row {
     grid-template-columns: 1fr 1fr 1fr 2em;
+    padding-block: 10px;
 }
 
 .extracted-grocery-row input {

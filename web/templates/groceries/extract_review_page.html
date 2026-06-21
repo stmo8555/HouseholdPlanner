@@ -2,7 +2,7 @@
 <main>
     <div class="margin-block-end-24px flex gap-6px">
         <button type="submit" form="extractedForm">Save</button>
-        <button type="button" hx-get="{{.CancelURL}}" hx-target="main" hx-swap="outerHTML">Cancel</button>
+        <a href="{{.CancelURL}}" hx-boost="true" class="button-styling">Cancel</a>
     </div>
 
     <form hx-post="/groceries/lists/{{.ListID}}/extracted" hx-target="main" hx-swap="outerHTML"
