@@ -1,14 +1,15 @@
+name: household-planer
 services:
   db:
     image: postgres:18
-    container_name: household-planner-db
+    container_name: db
     env_file:
       - .env
     volumes:
-      - household_planner_db_data:/var/lib/postgresql    # <-- mount here instead
+      - db_data:/var/lib/postgresql    # <-- mount here instead
       - ./db-init:/docker-entrypoint-initdb.d
     ports:
       - "5432:5432"
 
 volumes:
-  household_planner_db_data:
+  db_data:

@@ -3,7 +3,7 @@ name: household-planner
 services:
   app:
     build: .
-    container_name: household-planner-web-server
+    container_name: web-server
     restart: unless-stopped
     env_file:
       - .env
@@ -15,12 +15,12 @@ services:
 
   db:
     image: postgres:18
-    container_name: household-planner-db
+    container_name: db
     restart: unless-stopped
     env_file:
       - .env
     volumes:
-      - household_planner_db_data:/var/lib/postgresql
+      - db_data:/var/lib/postgresql
       - ./household-db/db-init:/docker-entrypoint-initdb.d:ro
     ports:
       - "127.0.0.1:5432:5432"
@@ -31,4 +31,4 @@ services:
       retries: 20
 
 volumes:
-  household_planner_db_data:
+  db_data:
