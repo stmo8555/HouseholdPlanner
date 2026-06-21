@@ -866,6 +866,10 @@ form.htmx-request button .checkbox {
     color: #fb923c;
 }
 
+.grocery-divider.frozen strong {
+    color: #67e8f9;
+}
+
 .grocery-divider.pantry strong {
     color: #a78bfa;
 }

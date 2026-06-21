@@ -13,6 +13,7 @@
                 <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
                     Vegetables</option>
                 <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & Fish</option>
+                <option value="frozen" {{if eq .Filter "frozen" }}selected{{end}}>Frozen</option>
                 <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
                 <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
             </select>
@@ -57,6 +58,17 @@
         </div>
         {{end}}
         {{range .Data.MeatAndFish}}
+        {{template "groceries/row" .}}
+        {{end}}
+        {{end}}
+
+        {{if gt (len .Data.Frozen) 0}}
+        {{if eq .Filter "all"}}
+        <div class="grocery-divider frozen">
+            <strong>Frozen ({{len .Data.Frozen}})</strong>
+        </div>
+        {{end}}
+        {{range .Data.Frozen}}
         {{template "groceries/row" .}}
         {{end}}
         {{end}}
@@ -134,6 +146,7 @@
                 <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
                     Vegetables</option>
                 <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & Fish</option>
+                <option value="frozen" {{if eq .Filter "frozen" }}selected{{end}}>Frozen</option>
                 <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
                 <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
             </select>

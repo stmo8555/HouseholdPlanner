@@ -96,10 +96,10 @@ func (s *Service) CreateGroceries(ctx context.Context, ingredients []ingredient.
 			ingredients[i].ProductID = id
 		}
 		groceries = append(groceries, Grocery{
-			Ingredient:    ingredients[i],
-			ListID: groceryListID,
-			HouseholdID:   hid,
-			Picked:        false,
+			Ingredient:  ingredients[i],
+			ListID:      groceryListID,
+			HouseholdID: hid,
+			Picked:      false,
 		})
 	}
 
@@ -138,6 +138,8 @@ func (s *Service) GroceriesView(ctx context.Context, sortBy, order string, groce
 			switch g.Ingredient.Product.Category {
 			case "dairy":
 				sortedGroceries.Dairy = append(sortedGroceries.Dairy, g)
+			case "frozen":
+				sortedGroceries.Frozen = append(sortedGroceries.Frozen, g)
 			case "pantry":
 				sortedGroceries.Pantry = append(sortedGroceries.Pantry, g)
 			case "fruit & vegetables":
