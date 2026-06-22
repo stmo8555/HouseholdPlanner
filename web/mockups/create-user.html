@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Create user — mockups</title>
+    <!-- relative path so this opens straight from disk (file://) using the real app CSS -->
+    <link rel="stylesheet" href="../static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap"
+        rel="stylesheet">
+
+    <style>
+        /* ---- mock-only styling; the rest reuses the app's real classes ---- */
+
+        .page-head {
+            text-align: center;
+            margin: 28px 16px 4px;
+        }
+
+        .page-head h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .mock-note {
+            color: var(--text-dimmed);
+            font-size: 0.85rem;
+            margin: 4px 0 0;
+        }
+
+        .mock-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 44px;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 28px 16px 80px;
+        }
+
+        .mock-col {
+            flex: 1 1 380px;
+            max-inline-size: 440px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .mock-caption {
+            text-align: center;
+            font-weight: 600;
+            color: var(--text-lightly-dimmed);
+            margin: 0;
+        }
+
+        .mock-card {
+            padding-inline: 30px;
+            padding-block: 32px;
+        }
+
+        /* generic field (replaces the login-form-scoped input rules) */
+        .field {
+            margin-block-end: 18px;
+        }
+
+        .field:last-of-type {
+            margin-block-end: 0;
+        }
+
+        .field label,
+        .group-label {
+            display: block;
+            margin-block-end: 7px;
+            font-weight: 500;
+            color: var(--text-lightly-dimmed);
+        }
+
+        .field input {
+            display: block;
+            inline-size: 100%;
+            padding: 11px 14px;
+        }
+
+        .mock-card .login-button {
+            margin-block-start: 22px;
+        }
+
+        .card-foot {
+            text-align: center;
+            color: var(--text-lightly-dimmed);
+            margin: 20px 0 0;
+        }
+
+        /* ---- Option B: household choice as selectable cards ---- */
+        .hh-choice {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-block: 4px 16px;
+        }
+
+        .hh-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 15px;
+            border-radius: 16px;
+            border: 2px solid var(--input-border);
+            background: var(--input-bg);
+            cursor: pointer;
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+
+        .hh-card input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .hh-dot {
+            inline-size: 18px;
+            block-size: 18px;
+            border-radius: 50%;
+            border: 2px solid var(--text-dimmed);
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+        }
+
+        .hh-card:has(input:checked) {
+            border-color: var(--accent-dark);
+            background: color-mix(in srgb, var(--accent) 16%, var(--input-bg));
+        }
+
+        .hh-card:has(input:checked) .hh-dot {
+            border-color: var(--accent-dark);
+        }
+
+        .hh-card:has(input:checked) .hh-dot::after {
+            content: "";
+            inline-size: 9px;
+            block-size: 9px;
+            border-radius: 50%;
+            background: var(--accent-dark);
+        }
+
+        .hh-card-title {
+            display: block;
+            font-weight: 600;
+        }
+
+        .hh-card-desc {
+            display: block;
+            font-size: 0.82rem;
+            color: var(--text-lightly-dimmed);
+        }
+
+        /* the revealed sub-field — only the active one is in the DOM flow, none are greyed */
+        .hh-field[hidden] {
+            display: none;
+        }
+
+        /* ---- Option C: member management ---- */
+        .panel-section-label {
+            font-weight: 600;
+            color: var(--text-lightly-dimmed);
+            margin: 0 0 10px;
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+        }
+
+        .member-list {
+            list-style: none;
+            margin: 0 0 8px;
+            padding: 0;
+        }
+
+        .member-row {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding-block: 12px;
+        }
+
+        .member-row+.member-row {
+            border-block-start: 1px solid color-mix(in srgb, var(--text) 11%, transparent);
+        }
+
+        .avatar {
+            inline-size: 38px;
+            block-size: 38px;
+            border-radius: 50%;
+            flex: 0 0 auto;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: #fff;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+        }
+
+        .member-name {
+            font-weight: 600;
+        }
+
+        .member-tag {
+            color: var(--text-lightly-dimmed);
+            font-weight: 400;
+            font-size: 0.85rem;
+            margin-inline-start: 6px;
+        }
+
+        .remove-member {
+            margin-inline-start: auto;
+            background: none;
+            border: none;
+            color: var(--text-dimmed);
+            cursor: pointer;
+            font-size: 1.1rem;
+            line-height: 1;
+            padding: 6px 8px;
+            border-radius: 10px;
+            inline-size: auto;
+            transition: color 0.15s ease, background 0.15s ease;
+        }
+
+        .remove-member:hover {
+            color: #c0392b;
+            background: color-mix(in srgb, #c0392b 12%, transparent);
+        }
+
+        .panel-divider {
+            border: none;
+            border-block-start: 1px solid color-mix(in srgb, var(--text) 12%, transparent);
+            margin-block: 18px 22px;
+        }
+    </style>
+</head>
+
+<body class="flower-power">
+    <div class="background">
+        <header>
+            <div class="header-items">
+                <h1><a href="#">Household planner</a></h1>
+            </div>
+        </header>
+
+        <div class="page-head">
+            <h2>Create user — design options</h2>
+            <p class="mock-note">Static mockups, not wired up.</p>
+        </div>
+
+        <main class="mock-grid">
+
+            <!-- ============ OPTION B: public sign-up with household choice ============ -->
+            <div class="mock-col">
+                <p class="mock-caption">Option B · Public sign-up</p>
+                <form class="glass card mock-card" onsubmit="return false">
+                    <h2 class="login-title">Create account</h2>
+                    <p class="login-subtitle">Join your household on Household Planner</p>
+
+                    <div class="field">
+                        <label for="b-uname">Username</label>
+                        <input class="glass-inner" type="text" id="b-uname" autocomplete="username">
+                    </div>
+
+                    <div class="field">
+                        <label for="b-pwd">Password</label>
+                        <input class="glass-inner" type="password" id="b-pwd" autocomplete="new-password">
+                    </div>
+
+                    <p class="group-label">Household</p>
+                    <div class="hh-choice">
+                        <label class="hh-card">
+                            <input type="radio" name="hh" value="create" checked onchange="syncHousehold()">
+                            <span class="hh-dot"></span>
+                            <span>
+                                <span class="hh-card-title">Create a new household</span>
+                                <span class="hh-card-desc">You'll be the first member</span>
+                            </span>
+                        </label>
+                        <label class="hh-card">
+                            <input type="radio" name="hh" value="join" onchange="syncHousehold()">
+                            <span class="hh-dot"></span>
+                            <span>
+                                <span class="hh-card-title">Join an existing one</span>
+                                <span class="hh-card-desc">Use an invite code from a member</span>
+                            </span>
+                        </label>
+                    </div>
+
+                    <div class="field hh-field" id="hh-field-create">
+                        <label for="hh-name">Household name</label>
+                        <input class="glass-inner" type="text" id="hh-name" placeholder="e.g. la casa">
+                    </div>
+                    <div class="field hh-field" id="hh-field-join" hidden>
+                        <label for="hh-code">Invite code</label>
+                        <input class="glass-inner" type="text" id="hh-code" placeholder="6-character code">
+                    </div>
+
+                    <button class="login-button" type="submit">Create account</button>
+                    <p class="card-foot">Already have one? <a href="#">Log in</a></p>
+                </form>
+            </div>
+
+            <!-- ============ OPTION C: in-app member management (behind auth) ============ -->
+            <div class="mock-col">
+                <p class="mock-caption">Option C · Add member (logged in)</p>
+                <div class="glass card mock-card">
+                    <h2 class="login-title">Household · la casa</h2>
+                    <p class="login-subtitle">Manage who can access this household</p>
+
+                    <p class="panel-section-label">MEMBERS</p>
+                    <ul class="member-list">
+                        <li class="member-row">
+                            <span class="avatar">S</span>
+                            <span class="member-name">steffe<span class="member-tag">you</span></span>
+                        </li>
+                        <li class="member-row">
+                            <span class="avatar">A</span>
+                            <span class="member-name">anna</span>
+                            <button class="remove-member" type="button" title="Remove anna">✕</button>
+                        </li>
+                    </ul>
+
+                    <hr class="panel-divider">
+
+                    <p class="panel-section-label">ADD MEMBER</p>
+                    <div class="field">
+                        <label for="c-uname">Username</label>
+                        <input class="glass-inner" type="text" id="c-uname" autocomplete="off">
+                    </div>
+                    <div class="field">
+                        <label for="c-pwd">Temporary password</label>
+                        <input class="glass-inner" type="password" id="c-pwd" autocomplete="new-password">
+                    </div>
+
+                    <button class="login-button" type="submit">Add to household</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        function syncHousehold() {
+            const joining = document.querySelector('input[name="hh"][value="join"]').checked;
+            document.getElementById('hh-field-create').hidden = joining;
+            document.getElementById('hh-field-join').hidden = !joining;
+        }
+    </script>
+</body>
+
+</html>

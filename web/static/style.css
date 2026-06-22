@@ -1361,6 +1361,87 @@ label.empty-state {
     font-size: 1.05rem;
 }
 
+/* Sign-up household choice (register page) */
+.group-label {
+    display: block;
+    margin-block-end: 7px;
+    font-weight: 500;
+    color: var(--text-lightly-dimmed);
+}
+
+.hh-choice {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-block: 4px 18px;
+}
+
+.hh-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 15px;
+    border-radius: 16px;
+    border: 2px solid var(--input-border);
+    background: var(--input-bg);
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.hh-card input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.hh-dot {
+    inline-size: 18px;
+    block-size: 18px;
+    border-radius: 50%;
+    border: 2px solid var(--text-dimmed);
+    flex: 0 0 auto;
+    display: grid;
+    place-items: center;
+}
+
+.hh-card:has(input:checked) {
+    border-color: var(--accent-dark);
+    background: color-mix(in srgb, var(--accent) 16%, var(--input-bg));
+}
+
+.hh-card:has(input:checked) .hh-dot {
+    border-color: var(--accent-dark);
+}
+
+.hh-card:has(input:checked) .hh-dot::after {
+    content: "";
+    inline-size: 9px;
+    block-size: 9px;
+    border-radius: 50%;
+    background: var(--accent-dark);
+}
+
+.hh-card-title {
+    display: block;
+    font-weight: 600;
+}
+
+.hh-card-desc {
+    display: block;
+    font-size: 0.82rem;
+    color: var(--text-lightly-dimmed);
+}
+
+.hh-field[hidden] {
+    display: none;
+}
+
+.card-foot {
+    text-align: center;
+    color: var(--text-lightly-dimmed);
+    margin: 20px 0 0;
+}
+
 .logout {
     border: solid 1px;
     padding-inline: 5px;

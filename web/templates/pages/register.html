@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "layouts/head" .}}
+
+<body class="flower-power">
+    <div class="background">
+        {{template "layouts/header" .}}
+        <main>
+            <form class="login-form glass card" method="POST" action="/register">
+                <h2 class="login-title">Create account</h2>
+                <p class="login-subtitle">Join your household on Household Planner</p>
+
+                {{if .Error}}
+                <p class="login-error" role="alert">{{.Error}}</p>
+                {{end}}
+
+                <label for="uname">Username</label>
+                <input class="glass-inner" type="text" id="uname" name="uname" required autofocus
+                    autocomplete="username">
+
+                <label for="pwd">Password</label>
+                <input class="glass-inner" type="password" id="pwd" name="pwd" required autocomplete="new-password">
+
+                <p class="group-label">Household</p>
+                <div class="hh-choice">
+                    <label class="hh-card">
+                        <input type="radio" name="household" value="create" checked onchange="syncHousehold()">
+                        <span class="hh-dot"></span>
+                        <span>
+                            <span class="hh-card-title">Create a new household</span>
+                            <span class="hh-card-desc">You'll be the first member</span>
+                        </span>
+                    </label>
+                    <label class="hh-card">
+                        <input type="radio" name="household" value="join" onchange="syncHousehold()">
+                        <span class="hh-dot"></span>
+                        <span>
+                            <span class="hh-card-title">Join an existing one</span>
+                            <span class="hh-card-desc">Use an invite code from a member</span>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="hh-field" id="hh-field-create">
+                    <label for="household-name">Household name</label>
+                    <input class="glass-inner" type="text" id="household-name" name="household_name"
+                        placeholder="e.g. la casa">
+                </div>
+                <div class="hh-field" id="hh-field-join" hidden>
+                    <label for="invite-code">Invite code</label>
+                    <input class="glass-inner" type="text" id="invite-code" name="invite_code"
+                        placeholder="6-character code">
+                </div>
+
+                <button class="login-button" type="submit">Create account</button>
+
+                <p class="card-foot">Already have one? <a href="/login">Log in</a></p>
+            </form>
+        </main>
+        <script type="module" src="/static/script.js"></script>
+        <script>
+            function syncHousehold() {
+                const joining = document.querySelector('input[name="household"][value="join"]').checked;
+                document.getElementById('hh-field-create').hidden = joining;
+                document.getElementById('hh-field-join').hidden = !joining;
+            }
+        </script>
+    </div>
+</body>
+
+</html>

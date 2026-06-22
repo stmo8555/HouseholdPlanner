@@ -57,7 +57,7 @@ func NewHandler(s *Service) *Handler {
 }
 
 func (h *Handler) Login(c *gin.Context) {
-	data := gin.H{"Title": "Login"}
+	data := gin.H{"Title": "Login", "HideNav": true}
 	c.HTML(200, "login.html", data)
 }
 

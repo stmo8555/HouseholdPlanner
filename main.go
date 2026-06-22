@@ -93,6 +93,10 @@ func setupLogin(r *gin.Engine) {
 	r.POST("/login", handler.Authenticate)
 	r.POST("/logout", handler.Logout)
 
+	r.GET("/register", func(c *gin.Context) {
+		c.HTML(200, "register.html", gin.H{"Title": "Create account", "HideNav": true})
+	})
+
 	login.RunCleanup(context.Background(), loginService)
 }
 
