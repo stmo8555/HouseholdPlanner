@@ -20,11 +20,10 @@ type GroceryListView struct {
 }
 
 type Grocery struct {
-	ID          int                   `json:"id"`
-	Ingredient  ingredient.Ingredient `json:"ingredient"`
-	HouseholdID int                   `json:"household_id"`
-	Picked      bool                  `json:"picked"`
-	ListID      int
+	ID         int                   `json:"id"`
+	Ingredient ingredient.Ingredient `json:"ingredient"`
+	Picked     bool                  `json:"picked"`
+	ListID     int
 }
 
 type GroceriesView struct {

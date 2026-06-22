@@ -541,9 +541,17 @@ button.focused {
 }
 
 @keyframes btn-nudge {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.1); }
-    100% { transform: scale(1); }
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
 }
 
 button span {
@@ -720,11 +728,15 @@ form.htmx-request button .checkbox {
 }
 
 @keyframes htmx-indicator-reveal {
-    to { opacity: 1; }
+    to {
+        opacity: 1;
+    }
 }
 
 @keyframes htmx-content-hide {
-    to { opacity: 0; }
+    to {
+        opacity: 0;
+    }
 }
 
 
@@ -978,9 +990,17 @@ form.htmx-request button .checkbox {
 }
 
 @keyframes form-focus-pulse {
-    0%   { box-shadow: 0 0 0 0 var(--accent); }
-    60%  { box-shadow: 0 0 0 7px transparent; }
-    100% { box-shadow: 0 0 0 0 transparent; }
+    0% {
+        box-shadow: 0 0 0 0 var(--accent);
+    }
+
+    60% {
+        box-shadow: 0 0 0 7px transparent;
+    }
+
+    100% {
+        box-shadow: 0 0 0 0 transparent;
+    }
 }
 
 .add-list input {
@@ -1383,7 +1403,11 @@ label.empty-state {
 
 .badge::before {
     margin-right: 0.4em;
-    color: silver;
+
+    color: white;
+    @media (prefers-color-scheme: dark) {
+        color: silver;
+    }
 }
 
 .badge.star::before {

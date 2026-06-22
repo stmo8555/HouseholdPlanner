@@ -44,7 +44,6 @@ CREATE TABLE groceries (
     grocery_list_id INT NOT NULL REFERENCES grocery_lists(id) ON DELETE CASCADE,
     product_id INT NOT NULL REFERENCES products(id),
     amount TEXT NOT NULL DEFAULT '',
-    household_id INT NOT NULL REFERENCES households(id),
     picked BOOL NOT NULL DEFAULT FALSE
 );
 
@@ -115,12 +114,33 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Groceries have no household_id of their own; derive it from the owning list.
+CREATE OR REPLACE FUNCTION bump_household_version_from_list()
+RETURNS TRIGGER AS $$
+DECLARE
+    hid INT;
+    glid INT;
+BEGIN
+    glid := COALESCE(NEW.grocery_list_id, OLD.grocery_list_id);
+
+    SELECT household_id INTO hid
+    FROM grocery_lists
+    WHERE id = glid;
+
+    UPDATE households
+    SET version = version + 1
+    WHERE id = hid;
+
+    RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
 -- Triggers
 CREATE TRIGGER groceries_bump
 AFTER INSERT OR UPDATE OR DELETE
 ON groceries
 FOR EACH ROW
-EXECUTE FUNCTION bump_household_version();
+EXECUTE FUNCTION bump_household_version_from_list();
 
 CREATE TRIGGER grocery_lists_bump
 AFTER INSERT OR UPDATE OR DELETE

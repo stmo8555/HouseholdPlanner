@@ -338,6 +338,10 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 
 	err = h.service.CreateGroceries(c, ingredients, groceryListID, hid)
 
+	if errors.Is(err, ErrNotFound) {
+		c.AbortWithStatus(404)
+		return
+	}
 	if err != nil {
 		panic(err)
 	}
@@ -518,11 +522,19 @@ func (h *Handler) DeletePicked(c *gin.Context) {
 }
 
 func (h *Handler) SmartAdd(c *gin.Context) {
+	hid := c.GetInt("household_id")
 	text := c.PostForm("text")
 
 	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
+		panic(err)
+	}
+
+	if _, err := h.service.GroceryList(c, groceryListID, hid); errors.Is(err, ErrNotFound) {
+		c.AbortWithStatus(404)
+		return
+	} else if err != nil {
 		panic(err)
 	}
 
@@ -540,6 +552,7 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 }
 
 func (h *Handler) ExtractFromRecipe(c *gin.Context) {
+	hid := c.GetInt("household_id")
 	link := c.PostForm("link")
 
 	if strings.TrimSpace(link) == "" {
@@ -549,6 +562,13 @@ func (h *Handler) ExtractFromRecipe(c *gin.Context) {
 	groceryListID, err := strconv.Atoi(c.Param("id"))
 
 	if err != nil {
+		panic(err)
+	}
+
+	if _, err := h.service.GroceryList(c, groceryListID, hid); errors.Is(err, ErrNotFound) {
+		c.AbortWithStatus(404)
+		return
+	} else if err != nil {
 		panic(err)
 	}
 
@@ -590,6 +610,10 @@ func (h *Handler) SaveExtracted(c *gin.Context) {
 
 	err = h.service.CreateGroceries(c, ingredients, groceryListID, hid)
 
+	if errors.Is(err, ErrNotFound) {
+		c.AbortWithStatus(404)
+		return
+	}
 	if err != nil {
 		panic(err)
 	}

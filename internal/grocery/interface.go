@@ -17,7 +17,7 @@ type IRepo interface {
 	DeleteGroceryList(ctx context.Context, groceryListID int, hid int) error
 	TransferGroceries(ctx context.Context, groceryListTargetID int, groceryListID int, hid int) error
 
-	CreateGroceries(ctx context.Context, groceries []Grocery) error
+	CreateGroceries(ctx context.Context, groceries []Grocery, groceryListID, hid int) error
 	Groceries(ctx context.Context, sortBy, order string, groceryListID, householdID int) ([]Grocery, error)
 	Grocery(ctx context.Context, itemID int, hid int) (Grocery, error) 
 	UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error

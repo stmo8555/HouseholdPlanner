@@ -1,5 +1,6 @@
 {{define "groceries/extract_review_page"}}
 <main>
+    {{if gt (len .Ingredients) 0}}
     <div class="margin-block-end-24px flex gap-6px">
         <button type="submit" form="extractedForm">Save</button>
         <a href="{{.CancelURL}}" hx-boost="true" class="button-styling">Cancel</a>
@@ -18,7 +19,6 @@
                 <div></div>
             </div>
 
-            {{if gt (len .Ingredients) 0}}
             {{range .Ingredients}}
             <div class="grocery-row extracted-grocery-row">
                 <input type="text" class="glass-inner" name="name" value="{{.Product.Name}}">
@@ -27,8 +27,17 @@
                 <button type="button" class="removeRowBtn">×</button>
             </div>
             {{end}}
-            {{end}}
         </div>
     </form>
+    {{else}}
+    <div class="margin-block-end-24px flex gap-6px">
+        <a href="{{.CancelURL}}" hx-boost="true" class="back-button button-styling">Back</a>
+    </div>
+
+    <section class="glass container empty-state">
+        <h3>Nothing was extracted</h3>
+        <p>We couldn't find any items to add. Try rephrasing your text or using a different recipe link.</p>
+    </section>
+    {{end}}
 </main>
 {{end}}

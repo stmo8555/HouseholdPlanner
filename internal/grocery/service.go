@@ -96,14 +96,13 @@ func (s *Service) CreateGroceries(ctx context.Context, ingredients []ingredient.
 			ingredients[i].ProductID = id
 		}
 		groceries = append(groceries, Grocery{
-			Ingredient:  ingredients[i],
-			ListID:      groceryListID,
-			HouseholdID: hid,
-			Picked:      false,
+			Ingredient: ingredients[i],
+			ListID:     groceryListID,
+			Picked:     false,
 		})
 	}
 
-	return s.repo.CreateGroceries(ctx, groceries)
+	return s.repo.CreateGroceries(ctx, groceries, groceryListID, hid)
 }
 
 func (s *Service) ParseGroceries(ctx context.Context, text string) ([]ingredient.Ingredient, error) {
