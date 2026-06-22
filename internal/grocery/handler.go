@@ -326,10 +326,12 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 		panic(err)
 	}
 
+	name := c.PostForm("name")
+
 	ingredients := make([]ingredient.Ingredient, 0, 1)
 	ingredients = append(ingredients, ingredient.Ingredient{
 		Product: product.Product{
-			Name:     c.PostForm("name"),
+			Name:     name,
 			Brand:    c.PostForm("brand"),
 			Category: "",
 		},
@@ -367,6 +369,7 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 	data["ListID"] = groceryListID
 	data["ListName"] = list.Name
 	data["OOB"] = true
+	data["AddedName"] = name
 	c.HTML(200, "groceries/add_response", data)
 }
 
