@@ -95,6 +95,9 @@ html,
 body {
     margin: 0;
     padding: 0;
+    /* Break only words too long to fit (e.g. long product names) instead of
+       chopping every word mid-character the way `word-break: break-all` did. */
+    overflow-wrap: break-word;
 }
 
 body {
@@ -120,11 +123,6 @@ ul {
 h1 {
     margin-block: auto;
     text-align: left;
-}
-
-p {
-    word-break: break-all;
-    white-space: normal;
 }
 
 fieldset {
@@ -823,7 +821,7 @@ form.htmx-request button .checkbox {
 .grocery-row {
     display: grid;
     gap: 6px;
-    grid-template-columns: 2em 1fr 1fr 1fr 2em;
+    grid-template-columns: 2em minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 2em;
     align-items: center;
     min-block-size: 3em;
     border-block-end: solid var(--text-dimmed) 1px;
@@ -1361,6 +1359,27 @@ label.empty-state {
     font-size: 1.05rem;
 }
 
+/* Register page: center the (taller) card in the space below the header instead
+   of the fixed top margin used for the short login card, so it doesn't scroll.
+   Letting <main> flex-grow auto-accounts for the header height. */
+.auth-body .background {
+    display: flex;
+    flex-direction: column;
+}
+
+main.auth-page {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-block: 24px;
+}
+
+.auth-page .login-form {
+    margin-block-start: 0;
+    padding-block: 28px;
+}
+
 /* Sign-up household choice (register page) */
 .group-label {
     display: block;
@@ -1436,10 +1455,11 @@ label.empty-state {
     display: none;
 }
 
-.card-foot {
+.login-note {
     text-align: center;
     color: var(--text-lightly-dimmed);
-    margin: 20px 0 0;
+    font-size: 0.85rem;
+    margin: 18px 0 0;
 }
 
 .logout {

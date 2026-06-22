@@ -2,10 +2,10 @@
 <html lang="en">
 {{template "layouts/head" .}}
 
-<body class="flower-power">
+<body class="flower-power auth-body">
     <div class="background">
         {{template "layouts/header" .}}
-        <main>
+        <main class="auth-page">
             <form class="login-form glass card" method="POST" action="/register">
                 <h2 class="login-title">Create account</h2>
                 <p class="login-subtitle">Join your household on Household Planner</p>
@@ -53,8 +53,6 @@
                 </div>
 
                 <button class="login-button" type="submit">Create account</button>
-
-                <p class="card-foot">Already have one? <a href="/login">Log in</a></p>
             </form>
         </main>
         <script type="module" src="/static/script.js"></script>
