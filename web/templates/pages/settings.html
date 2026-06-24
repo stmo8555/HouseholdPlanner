@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{{template "layouts/head" .}}
+
+<body>
+    <div class="background">
+        {{template "layouts/header" .}}
+        {{template "notifications/bootstrap" .}}
+
+        <main class="settings-page">
+            <h2 class="settings-heading">Household settings</h2>
+            <p class="settings-subheading">Manage <strong>{{.Household.Name}}</strong> and who's in it.</p>
+
+            <!-- Household code -->
+            <section class="settings-card glass card">
+                <h3 class="settings-card-title">Household code</h3>
+                <p class="settings-card-desc">Share this code with someone to join this household.</p>
+                <div class="code-row">
+                    <code class="household-code glass-inner" id="household-code">{{.Household.Code}}</code>
+                    <button class="copy-button" type="button" data-copy-target="#household-code">Copy</button>
+                </div>
+                {{if .IsOwner}}
+                <form method="POST" action="/settings/code/regenerate"
+                    onsubmit="return confirm('Regenerate the household code? The current code will stop working for anyone who hasn\'t joined yet.');">
+                    <button class="login-button settings-button" type="submit">Regenerate code</button>
+                </form>
+                {{end}}
+            </section>
+
+            <!-- Invite link -->
+            <section class="settings-card glass card">
+                <h3 class="settings-card-title">Invite link</h3>
+                <p class="settings-card-desc">Send this link to invite one new person to create an account.</p>
+                {{if .Invite.Link}}
+                <div class="code-row">
+                    <input class="invite-link glass-inner" id="invite-link" type="text" readonly
+                        value="{{.Invite.Link}}">
+                    <button class="copy-button" type="button" data-copy-target="#invite-link">Copy</button>
+                </div>
+                <p class="settings-hint">Single-use · expires in 7 days</p>
+                {{else}}
+                <p class="settings-hint">No active invite link.</p>
+                {{end}}
+                <form method="POST" action="/settings/invite">
+                    <button class="login-button settings-button" type="submit">Generate new invite link</button>
+                </form>
+            </section>
+
+            <!-- Members -->
+            <section class="settings-card glass card">
+                <h3 class="settings-card-title">Members</h3>
+                <p class="settings-card-desc">People in this household.</p>
+                <ul class="member-list">
+                    {{range .Members}}
+                    <li class="member-row">
+                        <div class="member-info">
+                            <span class="member-name">{{.Name}}</span>
+                            {{if .IsOwner}}<span class="member-badge">Owner</span>{{end}}
+                            {{if .IsYou}}<span class="member-badge member-badge--you">You</span>{{end}}
+                        </div>
+                        {{if and $.IsOwner (not .IsOwner)}}
+                        <div class="member-actions">
+                            <form method="POST" action="/settings/members/{{.ID}}/promote">
+                                <button class="member-action" type="submit">Make owner</button>
+                            </form>
+                            <form method="POST" action="/settings/members/{{.ID}}/remove">
+                                <button class="member-action member-action--danger" type="submit">Remove</button>
+                            </form>
+                        </div>
+                        {{end}}
+                    </li>
+                    {{end}}
+                </ul>
+                {{if not .IsOwner}}
+                <p class="settings-hint">Only the household owner can remove members or transfer ownership.</p>
+                {{end}}
+            </section>
+        </main>
+
+        <script type="module" src="/static/script.js"></script>
+        <script>
+            document.querySelectorAll(".copy-button").forEach((btn) => {
+                btn.addEventListener("click", async () => {
+                    const el = document.querySelector(btn.dataset.copyTarget);
+                    if (!el) return;
+                    const text = el.value ?? el.textContent;
+                    try {
+                        await navigator.clipboard.writeText(text.trim());
+                        const original = btn.textContent;
+                        btn.textContent = "Copied!";
+                        setTimeout(() => (btn.textContent = original), 1500);
+                    } catch (_) { }
+                });
+            });
+        </script>
+    </div>
+</body>
+
+</html>

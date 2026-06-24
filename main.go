@@ -71,12 +71,25 @@ func main() {
 	// setupRecipes(auth)
 	setupGroceries(auth)
 	setupNotifications(auth)
+	setupHousehold(auth)
 	// setupHome(auth)
 
 	err = r.Run("localhost:8080")
 	if err != nil {
 		panic(err)
 	}
+}
+
+// setupHousehold serves the household profile/settings page. This is view-only
+// for now — sample data is rendered so the UI can be built out ahead of the
+// invite/ownership backend described in todo.md.
+func setupHousehold(r *gin.RouterGroup) {
+	handler := household.NewHandler(householdService)
+	r.POST("/settings/code/regenerate", handler.RegenerateHouseholdCode)
+	r.POST("/settings/invite", handler.GenerateInviteToken)
+	r.POST("/settings/members/:id/promote", handler.PromoteMember)
+	r.POST("/settings/members/:id/remove", handler.RemoveMember)
+	r.GET("/settings", handler.Settings)
 }
 
 func setupNotifications(r *gin.RouterGroup) {

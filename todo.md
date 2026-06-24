@@ -12,7 +12,7 @@ currently just the view — `POST /register` is not implemented yet.)
 - [ ] **Any logged-in member can generate an invite link** — produces a link (with a
   token) that lets exactly one new person create an account.
 - [ ] **Invite link → account** — opening the link leads to the register page; on submit
-  it creates the user and adds them to the inviter's household.
+  it creates the user and let it create a household or use a code to get into another ones household.
 - [ ] Decide invite semantics: single-use vs. reusable, expiry, and whether to also
   support a short **household code** (typed in) in addition to the full link.
 

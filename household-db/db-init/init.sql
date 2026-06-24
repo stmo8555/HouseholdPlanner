@@ -17,10 +17,22 @@ CREATE TABLE households (
     created_by INT NOT NULL REFERENCES users(id)
 );
 
+CREATE TYPE household_role AS ENUM ('owner', 'member');
+
 CREATE TABLE household_members (
     user_id INT NOT NULL REFERENCES users(id),
     household_id INT NOT NULL REFERENCES households(id),
+    role household_role NOT NULL DEFAULT 'member',
     PRIMARY KEY (user_id, household_id)
+);
+
+CREATE TABLE invites (
+    token UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    household_id INT NOT NULL REFERENCES households(id) ON DELETE CASCADE,
+    created_by INT NOT NULL REFERENCES users(id),
+    expires_at TIMESTAMPTZ NOT NULL,
+    used_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 CREATE TABLE products (
@@ -216,12 +228,12 @@ RETURNING id INTO hid;
 END IF;
 
 -- Memberships
-INSERT INTO household_members (user_id, household_id)
-VALUES (steffo_id, hid)
+INSERT INTO household_members (user_id, household_id, role)
+VALUES (steffo_id, hid, 'owner')
 ON CONFLICT (user_id, household_id) DO NOTHING;
 
-INSERT INTO household_members (user_id, household_id)
-VALUES (anna_id, hid)
+INSERT INTO household_members (user_id, household_id, role)
+VALUES (anna_id, hid, 'member')
 ON CONFLICT (user_id, household_id) DO NOTHING;
 
 -- Grocery history
@@ -263,3 +275,5 @@ DO UPDATE SET
     times_added = EXCLUDED.times_added;
 END;
 $$;
+
+

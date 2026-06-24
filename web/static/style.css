@@ -1531,6 +1531,174 @@ main.auth-page {
     padding-inline: 5px;
 }
 
+/* =========================
+   Household settings page
+========================= */
+.settings-page {
+    inline-size: 100%;
+    max-inline-size: 560px;
+    margin-inline: auto;
+    padding-inline: 20px;
+    padding-block: 24px 48px;
+}
+
+.settings-heading {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.settings-subheading {
+    margin: 4px 0 24px;
+    color: var(--text-lightly-dimmed);
+}
+
+.settings-card {
+    margin-block-end: 20px;
+}
+
+.settings-card-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 600;
+}
+
+.settings-card-desc {
+    margin: 4px 0 16px;
+    color: var(--text-lightly-dimmed);
+    font-size: 0.9rem;
+}
+
+.settings-hint {
+    margin: 10px 0 0;
+    color: var(--text-lightly-dimmed);
+    font-size: 0.82rem;
+}
+
+.settings-button {
+    margin-block-start: 16px;
+}
+
+.code-row {
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.household-code,
+.invite-link {
+    flex: 1;
+    min-inline-size: 0;
+    display: flex;
+    align-items: center;
+    padding: 10px 14px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 1rem;
+    letter-spacing: 0.04em;
+}
+
+.household-code {
+    font-weight: 600;
+}
+
+.invite-link {
+    inline-size: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.copy-button {
+    flex: 0 0 auto;
+    padding-inline: 16px;
+    border-radius: 16px;
+    border: 2px solid var(--accent-dark);
+    background: color-mix(in srgb, var(--accent) 20%, var(--input-bg));
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.copy-button:hover {
+    background: color-mix(in srgb, var(--accent) 34%, var(--input-bg));
+}
+
+.member-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 2px solid var(--input-border);
+    background: var(--input-bg);
+}
+
+.member-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-inline-size: 0;
+}
+
+.member-name {
+    font-weight: 600;
+}
+
+.member-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 24%, transparent);
+    color: var(--text-lightly-dimmed);
+}
+
+.member-badge--you {
+    background: color-mix(in srgb, var(--text-dimmed) 22%, transparent);
+}
+
+.member-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.member-action {
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--input-border);
+    background: transparent;
+    color: var(--text);
+    font-weight: 500;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, color 0.15s ease;
+}
+
+.member-action:hover {
+    border-color: var(--accent-dark);
+}
+
+.member-action--danger {
+    color: color-mix(in srgb, #c0392b 80%, var(--text));
+}
+
+.member-action--danger:hover {
+    border-color: color-mix(in srgb, #c0392b 60%, transparent);
+}
+
 
 /* =========================
    Home page
