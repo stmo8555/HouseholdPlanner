@@ -3,10 +3,15 @@ name: household-planner
 services:
   app:
     build: .
-    container_name: web-server
     restart: unless-stopped
+    # .env holds shared credentials (also used by local `go run .`).
+    # environment: overrides the values that only apply inside Docker.
     env_file:
       - .env
+    environment:
+      - POSTGRES_HOST=db        # the `db` service name resolves on the Compose network
+      - POSTGRES_PORT=5432
+      - GIN_MODE=release
     ports:
       - "127.0.0.1:8080:8080"
     depends_on:
@@ -15,7 +20,6 @@ services:
 
   db:
     image: postgres:18
-    container_name: db
     restart: unless-stopped
     env_file:
       - .env
