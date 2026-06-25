@@ -156,7 +156,25 @@ func (h *handler) Settings(c *gin.Context) {
 		panic(err)
 	}
 
-	h.renderSettings(c, uid, hid, token)
+	settingsView, err := h.service.Settings(c.Request.Context(), uid, hid)
+	if err != nil {
+		panic(err)
+	}
+	
+	version, err := h.service.HouseholdVersion(c.Request.Context(), hid)
+	if err != nil {
+		panic(err)
+	}
+
+	inviteLink := createLink(c, token)
+
+	c.HTML(200, "settings.html", gin.H{
+		"Title":        "Household settings",
+		"CurrentPath":  "/settings",
+		"SettingsView": settingsView,
+		"InviteLink":   inviteLink,
+		"HouseholdVersion": version,
+	})
 }
 
 func (h *handler) GenerateInviteToken(c *gin.Context) {
@@ -180,22 +198,6 @@ func (h *handler) GenerateInviteToken(c *gin.Context) {
 	}
 
 	c.HTML(200, "household/invite-link", data)
-}
-
-func (h *handler) renderSettings(c *gin.Context, uid, hid int, token string) {
-	settingsView, err := h.service.Settings(c.Request.Context(), uid, hid)
-	if err != nil {
-		panic(err)
-	}
-
-	inviteLink := createLink(c, token)
-
-	c.HTML(200, "settings.html", gin.H{
-		"Title":        "Household settings",
-		"CurrentPath":  "/settings",
-		"SettingsView": settingsView,
-		"InviteLink":   inviteLink,
-	})
 }
 
 func createLink(c *gin.Context, token string) string {
