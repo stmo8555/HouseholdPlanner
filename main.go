@@ -62,17 +62,26 @@ func main() {
 	r.TrustedPlatform = gin.PlatformCloudflare
 	r.SetHTMLTemplate(tmpl)
 	r.Static("/static/", "web/static")
-	setupLogin(r)
+
+	loginHandler := login.NewHandler(loginService)
+	setupLogin(r, loginHandler)
 
 	auth := r.Group("/")
 	auth.Use(login.AuthMiddleware(loginService))
 
-	// setupTodos(auth)
-	// setupRecipes(auth)
-	setupGroceries(auth)
-	setupNotifications(auth)
-	setupHousehold(auth)
-	// setupHome(auth)
+	// Authenticated but not yet tied to a household — onboarding only.
+	auth.GET("/welcome", loginHandler.WelcomeView)
+	auth.POST("/welcome", loginHandler.SetupHousehold)
+
+	hh := auth.Group("/")
+	hh.Use(login.RequireHousehold())
+
+	// setupTodos(hh)
+	// setupRecipes(hh)
+	setupGroceries(hh)
+	setupNotifications(hh)
+	setupHousehold(hh)
+	// setupHome(hh)
 
 	err = r.Run("localhost:8080")
 	if err != nil {
@@ -80,15 +89,15 @@ func main() {
 	}
 }
 
-// setupHousehold serves the household profile/settings page. This is view-only
-// for now — sample data is rendered so the UI can be built out ahead of the
-// invite/ownership backend described in todo.md.
 func setupHousehold(r *gin.RouterGroup) {
 	handler := household.NewHandler(householdService)
 	r.POST("/settings/code/regenerate", handler.RegenerateHouseholdCode)
 	r.POST("/settings/invite", handler.GenerateInviteToken)
 	r.POST("/settings/members/:id/promote", handler.PromoteMember)
 	r.POST("/settings/members/:id/remove", handler.RemoveMember)
+	r.POST("/settings/leave", handler.LeaveHousehold)
+	r.POST("/settings/delete", handler.DeleteHousehold)
+	r.POST("/settings/account/delete", handler.DeleteAccount)
 	r.GET("/settings", handler.Settings)
 }
 
@@ -99,16 +108,13 @@ func setupNotifications(r *gin.RouterGroup) {
 	r.GET("/notifications/ack", handler.Ack)
 }
 
-func setupLogin(r *gin.Engine) {
-	handler := login.NewHandler(loginService)
-
+func setupLogin(r *gin.Engine, handler *login.Handler) {
 	r.GET("/login", handler.Login)
 	r.POST("/login", handler.Authenticate)
 	r.POST("/logout", handler.Logout)
 
-	r.GET("/register", func(c *gin.Context) {
-		c.HTML(200, "register.html", gin.H{"Title": "Create account", "HideNav": true})
-	})
+	r.GET("/register", handler.RegisterView)
+	r.POST("/register/:token", handler.Register)
 
 	login.RunCleanup(context.Background(), loginService)
 }

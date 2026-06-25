@@ -797,7 +797,8 @@ form.htmx-request button .checkbox {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .grocery-add-toast-msg {
+    .grocery-add-toast-msg,
+    .auth-toast {
         animation-name: grocery-toast-fade;
     }
 
@@ -811,6 +812,23 @@ form.htmx-request button .checkbox {
             opacity: 0;
         }
     }
+}
+
+/* Registration success toast: floats just above the login card (absolute, so it
+   reserves no layout space) and reuses grocery-toast-pop to fade in/hold/out. */
+.auth-toast {
+    position: absolute;
+    inset-inline: 0;
+    bottom: calc(100% + 12px);
+    padding: 14px 22px;
+    border-radius: 12px;
+    font-weight: 700;
+    text-align: center;
+    color: #fff;
+    background: #1f9d54;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 10px 30px rgba(15, 90, 50, 0.45);
+    animation: grocery-toast-pop 2.4s ease forwards;
 }
 
 .add-dialog button[type="submit"] {
@@ -1357,6 +1375,7 @@ label.empty-state {
 ========================= */
 
 .login-form {
+    position: relative;
     display: flex;
     flex-direction: column;
     inline-size: 100%;
@@ -1577,6 +1596,20 @@ main.auth-page {
 
 .settings-button {
     margin-block-start: 16px;
+}
+
+.settings-danger {
+    border: 2px solid color-mix(in srgb, #c0392b 30%, transparent);
+}
+
+.settings-button--danger {
+    background: color-mix(in srgb, #c0392b 16%, var(--input-bg));
+    border: 2px solid color-mix(in srgb, #c0392b 50%, transparent);
+    color: color-mix(in srgb, #c0392b 80%, var(--text));
+}
+
+.settings-button--danger:hover {
+    background: color-mix(in srgb, #c0392b 28%, var(--input-bg));
 }
 
 .code-row {

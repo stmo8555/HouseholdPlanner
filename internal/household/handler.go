@@ -1,11 +1,8 @@
 package household
 
 import (
-	// "errors"
-	// "fmt"
-	// "strconv"
-	// "strings"
-
+	"errors"
+	"fmt"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -24,23 +21,20 @@ func NewHandler(s *Service) *handler {
 }
 
 func (h *handler) RegenerateHouseholdCode(c *gin.Context) {
-	panic("unimplemented")
-}
-
-func (h *handler) GenerateInviteToken(c *gin.Context) {
 	hid := c.GetInt("household_id")
-	uid := c.GetInt("user_id")
-	inviteCode, err := h.service.GenerateInviteToken(c.Request.Context(),uid, hid)
+
+	code, err := h.service.RegenerateHouseholdCode(c.Request.Context(), hid)
 
 	if err != nil {
 		panic(err)
 	}
 
-	c.String(200, inviteCode)	
+	c.String(200, code)
 }
 
 func (h *handler) RemoveMember(c *gin.Context) {
 	hid := c.GetInt("household_id")
+	uid := c.GetInt("user_id")
 
 	id, err := strconv.Atoi(c.Param("id"))
 
@@ -48,38 +42,117 @@ func (h *handler) RemoveMember(c *gin.Context) {
 		panic(err)
 	}
 
-	err = h.service.RemoveMember(c.Request.Context(), id, hid)	
+	err = h.service.RemoveMember(c.Request.Context(), uid, id, hid)
 
 	if err != nil {
 		panic(err)
 	}
+
+	c.String(200, "removed")
 }
 
 func (h *handler) PromoteMember(c *gin.Context) {
 	hid := c.GetInt("household_id")
 	uid := c.GetInt("user_id")
 
+	targetUID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		panic(err)
+	}
 
+	h.service.PromoteMember(c.Request.Context(), uid, targetUID, hid)
+
+	c.String(200, "promoted")
+}
+
+func (h *handler) LeaveHousehold(c *gin.Context) {
+	hid := c.GetInt("household_id")
+	uid := c.GetInt("user_id")
+
+	err := h.service.LeaveHousehold(c.Request.Context(), uid, hid)
+	if err != nil {
+		if errors.Is(err, ErrOwnerMustTransfer) {
+			c.Redirect(302, "/settings")
+			return
+		}
+		panic(err)
+	}
+
+	c.Redirect(302, "/welcome")
+}
+
+func (h *handler) DeleteHousehold(c *gin.Context) {
+	hid := c.GetInt("household_id")
+	uid := c.GetInt("user_id")
+
+	err := h.service.DeleteHousehold(c.Request.Context(), uid, hid)
+	if err != nil {
+		if errors.Is(err, ErrHouseholdNotEmpty) || errors.Is(err, ErrOwnerMustTransfer) {
+			c.Redirect(302, "/settings")
+			return
+		}
+		panic(err)
+	}
+
+	c.Redirect(302, "/welcome")
+}
+
+func (h *handler) DeleteAccount(c *gin.Context) {
+	uid := c.GetInt("user_id")
+
+	err := h.service.DeleteAccount(c.Request.Context(), uid)
+	if err != nil {
+		if errors.Is(err, ErrOwnerMustTransfer) {
+			c.Redirect(302, "/settings")
+			return
+		}
+		panic(err)
+	}
+
+	c.SetCookie("session_id", "", -1, "/", "", true, true)
+	c.Redirect(302, "/login")
 }
 
 func (h *handler) Settings(c *gin.Context) {
-	// hid := c.GetInt("household-id")
+	hid := c.GetInt("household_id")
+	uid := c.GetInt("user_id")
 
-	// h.service.Settings(c.Request.Context(), hid)
+	token, err := h.service.CurrentInviteToken(c.Request.Context(), uid, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	h.renderSettings(c, uid, hid, token)
+}
+
+func (h *handler) GenerateInviteToken(c *gin.Context) {
+	hid := c.GetInt("household_id")
+	uid := c.GetInt("user_id")
+
+	token, err := h.service.GenerateInviteToken(c.Request.Context(), uid, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	h.renderSettings(c, uid, hid, token)
+}
+
+func (h *handler) renderSettings(c *gin.Context, uid, hid int, token string) {
+	settingsView, err := h.service.Settings(c.Request.Context(), uid, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	scheme := "https"
+	if c.Request.TLS == nil {
+		scheme = "http"
+	}
+	inviteLink := fmt.Sprintf("%s://%s/register?invite=%s", scheme, c.Request.Host, token)
+
 	c.HTML(200, "settings.html", gin.H{
-		"Title":       "Household settings",
-		"CurrentPath": "/settings",
-		"IsOwner":     true,
-		"Household": gin.H{
-			"Name": "la casa",
-			"Code": "CASA42",
-		},
-		"Invite": gin.H{
-			"Link": "https://householdplanner.app/register?invite=8f3a9c2e",
-		},
-		"Members": []gin.H{
-			{"ID": 1, "Name": "steffe", "IsOwner": true, "IsYou": true},
-			{"ID": 2, "Name": "anna", "IsOwner": false, "IsYou": false},
-		},
+		"Title":        "Household settings",
+		"CurrentPath":  "/settings",
+		"SettingsView": settingsView,
+		"InviteLink":   inviteLink,
 	})
 }

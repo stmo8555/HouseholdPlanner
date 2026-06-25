@@ -10,6 +10,10 @@
                 <h2 class="login-title">Welcome back</h2>
                 <p class="login-subtitle">Sign in to your household</p>
 
+                {{if .Registered}}
+                <div class="auth-toast" role="status">✓ Account created — sign in below</div>
+                {{end}}
+
                 {{if .Error}}
                 <p class="login-error" role="alert">{{.Error}}</p>
                 {{end}}

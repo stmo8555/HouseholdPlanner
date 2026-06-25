@@ -10,17 +10,17 @@
 
         <main class="settings-page">
             <h2 class="settings-heading">Household settings</h2>
-            <p class="settings-subheading">Manage <strong>{{.Household.Name}}</strong> and who's in it.</p>
+            <p class="settings-subheading">Manage <strong>{{.SettingsView.Household.Name}}</strong> and who's in it.</p>
 
             <!-- Household code -->
             <section class="settings-card glass card">
                 <h3 class="settings-card-title">Household code</h3>
                 <p class="settings-card-desc">Share this code with someone to join this household.</p>
                 <div class="code-row">
-                    <code class="household-code glass-inner" id="household-code">{{.Household.Code}}</code>
+                    <code class="household-code glass-inner" id="household-code">{{.SettingsView.Household.Code}}</code>
                     <button class="copy-button" type="button" data-copy-target="#household-code">Copy</button>
                 </div>
-                {{if .IsOwner}}
+                {{if .SettingsView.IsOwner}}
                 <form method="POST" action="/settings/code/regenerate"
                     onsubmit="return confirm('Regenerate the household code? The current code will stop working for anyone who hasn\'t joined yet.');">
                     <button class="login-button settings-button" type="submit">Regenerate code</button>
@@ -32,10 +32,10 @@
             <section class="settings-card glass card">
                 <h3 class="settings-card-title">Invite link</h3>
                 <p class="settings-card-desc">Send this link to invite one new person to create an account.</p>
-                {{if .Invite.Link}}
+                {{if .InviteLink}}
                 <div class="code-row">
                     <input class="invite-link glass-inner" id="invite-link" type="text" readonly
-                        value="{{.Invite.Link}}">
+                        value="{{.InviteLink}}">
                     <button class="copy-button" type="button" data-copy-target="#invite-link">Copy</button>
                 </div>
                 <p class="settings-hint">Single-use · expires in 7 days</p>
@@ -52,14 +52,14 @@
                 <h3 class="settings-card-title">Members</h3>
                 <p class="settings-card-desc">People in this household.</p>
                 <ul class="member-list">
-                    {{range .Members}}
+                    {{range .SettingsView.Members}}
                     <li class="member-row">
                         <div class="member-info">
                             <span class="member-name">{{.Name}}</span>
                             {{if .IsOwner}}<span class="member-badge">Owner</span>{{end}}
                             {{if .IsYou}}<span class="member-badge member-badge--you">You</span>{{end}}
                         </div>
-                        {{if and $.IsOwner (not .IsOwner)}}
+                        {{if and $.SettingsView.IsOwner (not .IsOwner)}}
                         <div class="member-actions">
                             <form method="POST" action="/settings/members/{{.ID}}/promote">
                                 <button class="member-action" type="submit">Make owner</button>
@@ -72,8 +72,38 @@
                     </li>
                     {{end}}
                 </ul>
-                {{if not .IsOwner}}
+                {{if not .SettingsView.IsOwner}}
                 <p class="settings-hint">Only the household owner can remove members or transfer ownership.</p>
+                {{end}}
+            </section>
+
+            <!-- Danger zone -->
+            <section class="settings-card settings-danger glass card">
+                <h3 class="settings-card-title">Danger zone</h3>
+                {{if and .SettingsView.IsOwner (gt (len .SettingsView.Members) 1)}}
+                <p class="settings-card-desc">You own this household. Make another member the owner (above) to leave it,
+                    or remove the other members first to delete the household or your account.</p>
+                {{else}}
+                {{if not .SettingsView.IsOwner}}
+                <form method="POST" action="/settings/leave"
+                    onsubmit="return confirm('Leave this household? You will lose access to its lists until you are invited back.');">
+                    <button class="login-button settings-button settings-button--danger" type="submit">Leave
+                        household</button>
+                </form>
+                {{end}}
+                {{if and .SettingsView.IsOwner (eq (len .SettingsView.Members) 1)}}
+                <p class="settings-card-desc">Deleting the household permanently removes all of its lists and data.</p>
+                <form method="POST" action="/settings/delete"
+                    onsubmit="return confirm('Delete this household? This permanently removes all of its lists and data and cannot be undone.');">
+                    <button class="login-button settings-button settings-button--danger" type="submit">Delete
+                        household</button>
+                </form>
+                {{end}}
+                <form method="POST" action="/settings/account/delete"
+                    onsubmit="return confirm('Delete your account? This permanently deletes your login and cannot be undone.');">
+                    <button class="login-button settings-button settings-button--danger" type="submit">Delete my
+                        account</button>
+                </form>
                 {{end}}
             </section>
         </main>
@@ -98,3 +128,5 @@
 </body>
 
 </html>
+
+

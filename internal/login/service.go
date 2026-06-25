@@ -16,6 +16,34 @@ type Service struct {
 	repo *Repo
 }
 
+func (s *Service) JoinHousehold(ctx context.Context, inviteCode string, userId int) error {
+	return s.repo.JoinHousehold(ctx, inviteCode, userId)
+}
+
+func (s *Service) CreateHousehold(ctx context.Context, householdName string, userId int) error {
+	return s.repo.CreateHousehold(ctx, householdName, userId)
+}
+
+func (s *Service) CreateUser(ctx context.Context, username, pwd, token string) (int, error) {
+	err := s.repo.ConsumeToken(ctx, token)
+
+	if err != nil {
+		return 0, err
+	}
+
+	hashBytes, err := bcrypt.GenerateFromPassword([]byte(pwd), 12)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return s.repo.CreateUser(ctx, username, string(hashBytes))
+}
+
+func (s *Service) ValidateToken(ctx context.Context, token string) (bool, error) {
+	return s.repo.ValidateToken(ctx, token)
+}
+
 func NewService(repo *Repo) *Service {
 	if repo == nil {
 		panic("service not initialized")
@@ -51,7 +79,7 @@ func (s *Service) Authenticate(ctx context.Context, uname, pwd string) (string, 
 	}
 
 	session := Session{
-		UserID:    user.ID,
+		User:      user,
 		ExpiresAt: time.Now().UTC().Add(time.Hour * 36),
 	}
 
@@ -60,6 +88,10 @@ func (s *Service) Authenticate(ctx context.Context, uname, pwd string) (string, 
 
 func (s *Service) GetSession(ctx context.Context, sessionID string) (Session, error) {
 	return s.repo.getSession(ctx, sessionID)
+}
+
+func (s *Service) TouchLastSeen(ctx context.Context, userID int) error {
+	return s.repo.TouchLastSeen(ctx, userID)
 }
 
 func (s *Service) RemoveExpiredSessions(ctx context.Context) error {

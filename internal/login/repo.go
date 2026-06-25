@@ -3,13 +3,49 @@ package login
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
+
+	"github.com/stmo8555/HouseholdPlanner/internal/code"
 )
 
 type Repo struct {
 	db *pgxpool.Pool
+}
+
+func (r *Repo) ConsumeToken(ctx context.Context, token string) error {
+	sql := `
+	DELETE
+	FROM invites
+	WHERE token=$1;
+	`
+	row, err := r.db.Exec(ctx, sql, token)
+	if err != nil {
+		return err
+	}
+
+	if row.RowsAffected() == 0 {
+		return fmt.Errorf("token not found")
+	}
+
+	return nil
+}
+
+func (r *Repo) ValidateToken(ctx context.Context, token string) (bool, error) {
+	sql := `
+	SELECT
+	EXISTS (
+		SELECT 1 
+		FROM invites 
+		WHERE token = $1 AND expires_at > NOW() 
+	);
+	`
+	var exists bool
+	err := r.db.QueryRow(ctx, sql, token).Scan(&exists)
+
+	return exists, err
 }
 
 func NewRepo(db *pgxpool.Pool) *Repo {
@@ -26,10 +62,10 @@ func (r *Repo) AddSession(ctx context.Context, session Session) (string, error) 
 	sql := `
 	INSERT INTO sessions (user_id, expires_at)
 	VALUES ($1, $2)
-	RETURNING id 
+	RETURNING id;
 	`
 	var id string
-	err := r.db.QueryRow(ctx, sql, session.UserID, session.ExpiresAt).Scan(&id)
+	err := r.db.QueryRow(ctx, sql, session.User.ID, session.ExpiresAt).Scan(&id)
 
 	return id, err
 }
@@ -37,8 +73,20 @@ func (r *Repo) AddSession(ctx context.Context, session Session) (string, error) 
 func (r *Repo) RemoveSession(ctx context.Context, id string) error {
 	sql := `
 	DELETE FROM sessions
-	WHERE id=$1`
+	WHERE id=$1;
+	`
 	_, err := r.db.Exec(ctx, sql, id)
+
+	return err
+}
+
+func (r *Repo) TouchLastSeen(ctx context.Context, userID int) error {
+	sql := `
+	UPDATE users
+	SET last_seen=now()
+	WHERE id=$1;
+	`
+	_, err := r.db.Exec(ctx, sql, userID)
 
 	return err
 }
@@ -79,17 +127,21 @@ func (r *Repo) getHouseholdId(user_id int) (int, error) {
 
 func (r *Repo) getSession(ctx context.Context, id string) (Session, error) {
 	sql := `
-	SELECT s.id, s.user_id, s.expires_at, hm.household_id
-	FROM sessions s 
-	LEFT JOIN household_members hm ON s.user_id=hm.user_id 
+	SELECT s.id, s.expires_at, hm.household_id, u.id, u.username, u.pwd, u.last_seen
+	FROM sessions s
+	JOIN users u ON s.user_id=u.id
+	LEFT JOIN household_members hm ON s.user_id=hm.user_id
 	WHERE s.id=$1;
 	`
 	var session Session
 	err := r.db.QueryRow(ctx, sql, id).Scan(
 		&session.ID,
-		&session.UserID,
 		&session.ExpiresAt,
 		&session.HouseholdID,
+		&session.User.ID,
+		&session.User.Uname,
+		&session.User.Hash,
+		&session.User.LastSeen,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = ErrNotFound
@@ -106,4 +158,80 @@ func (r *Repo) RemoveExpiredSessions(ctx context.Context) error {
 	_, err := r.db.Exec(ctx, sql)
 
 	return err
+}
+
+func (r *Repo) CreateUser(ctx context.Context, username string, hash string) (int, error) {
+	sql := `
+	INSERT INTO users (username, pwd)
+	VALUES ($1, $2)
+	RETURNING id;
+	`
+	var id int
+	err := r.db.QueryRow(ctx, sql, username, hash).Scan(&id)
+
+	return id, err
+}
+
+func (r *Repo) CreateHousehold(ctx context.Context, householdName string, userId int) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	sql := `
+	INSERT INTO households (name, code, created_by)
+	VALUES ($1, $2, $3)
+	RETURNING id;
+	`
+
+	householdCode, err := code.Generate()
+	if err != nil {
+		return fmt.Errorf("generating household code: %w", err)
+	}
+
+	var hid int
+	err = tx.QueryRow(ctx, sql, householdName, householdCode, userId).Scan(&hid)
+	if err != nil {
+		return fmt.Errorf("inserting household: %w", err)
+	}
+
+	sql = `
+	INSERT INTO household_members (user_id, household_id, role)
+	VALUES ($1, $2, 'owner');
+	`
+	_, err = tx.Exec(ctx, sql, userId, hid)
+	if err != nil {
+		return fmt.Errorf("adding owner to household: %w", err)
+	}
+
+	return tx.Commit(ctx)
+}
+
+func (r *Repo) JoinHousehold(ctx context.Context, inviteCode string, userId int) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
+
+	sql := `
+	SELECT id FROM households WHERE code = $1;
+	`
+	var hid int
+	err = tx.QueryRow(ctx, sql, inviteCode).Scan(&hid)
+	if err != nil {
+		return fmt.Errorf("household not found for code %q: %w", inviteCode, err)
+	}
+
+	sql = `
+	INSERT INTO household_members (user_id, household_id, role)
+	VALUES ($1, $2, 'member');
+	`
+	_, err = tx.Exec(ctx, sql, userId, hid)
+	if err != nil {
+		return fmt.Errorf("joining household: %w", err)
+	}
+
+	return tx.Commit(ctx)
 }

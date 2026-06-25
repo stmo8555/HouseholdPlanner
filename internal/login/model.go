@@ -6,13 +6,14 @@ import (
 
 type Session struct {
 	ID          string
-	UserID      int
+	User        User
 	HouseholdID *int
 	ExpiresAt   time.Time
 }
 
 type User struct {
-	ID    int
-	Uname string
-	Hash  string
+	ID       int
+	Uname    string
+	Hash     string
+	LastSeen time.Time
 }

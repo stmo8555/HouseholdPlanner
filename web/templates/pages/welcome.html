@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+{{template "layouts/head" .}}
+
+<body class="flower-power auth-body">
+    <div class="background">
+        {{template "layouts/header" .}}
+        <main class="auth-page">
+            <form class="login-form glass card" method="POST" action="/welcome">
+                <h2 class="login-title">Set up your household</h2>
+                <p class="login-subtitle">You're not part of a household yet — create one or join an existing one</p>
+
+                {{if .Error}}
+                <p class="login-error" role="alert">{{.Error}}</p>
+                {{end}}
+
+                {{template "auth/household_choice" .}}
+
+                <button class="login-button" type="submit">Continue</button>
+
+                <p class="login-note">
+                    Not you? <a href="#" onclick="document.getElementById('welcome-logout').submit(); return false;">Log
+                        out</a>.
+                </p>
+            </form>
+            <form id="welcome-logout" method="POST" action="/logout" hidden></form>
+        </main>
+        <script type="module" src="/static/script.js"></script>
+    </div>
+</body>
+
+</html>

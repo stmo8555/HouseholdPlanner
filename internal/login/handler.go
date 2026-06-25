@@ -2,6 +2,7 @@ package login
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -41,6 +42,102 @@ type Handler struct {
 	limiter sync.Map
 }
 
+func (h *Handler) Register(c *gin.Context) {
+	token := c.Param("token")
+	uname := c.PostForm("uname")
+	pwd := c.PostForm("pwd")
+
+	userId, err := h.service.CreateUser(c.Request.Context(), uname, pwd, token)
+
+	if err != nil {
+		c.Redirect(302, "login.html")
+		return
+	}
+
+	householdName := c.PostForm("household_name")
+	inviteCode := c.PostForm("invite_code")
+
+	if householdName != "" {
+		err = h.service.CreateHousehold(c.Request.Context(), householdName, userId)
+	} else if inviteCode != "" {
+		err = h.service.JoinHousehold(c.Request.Context(), inviteCode, userId)
+	} else {
+		err = fmt.Errorf("No valid input for options")
+	}
+
+	if err != nil {
+		panic(err)
+	}
+
+	c.Redirect(302, "/login?registered=1")
+}
+func (h *Handler) RegisterView(c *gin.Context) {
+	token := c.Query("invite")
+	valid, err := h.service.ValidateToken(c.Request.Context(), token)
+
+	if err != nil {
+		panic(err)
+	}
+
+	if !valid {
+		c.Redirect(302, "login.html")
+	}
+
+	data := gin.H{
+		"Title":   "Register",
+		"HideNav": true,
+		"Error":   "",
+		"Token":   token,
+	}
+
+	c.HTML(200, "register.html", data)
+}
+
+func (h *Handler) WelcomeView(c *gin.Context) {
+	if _, ok := c.Get("household_id"); ok {
+		c.Redirect(302, "/")
+		return
+	}
+
+	c.HTML(200, "welcome.html", gin.H{
+		"Title":   "Set up your household",
+		"HideNav": true,
+		"Error":   "",
+	})
+}
+
+func (h *Handler) SetupHousehold(c *gin.Context) {
+	if _, ok := c.Get("household_id"); ok {
+		c.Redirect(302, "/")
+		return
+	}
+
+	userId := c.GetInt("user_id")
+	householdName := c.PostForm("household_name")
+	inviteCode := c.PostForm("invite_code")
+
+	var err error
+	switch {
+	case householdName != "":
+		err = h.service.CreateHousehold(c.Request.Context(), householdName, userId)
+	case inviteCode != "":
+		err = h.service.JoinHousehold(c.Request.Context(), inviteCode, userId)
+	default:
+		err = fmt.Errorf("no household option chosen")
+	}
+
+	if err != nil {
+		c.HTML(http.StatusBadRequest, "welcome.html", gin.H{
+			"Title":   "Set up your household",
+			"HideNav": true,
+			"Error":   "Could not set up your household. Check the invite code and try again.",
+		})
+		return
+	}
+
+	c.Redirect(302, "/")
+}
+
 func NewHandler(s *Service) *Handler {
 	if s == nil {
 		panic("nil service for handler")
@@ -57,7 +154,11 @@ func NewHandler(s *Service) *Handler {
 }
 
 func (h *Handler) Login(c *gin.Context) {
-	data := gin.H{"Title": "Login", "HideNav": true}
+	data := gin.H{
+		"Title":      "Login",
+		"HideNav":    true,
+		"Registered": c.Query("registered") == "1",
+	}
 	c.HTML(200, "login.html", data)
 }
 
@@ -102,8 +203,9 @@ func (h *Handler) Authenticate(c *gin.Context) {
 
 	if errors.Is(err, errInvalidCredentials) {
 		data := gin.H{
-			"Title": "Login",
-			"Error": "Invalid username or password.",
+			"Title":   "Login",
+			"Error":   "Invalid username or password.",
+			"HideNav": true,
 		}
 		c.HTML(http.StatusUnauthorized, "login.html", data)
 		return
