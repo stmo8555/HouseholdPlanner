@@ -1,0 +1,41 @@
+{{define "household/members-list"}}
+<div id="members-list">
+    {{if .Swapped}}
+    <div class="toast success-toast" role="status">✓ {{.Message}}</div>
+    {{end}}
+    <ul class="member-list">
+        {{range .SettingsView.Members}}
+        <li class="member-row">
+            <div class="member-info">
+                <span class="member-name">{{.Name}}</span>
+                {{if .IsOwner}}<span class="member-badge">Owner</span>{{end}}
+                {{if .IsYou}}<span class="member-badge member-badge--you">You</span>{{end}}
+            </div>
+            {{if and $.SettingsView.IsOwner (not .IsOwner)}}
+            <div class="member-actions">
+                <form hx-post="/settings/members/{{.ID}}/promote" hx-target="#members-list" hx-swap="outerHTML">
+                    <button class="member-action" type="submit">
+                        <span>Make owner</span>
+                        {{template "spinner" $}}
+                    </button>
+                </form>
+                <form hx-post="/settings/members/{{.ID}}/remove" hx-target="#members-list" hx-swap="outerHTML"
+                    hx-confirm="Remove {{.Name}} from this household?">
+                    <button class="member-action member-action--danger" type="submit">
+                        <span>Remove</span>
+                        {{template "spinner" $}}
+                    </button>
+                </form>
+            </div>
+            {{end}}
+        </li>
+        {{end}}
+    </ul>
+    {{if not .SettingsView.IsOwner}}
+    <p class="settings-hint">Only the household owner can remove members or transfer ownership.</p>
+    {{end}}
+</div>
+{{if .Swapped}}
+{{template "household/danger-zone" .}}
+{{end}}
+{{end}}

@@ -22,14 +22,20 @@ func NewHandler(s *Service) *handler {
 
 func (h *handler) RegenerateHouseholdCode(c *gin.Context) {
 	hid := c.GetInt("household_id")
+	uid := c.GetInt("user_id")
 
-	code, err := h.service.RegenerateHouseholdCode(c.Request.Context(), hid)
+	code, err := h.service.RegenerateHouseholdCode(c.Request.Context(), uid, hid)
 
 	if err != nil {
 		panic(err)
 	}
 
-	c.String(200, code)
+	data := gin.H{
+		"Swapped": true,
+		"Code": code,
+	}
+
+	c.HTML(200, "household/household-code", data)
 }
 
 func (h *handler) RemoveMember(c *gin.Context) {
@@ -48,7 +54,7 @@ func (h *handler) RemoveMember(c *gin.Context) {
 		panic(err)
 	}
 
-	c.String(200, "removed")
+	h.renderMembersList(c, uid, hid, "Member removed")
 }
 
 func (h *handler) PromoteMember(c *gin.Context) {
@@ -60,9 +66,25 @@ func (h *handler) PromoteMember(c *gin.Context) {
 		panic(err)
 	}
 
-	h.service.PromoteMember(c.Request.Context(), uid, targetUID, hid)
+	err = h.service.PromoteMember(c.Request.Context(), uid, targetUID, hid)
+	if err != nil {
+		panic(err)
+	}
 
-	c.String(200, "promoted")
+	h.renderMembersList(c, uid, hid, "Ownership transferred")
+}
+
+func (h *handler) renderMembersList(c *gin.Context, uid, hid int, message string) {
+	settingsView, err := h.service.Settings(c.Request.Context(), uid, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	c.HTML(200, "household/members-list", gin.H{
+		"SettingsView": settingsView,
+		"Swapped":      true,
+		"Message":      message,
+	})
 }
 
 func (h *handler) LeaveHousehold(c *gin.Context) {
@@ -134,7 +156,12 @@ func (h *handler) GenerateInviteToken(c *gin.Context) {
 		panic(err)
 	}
 
-	h.renderSettings(c, uid, hid, token)
+	data := gin.H{
+		"InviteLink": createLink(c, token),
+		"Swapped":    true,
+	}
+
+	c.HTML(200, "household/invite-link", data)
 }
 
 func (h *handler) renderSettings(c *gin.Context, uid, hid int, token string) {
@@ -143,11 +170,7 @@ func (h *handler) renderSettings(c *gin.Context, uid, hid int, token string) {
 		panic(err)
 	}
 
-	scheme := "https"
-	if c.Request.TLS == nil {
-		scheme = "http"
-	}
-	inviteLink := fmt.Sprintf("%s://%s/register?invite=%s", scheme, c.Request.Host, token)
+	inviteLink := createLink(c, token)
 
 	c.HTML(200, "settings.html", gin.H{
 		"Title":        "Household settings",
@@ -156,3 +179,13 @@ func (h *handler) renderSettings(c *gin.Context, uid, hid int, token string) {
 		"InviteLink":   inviteLink,
 	})
 }
+
+func createLink(c *gin.Context, token string) string {
+	scheme := "https"
+	if c.Request.TLS == nil {
+		scheme = "http"
+	}
+	return fmt.Sprintf("%s://%s/register?invite=%s", scheme, c.Request.Host, token)
+}
+
+

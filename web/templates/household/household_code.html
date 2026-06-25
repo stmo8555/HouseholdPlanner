@@ -1,0 +1,11 @@
+{{define "household/household-code"}}
+<div id="household-code">
+    {{if .Swapped}}
+    <div class="toast success-toast" role="status">✓ Code Regenerated</div>
+    {{end}}
+    <div class="code-row">
+        <code class="household-code glass-inner" id="household-code-value">{{if .Swapped}}{{.Code}}{{else}}{{.SettingsView.Household.Code}}{{end}}</code>
+        <button class="copy-button" type="button" data-copy-target="#household-code-value">Copy</button>
+    </div>
+</div>
+{{end}}

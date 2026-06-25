@@ -8,7 +8,7 @@
         {{template "layouts/header" .}}
         {{template "notifications/bootstrap" .}}
 
-        <main class="settings-page">
+        <main>
             <h2 class="settings-heading">Household settings</h2>
             <p class="settings-subheading">Manage <strong>{{.SettingsView.Household.Name}}</strong> and who's in it.</p>
 
@@ -16,14 +16,14 @@
             <section class="settings-card glass card">
                 <h3 class="settings-card-title">Household code</h3>
                 <p class="settings-card-desc">Share this code with someone to join this household.</p>
-                <div class="code-row">
-                    <code class="household-code glass-inner" id="household-code">{{.SettingsView.Household.Code}}</code>
-                    <button class="copy-button" type="button" data-copy-target="#household-code">Copy</button>
-                </div>
+                {{template "household/household-code" .}}
                 {{if .SettingsView.IsOwner}}
-                <form method="POST" action="/settings/code/regenerate"
+                <form hx-post="/settings/code/regenerate" hx-target="#household-code" hx-swap="outerHTML"
                     onsubmit="return confirm('Regenerate the household code? The current code will stop working for anyone who hasn\'t joined yet.');">
-                    <button class="login-button settings-button" type="submit">Regenerate code</button>
+                    <button class="login-button settings-button" type="submit">
+                        <span>Regenerate code</span>
+                        {{template "spinner" .}}
+                    </button>
                 </form>
                 {{end}}
             </section>
@@ -34,16 +34,18 @@
                 <p class="settings-card-desc">Send this link to invite one new person to create an account.</p>
                 {{if .InviteLink}}
                 <div class="code-row">
-                    <input class="invite-link glass-inner" id="invite-link" type="text" readonly
-                        value="{{.InviteLink}}">
+                    {{template "household/invite-link" .}}
                     <button class="copy-button" type="button" data-copy-target="#invite-link">Copy</button>
                 </div>
                 <p class="settings-hint">Single-use · expires in 7 days</p>
                 {{else}}
                 <p class="settings-hint">No active invite link.</p>
                 {{end}}
-                <form method="POST" action="/settings/invite">
-                    <button class="login-button settings-button" type="submit">Generate new invite link</button>
+                <form hx-post="/settings/invite" hx-target="#invite-link" hx-swap="outerHTML">
+                    <button class="login-button settings-button" type="submit">
+                        <span>Generate new invite link</span>
+                        {{template "spinner" .}}
+                    </button>
                 </form>
             </section>
 
@@ -51,77 +53,27 @@
             <section class="settings-card glass card">
                 <h3 class="settings-card-title">Members</h3>
                 <p class="settings-card-desc">People in this household.</p>
-                <ul class="member-list">
-                    {{range .SettingsView.Members}}
-                    <li class="member-row">
-                        <div class="member-info">
-                            <span class="member-name">{{.Name}}</span>
-                            {{if .IsOwner}}<span class="member-badge">Owner</span>{{end}}
-                            {{if .IsYou}}<span class="member-badge member-badge--you">You</span>{{end}}
-                        </div>
-                        {{if and $.SettingsView.IsOwner (not .IsOwner)}}
-                        <div class="member-actions">
-                            <form method="POST" action="/settings/members/{{.ID}}/promote">
-                                <button class="member-action" type="submit">Make owner</button>
-                            </form>
-                            <form method="POST" action="/settings/members/{{.ID}}/remove">
-                                <button class="member-action member-action--danger" type="submit">Remove</button>
-                            </form>
-                        </div>
-                        {{end}}
-                    </li>
-                    {{end}}
-                </ul>
-                {{if not .SettingsView.IsOwner}}
-                <p class="settings-hint">Only the household owner can remove members or transfer ownership.</p>
-                {{end}}
+                {{template "household/members-list" .}}
             </section>
 
             <!-- Danger zone -->
-            <section class="settings-card settings-danger glass card">
-                <h3 class="settings-card-title">Danger zone</h3>
-                {{if and .SettingsView.IsOwner (gt (len .SettingsView.Members) 1)}}
-                <p class="settings-card-desc">You own this household. Make another member the owner (above) to leave it,
-                    or remove the other members first to delete the household or your account.</p>
-                {{else}}
-                {{if not .SettingsView.IsOwner}}
-                <form method="POST" action="/settings/leave"
-                    onsubmit="return confirm('Leave this household? You will lose access to its lists until you are invited back.');">
-                    <button class="login-button settings-button settings-button--danger" type="submit">Leave
-                        household</button>
-                </form>
-                {{end}}
-                {{if and .SettingsView.IsOwner (eq (len .SettingsView.Members) 1)}}
-                <p class="settings-card-desc">Deleting the household permanently removes all of its lists and data.</p>
-                <form method="POST" action="/settings/delete"
-                    onsubmit="return confirm('Delete this household? This permanently removes all of its lists and data and cannot be undone.');">
-                    <button class="login-button settings-button settings-button--danger" type="submit">Delete
-                        household</button>
-                </form>
-                {{end}}
-                <form method="POST" action="/settings/account/delete"
-                    onsubmit="return confirm('Delete your account? This permanently deletes your login and cannot be undone.');">
-                    <button class="login-button settings-button settings-button--danger" type="submit">Delete my
-                        account</button>
-                </form>
-                {{end}}
-            </section>
+            {{template "household/danger-zone" .}}
         </main>
 
         <script type="module" src="/static/script.js"></script>
         <script>
-            document.querySelectorAll(".copy-button").forEach((btn) => {
-                btn.addEventListener("click", async () => {
-                    const el = document.querySelector(btn.dataset.copyTarget);
-                    if (!el) return;
-                    const text = el.value ?? el.textContent;
-                    try {
-                        await navigator.clipboard.writeText(text.trim());
-                        const original = btn.textContent;
-                        btn.textContent = "Copied!";
-                        setTimeout(() => (btn.textContent = original), 1500);
-                    } catch (_) { }
-                });
+            document.addEventListener("click", async (e) => {
+                const btn = e.target.closest(".copy-button");
+                if (!btn) return;
+                const el = document.querySelector(btn.dataset.copyTarget);
+                if (!el) return;
+                const text = el.value ?? el.textContent;
+                try {
+                    await navigator.clipboard.writeText(text.trim());
+                    const original = btn.textContent;
+                    btn.textContent = "Copied!";
+                    setTimeout(() => (btn.textContent = original), 1500);
+                } catch (_) { }
             });
         </script>
     </div>

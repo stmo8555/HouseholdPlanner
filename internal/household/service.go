@@ -31,13 +31,13 @@ func NewService(r *Repo) *Service {
 	return &Service{repo: r}
 }
 
-func (s *Service) RegenerateHouseholdCode(ctx context.Context, hid int) (string, error) {
+func (s *Service) RegenerateHouseholdCode(ctx context.Context, uid, hid int) (string, error) {
 	codeStr, err := code.Generate()
 	if err != nil {
 		return "", fmt.Errorf("generating household code: %w", err)
 	}
 
-	err = s.repo.RegenerateHouseholdCode(ctx, codeStr, hid)
+	err = s.repo.RegenerateHouseholdCode(ctx, uid, codeStr, hid)
 	return codeStr, err
 }
 

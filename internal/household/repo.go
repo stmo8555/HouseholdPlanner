@@ -62,15 +62,28 @@ func NewRepo(db *pgxpool.Pool) *Repo {
 	return &Repo{db: db}
 }
 
-func (r *Repo) RegenerateHouseholdCode(ctx context.Context, code string, hid int) error {
-	sql := `
-	UPDATE households
-	SET code=$1
-	WHERE household_id=$2;
-	`
-	_, err := r.db.Exec(ctx, sql, code, hid)
+func (r *Repo) RegenerateHouseholdCode(ctx context.Context, uid int, code string, hid int) error {
+	tx, err := r.db.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback(ctx)
 
-	return err
+	var callerRole string
+	err = tx.QueryRow(ctx, `SELECT role FROM household_members WHERE user_id=$1 AND household_id=$2;`, uid, hid).Scan(&callerRole)
+	if err != nil {
+		return fmt.Errorf("caller not found in household: %w", err)
+	}
+	if callerRole != "owner" {
+		return fmt.Errorf("caller is not an owner")
+	}
+
+	_, err = tx.Exec(ctx, `UPDATE households SET code=$1 WHERE id=$2;`, code, hid)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }
 
 func (r *Repo) RemoveMember(ctx context.Context, userID, targetID int, hid int) error {
@@ -379,4 +392,3 @@ func (r *Repo) DeleteAccount(ctx context.Context, uid int) error {
 
 	return tx.Commit(ctx)
 }
-
