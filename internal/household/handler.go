@@ -30,9 +30,15 @@ func (h *handler) RegenerateHouseholdCode(c *gin.Context) {
 		panic(err)
 	}
 
+	version, err := h.service.HouseholdVersion(c.Request.Context(), hid)
+	if err != nil {
+		panic(err)
+	}
+
 	data := gin.H{
-		"Swapped": true,
-		"Code": code,
+		"OOB":              true,
+		"Code":             code,
+		"HouseholdVersion": version,
 	}
 
 	c.HTML(200, "household/household-code", data)
@@ -80,10 +86,16 @@ func (h *handler) renderMembersList(c *gin.Context, uid, hid int, message string
 		panic(err)
 	}
 
+	version, err := h.service.HouseholdVersion(c.Request.Context(), hid)
+	if err != nil {
+		panic(err)
+	}
+
 	c.HTML(200, "household/members-list", gin.H{
-		"SettingsView": settingsView,
-		"Swapped":      true,
-		"Message":      message,
+		"SettingsView":     settingsView,
+		"OOB":              true,
+		"Message":          message,
+		"HouseholdVersion": version,
 	})
 }
 
@@ -156,9 +168,15 @@ func (h *handler) GenerateInviteToken(c *gin.Context) {
 		panic(err)
 	}
 
+	version, err := h.service.HouseholdVersion(c.Request.Context(), hid)
+	if err != nil {
+		panic(err)
+	}
+
 	data := gin.H{
-		"InviteLink": createLink(c, token),
-		"Swapped":    true,
+		"InviteLink":       createLink(c, token),
+		"OOB":              true,
+		"HouseholdVersion": version,
 	}
 
 	c.HTML(200, "household/invite-link", data)
@@ -187,5 +205,3 @@ func createLink(c *gin.Context, token string) string {
 	}
 	return fmt.Sprintf("%s://%s/register?invite=%s", scheme, c.Request.Host, token)
 }
-
-

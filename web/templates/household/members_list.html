@@ -1,6 +1,7 @@
 {{define "household/members-list"}}
+{{if .OOB}}{{template "household/version_input" .}}{{end}}
 <div id="members-list">
-    {{if .Swapped}}
+    {{if .OOB}}
     <div class="toast success-toast" role="status">✓ {{.Message}}</div>
     {{end}}
     <ul class="member-list">
@@ -35,7 +36,7 @@
     <p class="settings-hint">Only the household owner can remove members or transfer ownership.</p>
     {{end}}
 </div>
-{{if .Swapped}}
+{{if .OOB}}
 {{template "household/danger-zone" .}}
 {{end}}
 {{end}}

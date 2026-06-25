@@ -1,6 +1,7 @@
 {{define "household/invite-link"}}
-{{if .Swapped}}
+{{if .OOB}}{{template "household/version_input" .}}{{end}}
+{{if .OOB}}
 <div class="toast success-toast" role="status">✓ New invite link generated</div>
 {{end}}
-<input class="invite-link glass-inner {{if .Swapped}}succes{{end}}" id="invite-link" readonly value="{{.InviteLink}}">
+<input class="invite-link glass-inner" id="invite-link" readonly value="{{.InviteLink}}">
 {{end}}
