@@ -28,7 +28,7 @@
 ## Data / Users
 
 - [ ] **Verify your user passwords** — `steffe` and `anna` are seeded with bcrypt hashes in `init.sql`. Make sure you know the plaintext passwords. To reset one: generate a new bcrypt hash and `UPDATE users SET pwd = '...' WHERE username = '...'`.
-- [ ] **Plan how to add future users** — there's no admin UI. For now: `INSERT INTO users (username, pwd) VALUES ('name', '<bcrypt-hash>')` + `INSERT INTO household_members (user_id, household_id) VALUES (...)`.
+- [x] **Plan how to add future users** — there's no admin UI. For now: `INSERT INTO users (username, pwd) VALUES ('name', '<bcrypt-hash>')` + `INSERT INTO household_members (user_id, household_id) VALUES (...)`.
 
 ## Operational
 
