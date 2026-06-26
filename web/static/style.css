@@ -305,6 +305,7 @@ header {
     display: contents;
 }
 
+/* todo: maybe remove */
 .nav-link-button {
     font: inherit;
     color: inherit;
@@ -312,6 +313,13 @@ header {
     background: none;
     border: none;
     cursor: pointer;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 99;
 }
 
 nav {
@@ -323,55 +331,43 @@ nav {
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     z-index: 100;
+
+    @media screen and (min-width: 700px) {
+        display: block;
+        position: static;
+        background: inherit;
+    }
 }
 
 nav ul {
     padding: 0;
     margin-block-start: 50%;
+
+    @media screen and (min-width: 700px) {
+        list-style: none;
+        margin-block: auto;
+        display: flex;
+    }
 }
 
 nav ul li {
     font-size: 1.1rem;
     border-block-end: solid rgba(255, 255, 255, 0.2) 1px;
+
+    @media screen and (min-width: 700px) {
+        background-color: transparent;
+        padding: 5px;
+        font-size: 1.1rem;
+        border: none;
+    }
 }
 
 nav ul li a,
 nav ul li .nav-link-button {
     display: block;
     padding: 15px;
-}
 
-.mobile-nav-chosen::after {
-    content: "·";
-    font-size: 4em;
-    line-height: 0;
-    margin-inline-start: 5px;
-    color: var(--accent);
-    vertical-align: middle;
-}
-
-@media screen and (min-width: 700px) {
-    nav {
-        display: block;
-        position: static;
-        background: inherit;
-    }
-
-    nav ul {
-        list-style: none;
-        margin-block: auto;
-        display: flex;
-    }
-
-    nav ul li {
-        background-color: transparent;
-        padding: 5px;
-        font-size: 1.1rem;
-        border: none;
-    }
-
-    nav ul li a,
-    nav ul li .nav-link-button {
+    @media screen and (min-width: 700px) {
         padding: 0;
         text-decoration: none;
         display: inline-block;
@@ -384,15 +380,27 @@ nav ul li .nav-link-button {
             background-size 0.3s,
             background-position 0s 0.3s;
     }
+}
+
+.mobile-nav-chosen::after {
+    content: "·";
+    font-size: 4em;
+    line-height: 0;
+    margin-inline-start: 5px;
+    color: var(--accent);
+    vertical-align: middle;
+
+    @media screen and (min-width: 700px) {
+        display: none;
+    }
+}
+
+@media screen and (min-width: 700px) {
 
     nav a:hover,
     nav .nav-link-button:hover {
         background-position: 100% 100%;
         background-size: 100% 2px;
-    }
-
-    .mobile-nav-chosen::after {
-        display: none;
     }
 }
 

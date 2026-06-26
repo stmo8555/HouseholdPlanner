@@ -1,18 +1,25 @@
 import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.basic.min.mjs";
 
 
-let toggled = false;
+let navToggled = false;
 
 document.body.addEventListener("click", event => {
-    const button = event.target.closest("#nav-toggle");
-    if (!button)
-        return;
-
-    const nav = document.getElementById("primary-nav")
-    toggled = !toggled;
-    button.textContent = toggled ? "×" : "≡";
-    nav.style.display = toggled ? "block" : "none";
-    // todo: add event when doc is clicked to toggle of nav on mobile
+    const buttonClicked = event.target.closest("#nav-toggle");
+    const overlayClicked = event.target.closest(".overlay");
+    const nav = document.getElementById("primary-nav");
+    const button = document.getElementById("nav-toggle");
+    const overlay = document.querySelector(".overlay");
+    const toggle = () => {
+        navToggled = !navToggled;
+        button.textContent = navToggled ? "×" : "≡";
+        nav.style.display = navToggled ? "block" : "none";
+        overlay.style.display = navToggled ? "block" : "none";
+    };
+    if (buttonClicked) {
+        toggle(buttonClicked);
+    } else if (overlayClicked) {
+        toggle();
+    }
 });
 
 document.body.addEventListener("click", event => {
@@ -139,3 +146,5 @@ function toggleSearch() {
         e.focus();
     });
 }
+
+

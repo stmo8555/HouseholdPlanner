@@ -1,5 +1,6 @@
 {{define "layouts/header"}}
 <header>
+    <div class="overlay"></div>
     <div class="header-items">
         <h1><a href="/">Household planner</a></h1>
         {{if not .HideNav}}
@@ -48,8 +49,8 @@
                     </strong>
                 </li>
             </ul>
-        </nav>
-        {{end}}
     </div>
+    </nav>
+    {{end}}
 </header>
 {{end}}
