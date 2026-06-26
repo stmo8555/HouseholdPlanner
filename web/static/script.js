@@ -1,13 +1,16 @@
 import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.basic.min.mjs";
 
-const nav_toggle = document.getElementById("nav-toggle");
-const nav = document.getElementById("primary-nav")
 
 let toggled = false;
 
-nav_toggle?.addEventListener("click", () => {
+document.body.addEventListener("click", event => {
+    const button = event.target.closest("#nav-toggle");
+    if (!button)
+        return;
+
+    const nav = document.getElementById("primary-nav")
     toggled = !toggled;
-    nav_toggle.textContent = toggled ? "×" : "≡";
+    button.textContent = toggled ? "×" : "≡";
     nav.style.display = toggled ? "block" : "none";
     // todo: add event when doc is clicked to toggle of nav on mobile
 });
