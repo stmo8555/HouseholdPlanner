@@ -60,7 +60,7 @@ func (h *handler) RemoveMember(c *gin.Context) {
 		panic(err)
 	}
 
-	h.renderMembersList(c, uid, hid, "Member removed")
+	c.Redirect(303, "/settings")
 }
 
 func (h *handler) PromoteMember(c *gin.Context) {
@@ -77,26 +77,7 @@ func (h *handler) PromoteMember(c *gin.Context) {
 		panic(err)
 	}
 
-	h.renderMembersList(c, uid, hid, "Ownership transferred")
-}
-
-func (h *handler) renderMembersList(c *gin.Context, uid, hid int, message string) {
-	settingsView, err := h.service.Settings(c.Request.Context(), uid, hid)
-	if err != nil {
-		panic(err)
-	}
-
-	version, err := h.service.HouseholdVersion(c.Request.Context(), hid)
-	if err != nil {
-		panic(err)
-	}
-
-	c.HTML(200, "household/members-list", gin.H{
-		"SettingsView":     settingsView,
-		"OOB":              true,
-		"Message":          message,
-		"HouseholdVersion": version,
-	})
+	c.Redirect(303, "/settings")
 }
 
 func (h *handler) LeaveHousehold(c *gin.Context) {

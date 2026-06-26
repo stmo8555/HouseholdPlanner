@@ -157,7 +157,7 @@ legend {
 
 main {
     inline-size: 100%;
-    max-inline-size: 560px;
+    max-inline-size: clamp(560px, 70vw, 1100px);
     margin-inline: auto;
     padding-inline: 20px;
     padding-block: 0 48px;
@@ -1566,6 +1566,24 @@ main.auth-page {
     margin-block-end: 20px;
 }
 
+.settings-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: stretch;
+    margin-block-end: 20px;
+}
+
+.settings-row .settings-card {
+    margin-block-end: 0;
+}
+
+@media (min-width: 720px) {
+    .settings-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
 .settings-card-title {
     margin: 0;
     font-size: 1.15rem;
@@ -1590,6 +1608,10 @@ main.auth-page {
 
 .settings-danger {
     border: 2px solid color-mix(in srgb, #c0392b 30%, transparent);
+}
+
+.settings-danger::before {
+    border-radius: 22px;
 }
 
 .settings-button--danger {

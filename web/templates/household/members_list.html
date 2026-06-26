@@ -1,9 +1,5 @@
 {{define "household/members-list"}}
-{{if .OOB}}{{template "household/version_input" .}}{{end}}
 <div id="members-list">
-    {{if .OOB}}
-    <div class="toast success-toast" role="status">✓ {{.Message}}</div>
-    {{end}}
     <ul class="member-list">
         {{range .SettingsView.Members}}
         <li class="member-row">
@@ -14,13 +10,13 @@
             </div>
             {{if and $.SettingsView.IsOwner (not .IsOwner)}}
             <div class="member-actions">
-                <form hx-post="/settings/members/{{.ID}}/promote" hx-target="#members-list" hx-swap="outerHTML">
+                <form hx-boost="true" method="POST" action="/settings/members/{{.ID}}/promote">
                     <button class="member-action" type="submit">
                         <span>Make owner</span>
                         {{template "spinner" $}}
                     </button>
                 </form>
-                <form hx-post="/settings/members/{{.ID}}/remove" hx-target="#members-list" hx-swap="outerHTML"
+                <form hx-boost="true" method="POST" action="/settings/members/{{.ID}}/remove"
                     hx-confirm="Remove {{.Name}} from this household?">
                     <button class="member-action member-action--danger" type="submit">
                         <span>Remove</span>
@@ -36,7 +32,4 @@
     <p class="settings-hint">Only the household owner can remove members or transfer ownership.</p>
     {{end}}
 </div>
-{{if .OOB}}
-{{template "household/danger-zone" .}}
-{{end}}
 {{end}}
