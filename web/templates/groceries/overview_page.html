@@ -24,6 +24,9 @@
         <article class="grocery-list-card card glass flex space-between" data-list-id="{{.GroceryList.ID}}"
             data-list-name="{{.GroceryList.Name}}">
 
+            <a href="/groceries/lists/{{.GroceryList.ID}}" hx-boost="true" class="card-link-overlay"
+                aria-label="Open {{.GroceryList.Name}}"></a>
+
             <div>
                 <h3>{{.GroceryList.Name}}</h3>
                 {{if gt .GroceryListStats.Total 0}}
@@ -37,11 +40,9 @@
             </div>
 
             <div class="flex align-items gap-6px">
-                <form action="/groceries/lists/{{.GroceryList.ID}}" method="get" hx-boost="true">
-                    <button type="submit">Open</button>
-                </form>
                 <button type="button" hx-get="/groceries/lists/{{.GroceryList.ID}}/edit" hx-target="#modal-root"
-                    hx-swap="innerHTML" class="edit-grocery-list-btn">Edit</button>
+                    hx-swap="innerHTML" class="edit-btn edit-grocery-list-btn"
+                    aria-label="Edit {{.GroceryList.Name}}">⋮</button>
             </div>
         </article>
         {{else}}

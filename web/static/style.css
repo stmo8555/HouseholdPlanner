@@ -901,9 +901,28 @@ form.htmx-request button .checkbox {
     inline-size: 100%;
 }
 
+.grocery-list-card {
+    position: relative;
+    cursor: pointer;
+}
+
 .grocery-list-card h3 {
     margin-block-start: 0;
     margin-block-end: 6px;
+}
+
+.card-link-overlay {
+    position: absolute;
+    inset: 0;
+}
+
+.grocery-list-card .edit-grocery-list-btn {
+    position: relative;
+    z-index: 1;
+    inline-size: 2em;
+    block-size: 2em;
+    font-size: 1.25rem;
+    line-height: 1;
 }
 
 .grocery-grid {
