@@ -7,9 +7,12 @@
 
     <div class="flex flex-wrap gap-6px margin-block-end-24px">
         <a href="/groceries" class="back-button button-styling">Back</a>
-        <button id="btn-add-grocery" type="button" onclick="document.getElementById('add-grocery-dialog').showModal()">Add Grocery</button>
-        <button id="btn-smart-add" type="button" onclick="document.getElementById('smart-add-dialog').showModal()">Smart Add</button>
-        <button id="btn-extract" type="button" onclick="document.getElementById('extract-dialog').showModal()">Extract</button>
+        <button id="btn-add-grocery" type="button"
+            onclick="document.getElementById('add-grocery-dialog').showModal()">Add Grocery</button>
+        <button id="btn-smart-add" type="button" onclick="document.getElementById('smart-add-dialog').showModal()">Smart
+            Add</button>
+        <button id="btn-extract" type="button"
+            onclick="document.getElementById('extract-dialog').showModal()">Extract</button>
     </div>
 
     <dialog class="glass card add-dialog" id="add-grocery-dialog"
@@ -19,11 +22,11 @@
             {{template "close_button" .}}
         </form>
 
-        <form class="add-form add-grocery-form" hx-post="/groceries/lists/{{.ListID}}/items"
-            hx-target=".grocery-list" hx-swap="outerHTML" hx-include="#grocery-list-state"
+        <form class="add-form add-grocery-form" hx-post="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list"
+            hx-swap="outerHTML" hx-include="#grocery-list-state"
             hx-on::after-request="if(event.detail.successful) this.reset()">
 
-            <p class="margin-block-end-12px"><strong>Quick Select</strong></p>
+            <div class="margin-block-end-12px"><strong>Quick Select</strong></div>
             {{template "groceries/quick_select" .}}
             <ul class="margin-block-end-24px">
                 <li>
