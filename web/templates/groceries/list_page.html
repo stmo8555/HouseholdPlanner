@@ -5,7 +5,7 @@
         <input type="hidden" name="order" value="{{.Order}}">
     </fieldset>
 
-    <div class="flex flex-wrap gap-6px margin-block-end-24px">
+    <div class="grocery-button-menu">
         <a href="/groceries" class="back-button button-styling">Back</a>
         <button id="btn-add-grocery" type="button"
             onclick="document.getElementById('add-grocery-dialog').showModal()">Add Grocery</button>
@@ -88,3 +88,5 @@
     {{template "groceries/list" .}}
 </main>
 {{end}}
+
+

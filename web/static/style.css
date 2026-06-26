@@ -39,7 +39,7 @@
     --padding-block: 12px;
     --margin-block: 12px;
 
-    @media screen and (min-width: 500px) {
+    @media (width >=500px) {
         --padding-inline: 24px;
         --padding-block: 24px;
         --margin-block: 24px;
@@ -238,7 +238,7 @@ body.flower-power::before {
     inset: 0;
     background-image: var(--bg-image-mobile);
 
-    @media screen and (min-width: 500px) {
+    @media (width >=500px) {
         background-image: var(--bg-image);
     }
 
@@ -289,7 +289,7 @@ header {
     background: inherit;
     padding: 0;
 
-    @media screen and (min-width: 700px) {
+    @media (width >=700px) {
         display: none;
     }
 }
@@ -332,7 +332,7 @@ nav {
     -webkit-backdrop-filter: blur(8px);
     z-index: 100;
 
-    @media screen and (min-width: 700px) {
+    @media (width >=700px) {
         display: block;
         position: static;
         background: inherit;
@@ -343,7 +343,7 @@ nav ul {
     padding: 0;
     margin-block-start: 50%;
 
-    @media screen and (min-width: 700px) {
+    @media (width >=700px) {
         list-style: none;
         margin-block: auto;
         display: flex;
@@ -354,7 +354,7 @@ nav ul li {
     font-size: 1.1rem;
     border-block-end: solid rgba(255, 255, 255, 0.2) 1px;
 
-    @media screen and (min-width: 700px) {
+    @media (width >=700px) {
         background-color: transparent;
         padding: 5px;
         font-size: 1.1rem;
@@ -367,7 +367,7 @@ nav ul li .nav-link-button {
     display: block;
     padding: 15px;
 
-    @media screen and (min-width: 700px) {
+    @media (width >=700px) {
         padding: 0;
         text-decoration: none;
         display: inline-block;
@@ -390,12 +390,12 @@ nav ul li .nav-link-button {
     color: var(--accent);
     vertical-align: middle;
 
-    @media screen and (min-width: 700px) {
+    @media (width >=700px) {
         display: none;
     }
 }
 
-@media screen and (min-width: 700px) {
+@media (width >=700px) {
 
     nav a:hover,
     nav .nav-link-button:hover {
@@ -564,7 +564,7 @@ button span {
     color: white;
 }
 
-@media screen and (min-width: 500px) {
+@media (width >=500px) {
 
     .button-styling:hover,
     button:hover {
@@ -656,6 +656,12 @@ dialog::backdrop {
     display: grid;
     gap: 12px;
     padding: 14px;
+
+    @media (width >=500px) {
+        inset-inline: auto var(--margin-block);
+        inset-block-end: var(--margin-block);
+        inline-size: min(360px, calc(100dvw - calc(var(--margin-block)) * 2));
+    }
 }
 
 .household-notification strong {
@@ -679,14 +685,6 @@ dialog::backdrop {
     background: rgba(255, 255, 255, 0.18);
     border: 1px solid var(--border);
     color: var(--text);
-}
-
-@media screen and (min-width: 700px) {
-    .household-notification {
-        inset-inline: auto 24px;
-        inset-block-end: 24px;
-        inline-size: min(360px, calc(100dvw - 48px));
-    }
 }
 
 
@@ -760,11 +758,6 @@ form.htmx-request button .checkbox {
     gap: 1.5rem;
 }
 
-/* Success confirmation after adding a grocery. Lives inside the Add Grocery
-   modal dialog (so it renders in the browser top layer, above the backdrop) and
-   is centered over the dialog. The OOB swap recreates the message element on each
-   add, re-running its animation. The element removes itself on animationend so a
-   stale message doesn't replay when the dialog is closed and reopened. */
 .toast {
     padding: 14px 22px;
     border-radius: 12px;
@@ -925,6 +918,37 @@ form.htmx-request button .checkbox {
     line-height: 1;
 }
 
+.grocery-button-menu {
+    position: fixed;
+    inset-block-end: var(--margin-block);
+    z-index: 50;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-block: 10px;
+    padding-inline: 15px;
+    place-self: center;
+    border-radius: 24px;
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    background: linear-gradient(135deg, var(--surface-strong), var(--surface));
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 30px var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+
+    @media (width >=500px) {
+        position: static;
+        margin-block-end: var(--margin-block);
+        padding: 0;
+        background: none;
+        border: none;
+        box-shadow: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+        border-radius: 0;
+        margin-inline-end: auto;
+    }
+}
+
 .grocery-grid {
     inline-size: 100%;
 }
@@ -982,7 +1006,7 @@ form.htmx-request button .checkbox {
     background: var(--text);
 }
 
-@media screen and (min-width: 500px) {
+@media (width >=500px) {
     .checkbox:hover {
         cursor: pointer;
     }
@@ -1037,7 +1061,7 @@ form.htmx-request button .checkbox {
 
 .edit-grocery-form,
 .add-grocery-form {
-    @media screen and (min-width: 500px) {
+    @media (width >=500px) {
         inline-size: auto;
     }
 }
@@ -1161,7 +1185,7 @@ label.empty-state {
     gap: 8px;
 }
 
-@media (min-width: 768px) {
+@media (width >=768px) {
     .empty-state-help {
         grid-template-columns: repeat(3, 1fr);
     }
@@ -1356,11 +1380,11 @@ label.empty-state {
     grid-template-columns: repeat(1, minmax(0, 1fr));
     gap: 10px;
 
-    @media screen and (min-width: 500px) {
+    @media (width >=500px) {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
-    @media screen and (min-width: 900px) {
+    @media (width >=900px) {
         grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
@@ -1426,7 +1450,7 @@ label.empty-state {
     margin-inline: auto;
     margin-block-start: 16dvh;
 
-    @media screen and (min-width: 500px) {
+    @media (width >=500px) {
         margin-block-start: 18dvh;
     }
 }
@@ -1621,7 +1645,7 @@ main.auth-page {
     margin-block-end: 0;
 }
 
-@media (min-width: 720px) {
+@media (width >=720px) {
     .settings-row {
         grid-template-columns: 1fr 1fr;
     }
@@ -1797,7 +1821,7 @@ main.auth-page {
 ========================= */
 
 .ai-prompt {
-    @media screen and (min-width: 500px) {
+    @media (width >=500px) {
         grid-column: span 2;
     }
 }
@@ -1807,7 +1831,7 @@ main.auth-page {
     gap: 24px;
     grid-template-columns: repeat(1, 1fr);
 
-    @media screen and (min-width: 500px) {
+    @media (width >=500px) {
         grid-template-columns: repeat(2, 1fr);
     }
 }
