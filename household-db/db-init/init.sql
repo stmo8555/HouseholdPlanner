@@ -110,6 +110,8 @@ DROP TRIGGER IF EXISTS todos_bump ON todos;
 DROP TRIGGER IF EXISTS members_bump ON household_members;
 DROP TRIGGER IF EXISTS recipes_bump ON recipes;
 DROP TRIGGER IF EXISTS restaurants_bump ON restaurants;
+DROP TRIGGER IF EXISTS invites_bump ON invites;
+DROP TRIGGER IF EXISTS households_code_bump ON households;
 
 -- Function
 CREATE OR REPLACE FUNCTION bump_household_version()
@@ -145,6 +147,19 @@ BEGIN
     WHERE id = hid;
 
     RETURN COALESCE(NEW, OLD);
+END;
+$$ LANGUAGE plpgsql;
+
+-- The code lives on households itself, so we can't UPDATE households from an
+-- AFTER trigger here (it would recurse). Bump version inline in a BEFORE trigger
+-- when the code actually changes.
+CREATE OR REPLACE FUNCTION bump_household_version_on_code_change()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF OLD.code IS DISTINCT FROM NEW.code THEN
+        NEW.version := OLD.version + 1;
+    END IF;
+    RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
@@ -184,6 +199,18 @@ AFTER INSERT OR UPDATE OR DELETE
 ON restaurants
 FOR EACH ROW
 EXECUTE FUNCTION bump_household_version();
+
+CREATE TRIGGER invites_bump
+AFTER INSERT OR UPDATE OR DELETE
+ON invites
+FOR EACH ROW
+EXECUTE FUNCTION bump_household_version();
+
+CREATE TRIGGER households_code_bump
+BEFORE UPDATE
+ON households
+FOR EACH ROW
+EXECUTE FUNCTION bump_household_version_on_code_change();
 
 
 
