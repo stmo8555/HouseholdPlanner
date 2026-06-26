@@ -4,20 +4,7 @@
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
         <h2>{{.ListName}} ({{.Total}})</h2>
-        <div class="grocery-filter">
-            <select hx-get="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list" hx-swap="outerHTML"
-                hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
-                class="glass-inner">
-                <option value="all" {{if eq .Filter "all" }}selected{{end}}>All</option>
-                <option value="dairy" {{if eq .Filter "dairy" }}selected{{end}}>Dairy</option>
-                <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
-                    Vegetables</option>
-                <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & Fish</option>
-                <option value="frozen" {{if eq .Filter "frozen" }}selected{{end}}>Frozen</option>
-                <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
-                <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
-            </select>
-        </div>
+        {{template "groceries/filter" .}}
     </div>
 
     <div class="grocery-grid">
@@ -117,7 +104,7 @@
 {{else if eq .Filter "all"}}
 <section class='glass container grocery-list empty-state'>
     <h3>The list {{.ListName}} is empty</h3>
-    <p>Use the buttons above to get started:</p>
+    <p>Use the buttons to get started:</p>
     <dl class="empty-state-help">
         <div class="empty-state-help-item" data-target="btn-add-grocery">
             <dt>Add Grocery</dt>
@@ -137,20 +124,7 @@
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
         <h2>{{.ListName}} ({{.Total}})</h2>
-        <div class="grocery-filter">
-            <select hx-get="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list" hx-swap="outerHTML"
-                hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
-                class="glass-inner">
-                <option value="all" {{if eq .Filter "all" }}selected{{end}}>All</option>
-                <option value="dairy" {{if eq .Filter "dairy" }}selected{{end}}>Dairy</option>
-                <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
-                    Vegetables</option>
-                <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & Fish</option>
-                <option value="frozen" {{if eq .Filter "frozen" }}selected{{end}}>Frozen</option>
-                <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
-                <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
-            </select>
-        </div>
+        {{template "groceries/filter" .}}
     </div>
 
     <div class="empty-state">
