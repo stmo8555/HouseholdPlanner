@@ -614,7 +614,10 @@ button span {
 ========================= */
 
 dialog {
+    /* Do not change, needed so we can click in ::backdrop to close */
     padding: 0;
+    /*............................................................. */
+
     max-inline-size: 32rem;
     inline-size: calc(100% - 2rem);
 }
@@ -747,7 +750,6 @@ form.htmx-request button .checkbox {
 .add-dialog[open] {
     display: grid;
     gap: 1.5rem;
-    position: relative;
 }
 
 /* Success confirmation after adding a grocery. Lives inside the Add Grocery
@@ -804,6 +806,7 @@ form.htmx-request button .checkbox {
     }
 
     @keyframes toast-fade {
+
         0%,
         75% {
             opacity: 1;
@@ -1800,6 +1803,7 @@ main.auth-page {
     margin-right: 0.4em;
 
     color: white;
+
     @media (prefers-color-scheme: dark) {
         color: silver;
     }
@@ -1929,7 +1933,3 @@ select:disabled:hover {
     white-space: nowrap;
     border: 0;
 }
-
-
-
-
