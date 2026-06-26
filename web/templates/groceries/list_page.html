@@ -12,7 +12,8 @@
         <button id="btn-extract" type="button" onclick="document.getElementById('extract-dialog').showModal()">Extract</button>
     </div>
 
-    <dialog class="glass card add-dialog" id="add-grocery-dialog">
+    <dialog class="glass card add-dialog" id="add-grocery-dialog"
+        onclose="this.querySelector('#grocery-add-toast').replaceChildren()">
         <form class="flex align-items" method="dialog">
             <h2>Add Grocery</h2>
             {{template "close_button" .}}

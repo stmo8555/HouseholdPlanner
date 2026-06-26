@@ -753,7 +753,8 @@ form.htmx-request button .checkbox {
 /* Success confirmation after adding a grocery. Lives inside the Add Grocery
    modal dialog (so it renders in the browser top layer, above the backdrop) and
    is centered over the dialog. The OOB swap recreates the message element on each
-   add, re-running its animation. */
+   add, re-running its animation. The element removes itself on animationend so a
+   stale message doesn't replay when the dialog is closed and reopened. */
 .toast {
     padding: 14px 22px;
     border-radius: 12px;

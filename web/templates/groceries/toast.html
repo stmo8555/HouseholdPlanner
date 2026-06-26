@@ -1,7 +1,7 @@
 {{define "groceries/toast"}}
 <div id="grocery-add-toast" class="grocery-add-toast" aria-live="polite" {{if .OOB}}hx-swap-oob="true"{{end}}>
     {{if .AddedName}}
-    <div class="toast grocery-add-toast-msg" role="status">✓ Added {{.AddedName}}</div>
+    <div class="toast grocery-add-toast-msg" role="status" onanimationend="this.remove()">✓ Added {{.AddedName}}</div>
     {{end}}
 </div>
 {{end}}
