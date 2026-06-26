@@ -1025,6 +1025,12 @@ form.htmx-request button .checkbox {
     gap: 5px;
 }
 
+.quick-select-empty {
+    margin: 0;
+    color: var(--text-lightly-dimmed);
+    font-size: 0.85rem;
+}
+
 
 .edit-btn {
     color: var(--text);
@@ -1117,11 +1123,17 @@ label.empty-state {
 .empty-state-help {
     margin-block-start: 16px;
     inline-size: 100%;
-    max-inline-size: 420px;
+    max-inline-size: 820px;
     text-align: left;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 8px;
+}
+
+@media (min-width: 768px) {
+    .empty-state-help {
+        grid-template-columns: repeat(3, 1fr);
+    }
 }
 
 .empty-state-help-item {

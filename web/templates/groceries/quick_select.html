@@ -1,7 +1,11 @@
 {{define "groceries/quick_select"}}
 <div class="quick-select margin-block-end-24px" id="grocery-quick-select" {{if .OOB}}hx-swap-oob="true"{{end}}>
+    {{if .TopProducts}}
     {{range .TopProducts}}
     <button type="button" class="quick-btn">{{.}}</button>
+    {{end}}
+    {{else}}
+    <p class="quick-select-empty">Your most-added products will show up here for one-tap adding.</p>
     {{end}}
 </div>
 {{end}}
