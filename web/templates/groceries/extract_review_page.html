@@ -3,11 +3,10 @@
     {{if gt (len .Ingredients) 0}}
     <div class="margin-block-end-24px flex gap-6px">
         <button type="submit" form="extractedForm">Save</button>
-        <a href="{{.CancelURL}}" hx-boost="true" class="button-styling">Cancel</a>
+        <a href="/groceries/lists/{{.ListID}}" hx-boost="true" class="button-styling">Cancel</a>
     </div>
 
-    <form hx-post="/groceries/lists/{{.ListID}}/extracted" hx-target="main" hx-swap="outerHTML"
-        id="extractedForm" class="glass container">
+    <form action="/groceries/lists/{{.ListID}}/extracted" method="post" hx-boost="true" id="extractedForm" class="glass container">
         <h2>Extracted From Recipe</h2>
         <input type="hidden" name="redirect-path" value="{{.RedirectPath}}">
 
@@ -31,7 +30,7 @@
     </form>
     {{else}}
     <div class="margin-block-end-24px flex gap-6px">
-        <a href="{{.CancelURL}}" hx-boost="true" class="back-button button-styling">Back</a>
+        <a href="/groceries/lists/{{.ListID}}" hx-boost="true" class="back-button button-styling">Back</a>
     </div>
 
     <section class="glass container empty-state">
@@ -41,3 +40,4 @@
     {{end}}
 </main>
 {{end}}
+

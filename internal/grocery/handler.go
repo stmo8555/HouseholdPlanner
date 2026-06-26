@@ -97,11 +97,6 @@ func (h *Handler) ListPage(c *gin.Context) {
 	data["Title"] = list.Name
 	data["CurrentPath"] = "/groceries"
 
-	// if c.GetHeader("HX-Request") == "true" || c.Query("partial") == "1" {
-	// 	c.HTML(200, "groceries/list_page", data)
-	// 	return
-	// }
-
 	c.HTML(200, "grocery_list.html", data)
 }
 
@@ -593,8 +588,6 @@ func (h *Handler) SaveExtracted(c *gin.Context) {
 		panic(err)
 	}
 
-	redirectPath := c.PostForm("redirect-path")
-
 	products := c.PostFormArray("name")
 	amounts := c.PostFormArray("amount")
 	brands := c.PostFormArray("brand")
@@ -621,20 +614,14 @@ func (h *Handler) SaveExtracted(c *gin.Context) {
 		panic(err)
 	}
 
-	if !strings.HasPrefix(redirectPath, "/") {
-		panic(errors.New("Redirect variable does not start with /. Value: " + redirectPath).Error())
-	}
-
-	c.Redirect(303, redirectPath)
+	path := fmt.Sprintf("/groceries/lists/%d", groceryListID)
+	c.Redirect(303, path)
 }
 
 func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ingredient, groceryListID int) {
-	path := fmt.Sprintf("/groceries/lists/%d", groceryListID)
 	data := gin.H{
-		"Ingredients":  ingredients,
-		"CancelURL":    path,
-		"RedirectPath": path,
-		"ListID":       groceryListID,
+		"Ingredients": ingredients,
+		"ListID":      groceryListID,
 	}
 
 	c.HTML(200, "groceries/extract_review_page", data)
