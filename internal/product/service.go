@@ -59,7 +59,7 @@ func (s *Service) categoryFor(name string) string {
 
 	fields := strings.Fields(key)
 	for _, field := range fields {
-		if cat, ok := s.FoodCategories[field]; ok && cat == "frozen" {
+		if cat, ok := s.FoodCategories[field]; ok && cat == "Frozen" {
 			return cat
 		}
 	}
@@ -73,7 +73,7 @@ func (s *Service) categoryFor(name string) string {
 		}
 	}
 
-	return "other"
+	return "Other"
 }
 
 func normalizeLookupKey(s string) string {

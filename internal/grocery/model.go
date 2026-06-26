@@ -9,9 +9,14 @@ type GroceryList struct {
 }
 
 type GroceryListStats struct {
-	ListID int
-	Total  int
-	Picked int
+	ListID     int
+	Total      int
+	Categories []CategoryCount
+}
+
+type CategoryCount struct {
+	Label string
+	Count int
 }
 
 type GroceryListView struct {
@@ -27,20 +32,14 @@ type Grocery struct {
 }
 
 type GroceriesView struct {
-	Dairy              []Grocery
-	FruitAndVegetables []Grocery
-	MeatAndFish        []Grocery
-	Frozen             []Grocery
-	Pantry             []Grocery
-	Other              []Grocery
-	Picked             []Grocery
+	Categories map[string][]Grocery
+	Picked     []Grocery
 }
 
 func (g GroceriesView) Total() int {
-	return len(g.Pantry) +
-		len(g.FruitAndVegetables) +
-		len(g.MeatAndFish) +
-		len(g.Frozen) +
-		len(g.Dairy) +
-		len(g.Other)
+	total := 0
+	for _, items := range g.Categories {
+		total += len(items)
+	}
+	return total
 }

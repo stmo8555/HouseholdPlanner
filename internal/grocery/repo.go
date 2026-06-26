@@ -81,14 +81,15 @@ func (r *Repo) GroceryList(ctx context.Context, groceryListID, hid int) (Grocery
 func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error) {
 	sql := `
 	SELECT
-    	gl.id,
-    	COUNT(g.id) AS total,
-    	COUNT(g.id) FILTER (WHERE g.picked) AS picked
+		gl.id,
+		p.category,
+		COUNT(g.id) AS total
 	FROM grocery_lists gl
 	LEFT JOIN groceries g ON g.grocery_list_id = gl.id
+	LEFT JOIN products p ON p.id = g.product_id
 	WHERE gl.household_id = $1
-	GROUP BY gl.id
-	ORDER BY gl.id;
+	GROUP BY gl.id, p.category
+	ORDER BY gl.id, total DESC, p.category;
 	`
 
 	rows, err := r.db.Query(ctx, sql, hid)
@@ -97,24 +98,30 @@ func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryL
 	}
 	defer rows.Close()
 
-	groceryListsStats := make(map[int]GroceryListStats)
+	stats := make(map[int]GroceryListStats)
 
 	for rows.Next() {
-		var g GroceryListStats
+		var listID int
+		var category *string
+		var total int
 
-		err := rows.Scan(
-			&g.ListID,
-			&g.Total,
-			&g.Picked,
-		)
-		if err != nil {
+		if err := rows.Scan(&listID, &category, &total); err != nil {
 			return nil, err
 		}
 
-		groceryListsStats[g.ListID] = g
+		g := stats[listID]
+		g.ListID = listID
+		g.Total += total
+
+		// Rows arrive ordered by count, descending, so Categories ends up sorted.
+		if category != nil && total > 0 {
+			g.Categories = append(g.Categories, CategoryCount{Label: *category, Count: total})
+		}
+
+		stats[listID] = g
 	}
 
-	return groceryListsStats, rows.Err()
+	return stats, rows.Err()
 }
 
 func (r *Repo) CreateList(ctx context.Context, name string, hid int) error {
