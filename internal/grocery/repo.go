@@ -78,6 +78,9 @@ func (r *Repo) GroceryList(ctx context.Context, groceryListID, hid int) (Grocery
 	return g, err
 }
 
+// GroceryListsStats returns per-list totals plus a per-category breakdown,
+// already sorted by count descending. Empty lists appear with a zero total and
+// no category entries. Everything comes from a single grouped query.
 func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error) {
 	sql := `
 	SELECT
@@ -113,7 +116,6 @@ func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryL
 		g.ListID = listID
 		g.Total += total
 
-		// Rows arrive ordered by count, descending, so Categories ends up sorted.
 		if category != nil && total > 0 {
 			g.Categories = append(g.Categories, CategoryCount{Label: *category, Count: total})
 		}

@@ -128,19 +128,30 @@ func (s *Service) GroceriesView(ctx context.Context, sortBy, order string, groce
 		return GroceriesView{}, err
 	}
 
-	view := GroceriesView{Categories: make(map[string][]Grocery)}
+	var sortedGroceries GroceriesView
 
 	for _, g := range groceries {
 		if g.Picked {
-			view.Picked = append(view.Picked, g)
-			continue
+			sortedGroceries.Picked = append(sortedGroceries.Picked, g)
+		} else {
+			switch g.Ingredient.Product.Category {
+			case "Dairy":
+				sortedGroceries.Dairy = append(sortedGroceries.Dairy, g)
+			case "Frozen":
+				sortedGroceries.Frozen = append(sortedGroceries.Frozen, g)
+			case "Pantry":
+				sortedGroceries.Pantry = append(sortedGroceries.Pantry, g)
+			case "Fruit & veg":
+				sortedGroceries.FruitAndVegetables = append(sortedGroceries.FruitAndVegetables, g)
+			case "Meat & fish":
+				sortedGroceries.MeatAndFish = append(sortedGroceries.MeatAndFish, g)
+			default:
+				sortedGroceries.Other = append(sortedGroceries.Other, g)
+			}
 		}
-
-		category := g.Ingredient.Product.Category
-		view.Categories[category] = append(view.Categories[category], g)
 	}
 
-	return view, nil
+	return sortedGroceries, nil
 }
 
 func (s *Service) TogglePicked(ctx context.Context, id, householdID int) error {

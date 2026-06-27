@@ -1,17 +1,21 @@
 {{define "groceries/list"}}
 {{if .OOB}}{{template "household/version_input" .}}{{end}}
-{{if or (gt .Data.Total 0) (gt (len .Data.Picked) 0)}}
+{{if or (gt .Total 0) (gt (len .Data.Picked) 0)}}
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
-        <h2>{{.ListName}} ({{.Data.Total}})</h2>
+        <h2>{{.ListName}} ({{.Total}})</h2>
         <div class="grocery-filter">
             <select hx-get="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list" hx-swap="outerHTML"
                 hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
                 class="glass-inner">
                 <option value="all" {{if eq .Filter "all" }}selected{{end}}>All</option>
-                {{range $category, _ := .Data.Categories}}
-                <option value="{{$category}}" {{if eq $.Filter . }}selected{{end}}>{{$category}}</option>
-                {{end}}
+                <option value="dairy" {{if eq .Filter "dairy" }}selected{{end}}>Dairy</option>
+                <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
+                    veg</option>
+                <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & fish</option>
+                <option value="frozen" {{if eq .Filter "frozen" }}selected{{end}}>Frozen</option>
+                <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
+                <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
             </select>
         </div>
     </div>
@@ -25,13 +29,68 @@
             <div></div>
         </div>
 
-        {{range $category, $items := .Data.Categories}}
-        {{if eq $.Filter "all"}}
-        <div class="grocery-divider {{slug $category}}">
-            <strong>{{$category}} ({{len $items}})</strong>
+        {{if gt (len .Data.Dairy) 0}}
+        {{if eq .Filter "all"}}
+        <div class="grocery-divider dairy">
+            <strong>Dairy ({{len .Data.Dairy}})</strong>
         </div>
         {{end}}
-        {{range $items}}
+        {{range .Data.Dairy}}
+        {{template "groceries/row" .}}
+        {{end}}
+        {{end}}
+
+        {{if gt (len .Data.FruitAndVegetables) 0}}
+        {{if eq .Filter "all"}}
+        <div class="grocery-divider fruit">
+            <strong>Fruit & veg ({{len .Data.FruitAndVegetables}})</strong>
+        </div>
+        {{end}}
+        {{range .Data.FruitAndVegetables}}
+        {{template "groceries/row" .}}
+        {{end}}
+        {{end}}
+
+        {{if gt (len .Data.MeatAndFish) 0}}
+        {{if eq .Filter "all"}}
+        <div class="grocery-divider meat">
+            <strong>Meat & fish ({{len .Data.MeatAndFish}})</strong>
+        </div>
+        {{end}}
+        {{range .Data.MeatAndFish}}
+        {{template "groceries/row" .}}
+        {{end}}
+        {{end}}
+
+        {{if gt (len .Data.Frozen) 0}}
+        {{if eq .Filter "all"}}
+        <div class="grocery-divider frozen">
+            <strong>Frozen ({{len .Data.Frozen}})</strong>
+        </div>
+        {{end}}
+        {{range .Data.Frozen}}
+        {{template "groceries/row" .}}
+        {{end}}
+        {{end}}
+
+        {{if gt (len .Data.Pantry) 0}}
+        {{if eq .Filter "all"}}
+        <div class="grocery-divider pantry">
+            <strong>Pantry ({{len .Data.Pantry}})</strong>
+        </div>
+        {{end}}
+        {{range .Data.Pantry}}
+        {{template "groceries/row" .}}
+        {{end}}
+        {{end}}
+
+        {{if gt (len .Data.Other) 0}}
+        {{if eq .Filter "all"}}
+        <div class="grocery-divider other">
+            <strong>Other ({{len .Data.Other}})</strong>
+        </div>
+        {{end}}
+        {{range .Data.Other}}
         {{template "groceries/row" .}}
         {{end}}
         {{end}}
@@ -77,15 +136,19 @@
 {{else}}
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
-        <h2>{{.ListName}} ({{.Data.Total}})</h2>
+        <h2>{{.ListName}} ({{.Total}})</h2>
         <div class="grocery-filter">
             <select hx-get="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list" hx-swap="outerHTML"
                 hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
                 class="glass-inner">
                 <option value="all" {{if eq .Filter "all" }}selected{{end}}>All</option>
-                {{range $category, _ := .Data.Categories}}
-                <option value="{{$category}}" {{if eq $.Filter . }}selected{{end}}>{{$category}}</option>
-                {{end}}
+                <option value="dairy" {{if eq .Filter "dairy" }}selected{{end}}>Dairy</option>
+                <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
+                    veg</option>
+                <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & fish</option>
+                <option value="frozen" {{if eq .Filter "frozen" }}selected{{end}}>Frozen</option>
+                <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
+                <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
             </select>
         </div>
     </div>

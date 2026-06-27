@@ -3,7 +3,6 @@ package grocery
 import (
 	"errors"
 	"fmt"
-	"slices"
 	"strconv"
 	"strings"
 
@@ -652,25 +651,37 @@ func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin
 		return nil, err
 	}
 
-	filteredGroceries := GroceriesView{
-		Categories: make(map[string][]Grocery),
-		Picked:     groceries.Picked,
-	}
+	var filteredGroceries GroceriesView
 
-	if items, ok := groceries.Categories[filter]; ok {
-		filteredGroceries.Categories[filter] = items
-	} else {
+	filteredGroceries.Picked = groceries.Picked
+	switch filter {
+	case "all":
+		filteredGroceries = groceries
+	case "dairy":
+		filteredGroceries.Dairy = groceries.Dairy
+	case "fruitandvegetables":
+		filteredGroceries.FruitAndVegetables = groceries.FruitAndVegetables
+	case "meatandfish":
+		filteredGroceries.MeatAndFish = groceries.MeatAndFish
+	case "frozen":
+		filteredGroceries.Frozen = groceries.Frozen
+	case "pantry":
+		filteredGroceries.Pantry = groceries.Pantry
+	case "other":
+		filteredGroceries.Other = groceries.Other
+	default:
 		filter = "all"
-		filteredGroceries.Categories = groceries.Categories
+		filteredGroceries = groceries
 	}
 
 	return gin.H{
-		"Data":          filteredGroceries,
-		"TopProducts":   topProducts,
-		"Sort":          sortBy,
-		"Order":         order,
-		"NextOrder":     nextOrder,
-		"Filter":        filter,
-		"OOB":           false,
+		"Data":        filteredGroceries,
+		"Total":       filteredGroceries.Total(),
+		"TopProducts": topProducts,
+		"Sort":        sortBy,
+		"Order":       order,
+		"NextOrder":   nextOrder,
+		"Filter":      filter,
+		"OOB":         false,
 	}, nil
 }

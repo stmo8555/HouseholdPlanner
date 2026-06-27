@@ -32,14 +32,20 @@ type Grocery struct {
 }
 
 type GroceriesView struct {
-	Categories map[string][]Grocery
-	Picked     []Grocery
+	Dairy              []Grocery
+	FruitAndVegetables []Grocery
+	MeatAndFish        []Grocery
+	Frozen             []Grocery
+	Pantry             []Grocery
+	Other              []Grocery
+	Picked             []Grocery
 }
 
 func (g GroceriesView) Total() int {
-	total := 0
-	for _, items := range g.Categories {
-		total += len(items)
-	}
-	return total
+	return len(g.Pantry) +
+		len(g.FruitAndVegetables) +
+		len(g.MeatAndFish) +
+		len(g.Frozen) +
+		len(g.Dairy) +
+		len(g.Other)
 }

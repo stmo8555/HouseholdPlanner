@@ -1038,11 +1038,11 @@ form.htmx-request button .checkbox {
     color: #38bdf8;
 }
 
-.grocery-divider.fruit-veg strong {
+.grocery-divider.fruit strong {
     color: #34d399;
 }
 
-.grocery-divider.meat-fish strong {
+.grocery-divider.meat strong {
     color: #fb923c;
 }
 

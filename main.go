@@ -8,8 +8,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"strings"
-	"unicode"
 
 	"github.com/gin-gonic/gin"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -221,29 +219,8 @@ func loadFoodMap(path string) (map[string]string, error) {
 	return m, nil
 }
 
-// slug turns a category name into a CSS-class-safe token, e.g.
-// "Fruit & veg" -> "fruit-veg". Used to colour grocery section dividers
-// without hard-coding category names in the template.
-func slug(s string) string {
-	var b strings.Builder
-	dash := false
-	for _, r := range strings.ToLower(s) {
-		switch {
-		case unicode.IsLetter(r) || unicode.IsDigit(r):
-			b.WriteRune(r)
-			dash = false
-		case b.Len() > 0 && !dash:
-			b.WriteByte('-')
-			dash = true
-		}
-	}
-	return strings.TrimRight(b.String(), "-")
-}
-
 func parseTemplates(patternRoot string) (*template.Template, error) {
-	tmpl := template.New("").Funcs(template.FuncMap{
-		"slug": slug,
-	})
+	tmpl := template.New("")
 
 	err := filepath.WalkDir(patternRoot, func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
