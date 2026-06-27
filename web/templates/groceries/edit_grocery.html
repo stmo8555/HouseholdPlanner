@@ -8,7 +8,7 @@
 
     <!-- Edit Form -->
     <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state" class="modal-form" id="edit-grocery-form">
+        hx-include="#grocery-list-state, #grocery-list-filter" class="modal-form" id="edit-grocery-form">
 
         <h3>Edit grocery</h3>
         <small>Update the product, amount, and brand.</small>
@@ -38,7 +38,7 @@
 
     <!-- Move Form -->
     <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/move" hx-target=".grocery-list"
-        hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form{{if le (len .Lists) 1}} darken{{end}}"
+        hx-swap="outerHTML" hx-include="#grocery-list-state, #grocery-list-filter" class="modal-form{{if le (len .Lists) 1}} darken{{end}}"
         id="move-grocery-form">
 
         <h3>Move to another list</h3>
@@ -64,7 +64,7 @@
 
     <!-- Delete Form -->
     <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state" class="modal-form" id="delete-grocery-form">
+        hx-include="#grocery-list-state, #grocery-list-filter" class="modal-form" id="delete-grocery-form">
 
         <h3>Delete this grocery</h3>
 
