@@ -20,37 +20,50 @@
     <section id="grocery-lists" aria-labelledby="grocery-lists-title">
         <h2 id="grocery-lists-title">Grocery Lists</h2>
 
-        {{range .Lists}}
-        <article class="grocery-list-card card glass flex space-between" data-list-id="{{.GroceryList.ID}}"
-            data-list-name="{{.GroceryList.Name}}">
+        <div class="grocery-list-cards">
+            {{range .Lists}}
+            <article class="grocery-list-card card glass flex space-between" data-list-id="{{.GroceryList.ID}}"
+                data-list-name="{{.GroceryList.Name}}">
 
-            <a href="/groceries/lists/{{.GroceryList.ID}}" hx-boost="true" class="card-link-overlay"
-                aria-label="Open {{.GroceryList.Name}}"></a>
+                <a href="/groceries/lists/{{.GroceryList.ID}}" hx-boost="true" class="card-link-overlay"
+                    aria-label="Open {{.GroceryList.Name}}"></a>
 
-            <div>
-                <h3>{{.GroceryList.Name}}</h3>
-                {{if gt .GroceryListStats.Total 0}}
-                <small class="badge check">
-                    {{.GroceryListStats.Total}} Item{{if gt .GroceryListStats.Total
-                    1}}s{{end}}
-                </small>
-                {{else}}
-                <small class="badge">Empty - open to add items</small>
-                {{end}}
-            </div>
+                <div>
+                    <h3>{{.GroceryList.Name}}</h3>
+                    {{if gt .GroceryListStats.Total 0}}
+                    <small class="badge check">
+                        {{.GroceryListStats.Total}} Item{{if gt .GroceryListStats.Total
+                        1}}s{{end}}
+                    </small>
+                    {{else}}
+                    <small class="badge">Empty - open to add items</small>
+                    {{end}}
 
-            <div class="flex align-items gap-6px">
-                <button type="button" hx-get="/groceries/lists/{{.GroceryList.ID}}/edit" hx-target="#modal-root"
-                    hx-swap="innerHTML" class="edit-btn edit-grocery-list-btn"
-                    aria-label="Edit {{.GroceryList.Name}}">⋮</button>
-            </div>
-        </article>
-        {{else}}
-        <label for="add-list" class="empty-state container glass">
-            <h3>No grocery lists yet</h3>
-            <p>Create your first list to start adding groceries.</p>
-        </label>
-        {{end}}
+                    {{if .GroceryListStats.Categories}}
+                    <ul class="category-stats" aria-label="Items per category">
+                        {{range .GroceryListStats.Categories}}
+                        <li class="category-stat">
+                            <span class="category-stat-label">{{.Label}}</span>
+                            <span class="category-stat-count">{{.Count}}</span>
+                        </li>
+                        {{end}}
+                    </ul>
+                    {{end}}
+                </div>
+
+                <div class="flex align-items gap-6px">
+                    <button type="button" hx-get="/groceries/lists/{{.GroceryList.ID}}/edit" hx-target="#modal-root"
+                        hx-swap="innerHTML" class="edit-btn edit-grocery-list-btn"
+                        aria-label="Edit {{.GroceryList.Name}}">⋮</button>
+                </div>
+            </article>
+            {{else}}
+            <label for="add-list" class="empty-state container glass">
+                <h3>No grocery lists yet</h3>
+                <p>Create your first list to start adding groceries.</p>
+            </label>
+            {{end}}
+        </div>
     </section>
 </main>
 {{end}}

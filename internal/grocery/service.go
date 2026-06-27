@@ -135,15 +135,15 @@ func (s *Service) GroceriesView(ctx context.Context, sortBy, order string, groce
 			sortedGroceries.Picked = append(sortedGroceries.Picked, g)
 		} else {
 			switch g.Ingredient.Product.Category {
-			case "dairy":
+			case "Dairy":
 				sortedGroceries.Dairy = append(sortedGroceries.Dairy, g)
-			case "frozen":
+			case "Frozen":
 				sortedGroceries.Frozen = append(sortedGroceries.Frozen, g)
-			case "pantry":
+			case "Pantry":
 				sortedGroceries.Pantry = append(sortedGroceries.Pantry, g)
-			case "fruit & vegetables":
+			case "Fruit & veg":
 				sortedGroceries.FruitAndVegetables = append(sortedGroceries.FruitAndVegetables, g)
-			case "meat and fish":
+			case "Meat & fish":
 				sortedGroceries.MeatAndFish = append(sortedGroceries.MeatAndFish, g)
 			default:
 				sortedGroceries.Other = append(sortedGroceries.Other, g)

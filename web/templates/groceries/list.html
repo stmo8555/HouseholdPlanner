@@ -30,7 +30,7 @@
         {{if gt (len .Data.FruitAndVegetables) 0}}
         {{if eq .Filter "all"}}
         <div class="grocery-divider fruit">
-            <strong>Fruit & Vegetables ({{len .Data.FruitAndVegetables}})</strong>
+            <strong>Fruit & veg ({{len .Data.FruitAndVegetables}})</strong>
         </div>
         {{end}}
         {{range .Data.FruitAndVegetables}}
@@ -41,7 +41,7 @@
         {{if gt (len .Data.MeatAndFish) 0}}
         {{if eq .Filter "all"}}
         <div class="grocery-divider meat">
-            <strong>Meat & Fish ({{len .Data.MeatAndFish}})</strong>
+            <strong>Meat & fish ({{len .Data.MeatAndFish}})</strong>
         </div>
         {{end}}
         {{range .Data.MeatAndFish}}
@@ -94,7 +94,7 @@
 
     {{if gt (len .Data.Picked) 0}}
     <button hx-delete="/groceries/lists/{{.ListID}}/items/picked" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state" class="block margin-inline-auto inline-size-full margin-block-start-24px"
+        hx-include="#grocery-list-state, #grocery-list-filter" class="block margin-inline-auto inline-size-full margin-block-start-24px"
         type="submit">
         {{template "spinner" .}}
         <span>Done</span>

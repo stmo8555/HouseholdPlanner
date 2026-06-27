@@ -4,12 +4,12 @@ import "testing"
 
 func TestCategoryFor(t *testing.T) {
 	lookup := map[string]string{
-		"fish":         "meat and fish",
-		"fish fingers": "frozen",
-		"frozen":       "frozen",
-		"greek yogurt": "dairy",
-		"gröna ärtor":  "fruit & vegetables",
-		"frysta":       "frozen",
+		"fish":         "Meat & fish",
+		"fish fingers": "Frozen",
+		"frozen":       "Frozen",
+		"greek yogurt": "Dairy",
+		"gröna ärtor":  "Fruit & veg",
+		"frysta":       "Frozen",
 	}
 	normalized := make(map[string]string, len(lookup))
 	for key, category := range lookup {
@@ -21,10 +21,10 @@ func TestCategoryFor(t *testing.T) {
 		name string
 		want string
 	}{
-		{name: "Findus fish fingers", want: "frozen"},
-		{name: "Arla Greek Yogurt 1kg", want: "dairy"},
-		{name: "frysta gröna ärtor", want: "frozen"},
-		{name: "unknown product", want: "other"},
+		{name: "Findus fish fingers", want: "Frozen"},
+		{name: "Arla Greek Yogurt 1kg", want: "Dairy"},
+		{name: "frysta gröna ärtor", want: "Frozen"},
+		{name: "unknown product", want: "Other"},
 	}
 
 	for _, tt := range tests {

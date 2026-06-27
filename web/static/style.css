@@ -894,14 +894,55 @@ form.htmx-request button .checkbox {
     inline-size: 100%;
 }
 
+/* Always a single full-width column. */
+.grocery-list-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--margin-block);
+}
+
+.grocery-list-cards .empty-state {
+    grid-column: 1 / -1;
+}
+
 .grocery-list-card {
     position: relative;
     cursor: pointer;
+    margin-block-end: 0;
 }
 
 .grocery-list-card h3 {
     margin-block-start: 0;
     margin-block-end: 6px;
+}
+
+.grocery-list-card .badge {
+    white-space: nowrap;
+}
+
+.category-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin-block: 10px 0;
+    margin-inline: 0;
+    padding: 0;
+}
+
+.category-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    font-size: 0.8rem;
+    border-radius: 10000px;
+    padding: 4px 10px;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+}
+
+.category-stat-count {
+    font-weight: 600;
 }
 
 .card-link-overlay {

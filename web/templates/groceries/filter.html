@@ -1,17 +1,16 @@
 {{define "groceries/filter"}}
 <div class="grocery-filter">
-    <select hx-get="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
+    <select id="grocery-list-filter" hx-get="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list"
+        hx-swap="outerHTML" hx-include="#grocery-list-state" hx-indicator="#grocery-filter-spinner" name="filter"
         class="glass-inner">
         <option value="all" {{if eq .Filter "all" }}selected{{end}}>All</option>
         <option value="dairy" {{if eq .Filter "dairy" }}selected{{end}}>Dairy</option>
         <option value="fruitandvegetables" {{if eq .Filter "fruitandvegetables" }}selected{{end}}>Fruit &
-            Vegetables</option>
-        <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & Fish</option>
+            veg</option>
+        <option value="meatandfish" {{if eq .Filter "meatandfish" }}selected{{end}}>Meat & fish</option>
         <option value="frozen" {{if eq .Filter "frozen" }}selected{{end}}>Frozen</option>
         <option value="pantry" {{if eq .Filter "pantry" }}selected{{end}}>Pantry</option>
         <option value="other" {{if eq .Filter "other" }}selected{{end}}>Other</option>
     </select>
 </div>
 {{end}}
-

@@ -9,9 +9,14 @@ type GroceryList struct {
 }
 
 type GroceryListStats struct {
-	ListID int
-	Total  int
-	Picked int
+	ListID     int
+	Total      int
+	Categories []CategoryCount
+}
+
+type CategoryCount struct {
+	Label string
+	Count int
 }
 
 type GroceryListView struct {
