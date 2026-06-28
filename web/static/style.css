@@ -625,17 +625,15 @@ button span {
    Dialogs
 ========================= */
 
-dialog {
-    margin: 0;
-    padding: 0;
-    border: none;
-}
 
 dialog[open] {
     position: fixed;
     inset: 50% auto auto 50%;
     transform: translate(-50%, -50%);
     inline-size: min(32rem, calc(100% - 2rem));
+    
+    height: auto;
+    margin:auto;
 }
 
 dialog::backdrop {
