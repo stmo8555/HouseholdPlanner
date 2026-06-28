@@ -57,6 +57,10 @@
 - [ ] **Add CI** — run `go build ./...` and `go test ./...` on push.
 - [ ] **Add reliable tests** — that do not depend on live recipe websites (the current recipe test hits the network / panics on a nil extractor).
 
+## Offline / connectivity
+
+- [ ] **Offline mode for grocery picking** — grocery stores often have poor/no signal, and right now every pick/unpick is a server round-trip (`PATCH /groceries/lists/:id/items/:itemId/picked` re-rendering the whole list via `RenderListPartial`), so the picking screen becomes unusable when the connection drops mid-shop. Make *just the picking screen* work offline. Things to consider: (1) add a service worker (none exists yet — the app already ships a `manifest.json` and PWA icons, so it's installable but has zero caching) to cache the picking page, `style.css`, `script.js`, and HTMX so it loads with no network; (2) let picks be toggled offline — store pending toggles client-side (localStorage/IndexedDB) and the current list state, apply them optimistically in the UI, then sync to the server when connectivity returns; (3) surface connection state to the user — either an explicit "Offline picking" toggle they flip on entering the store, or auto-detect (`navigator.onLine` / slow-response / failed-request) and warn + switch into offline mode automatically. Decide between manual toggle vs. auto-detect (or both). Note the current flow does full-list server re-renders on every toggle, so offline support means moving the pick toggle to client-side rendering for that screen.
+
 ## Nice-to-have (not blocking)
 
 - [ ] **Move Postgres data from SD card to USB SSD** — better durability and performance for the DB volume; can be done after launch.
