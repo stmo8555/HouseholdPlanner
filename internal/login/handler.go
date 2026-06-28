@@ -168,7 +168,7 @@ func (h *Handler) Logout(c *gin.Context) {
 		h.service.Logout(c.Request.Context(), sessionID)
 	}
 
-	c.SetCookie("session_id", "", -1, "/", "", true, true)
+	c.SetCookie("session_id", "", -1, "/", "", gin.Mode() == gin.ReleaseMode, true)
 	c.Redirect(302, "/login")
 }
 
@@ -196,7 +196,7 @@ func (h *Handler) Authenticate(c *gin.Context) {
 
 	if err == nil {
 		c.SetSameSite(http.SameSiteStrictMode)
-		c.SetCookie("session_id", sessionID, 0, "/", "", true, true)
+		c.SetCookie("session_id", sessionID, 0, "/", "", gin.Mode() == gin.ReleaseMode, true)
 		c.Redirect(302, "/")
 		return
 	}
