@@ -124,7 +124,7 @@ func (h *handler) DeleteAccount(c *gin.Context) {
 		panic(err)
 	}
 
-	c.SetCookie("session_id", "", -1, "/", "", true, true)
+	c.SetCookie("session_id", "", -1, "/", "", gin.Mode() == gin.ReleaseMode, true)
 	c.Redirect(302, "/login")
 }
 
