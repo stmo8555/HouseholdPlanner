@@ -11,8 +11,7 @@ document.body.addEventListener("click", event => {
     const overlay = document.querySelector(".overlay");
     const toggle = () => {
         navToggled = !navToggled;
-        button.querySelector(".nav-icon-open").hidden = navToggled;
-        button.querySelector(".nav-icon-close").hidden = !navToggled;
+        button.classList.toggle("is-open", navToggled);
         nav.style.display = navToggled ? "block" : "none";
         overlay.style.display = navToggled ? "block" : "none";
     };

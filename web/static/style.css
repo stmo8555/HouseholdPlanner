@@ -305,6 +305,18 @@ header {
     }
 }
 
+#nav-toggle .nav-icon-close {
+    display: none;
+}
+
+#nav-toggle.is-open .nav-icon-open {
+    display: none;
+}
+
+#nav-toggle.is-open .nav-icon-close {
+    display: block;
+}
+
 .header-items a.active {
     background-position: 100% 100%;
     background-size: 100% 2px;
