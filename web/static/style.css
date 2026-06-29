@@ -287,11 +287,18 @@ header {
 }
 
 #nav-toggle {
-    font-size: 3rem;
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: none;
     z-index: 200;
     background: inherit;
+    border: none;
     padding: 0;
+    color: inherit;
+    cursor: pointer;
 
     @media (width >=700px) {
         display: none;
