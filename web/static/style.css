@@ -979,7 +979,8 @@ form.htmx-request button .checkbox {
     border: 1px solid var(--border);
     box-shadow: 0 10px 30px var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.25);
 
-    @media (width >=600px) {
+    @media (width >=500px) {
+        justify-content: flex-start;
         position: static;
         margin-block-end: var(--margin-block);
         padding: 0;
@@ -989,13 +990,13 @@ form.htmx-request button .checkbox {
         -webkit-backdrop-filter: none;
         backdrop-filter: none;
         border-radius: 0;
-        margin-inline-end: auto;
         translate: 0;
     }
 }
 
 .grocery-button-menu button,
 .grocery-button-menu .button-styling {
+    display: block;
     white-space: nowrap;
     min-inline-size: fit-content;
 }
