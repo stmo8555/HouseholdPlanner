@@ -269,7 +269,7 @@ body.flower-power .background {
 header {
     position: sticky;
     inset-block-start: 0;
-    z-index: 50;
+    z-index: 1000;
     background: var(--bg);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -343,7 +343,7 @@ header {
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 99;
+    z-index: 1000;
 }
 
 nav {
@@ -354,7 +354,7 @@ nav {
     background: rgba(0, 0, 0, 0.4);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    z-index: 100;
+    z-index: 1000;
 
     @media (width >=700px) {
         display: block;
