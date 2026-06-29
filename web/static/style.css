@@ -269,14 +269,13 @@ body.flower-power .background {
 header {
     position: sticky;
     inset-block-start: 0;
-    background: rgba(255, 255, 255, 0.25);
+    z-index: 50;
+    background: var(--bg);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
     margin-block-end: var(--margin-block);
 
-
     @media (prefers-color-scheme: dark) {
-        background: rgba(255, 255, 255, 0.04);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 }
