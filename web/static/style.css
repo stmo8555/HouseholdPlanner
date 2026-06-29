@@ -267,6 +267,8 @@ body.flower-power .background {
 ========================= */
 
 header {
+    position: sticky;
+    inset-block-start: 0;
     background: rgba(255, 255, 255, 0.25);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
