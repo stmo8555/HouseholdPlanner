@@ -57,9 +57,7 @@ document.body.addEventListener("click", event => {
     if (!dt) return;
     const btn = document.getElementById(dt.dataset.target);
     if (!btn) return;
-    btn.focus();
-    btn.classList.add("focused");
-    btn.addEventListener("blur", () => btn.classList.remove("focused"), { once: true });
+    btn.click()
 });
 
 document.body.addEventListener("click", event => {
