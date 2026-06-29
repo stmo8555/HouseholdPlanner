@@ -5,11 +5,16 @@
         <h1><a href="/">Household planner</a></h1>
         {{if not .HideNav}}
         <button id="nav-toggle" aria-label="Toggle navigation">
-            <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor"
+            <svg class="nav-icon-open" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor"
                 stroke-width="2" stroke-linecap="round" aria-hidden="true">
                 <line x1="3" y1="6" x2="21" y2="6" />
                 <line x1="3" y1="12" x2="21" y2="12" />
                 <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+            <svg class="nav-icon-close" viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" aria-hidden="true" hidden>
+                <line x1="5" y1="5" x2="19" y2="19" />
+                <line x1="19" y1="5" x2="5" y2="19" />
             </svg>
         </button>
         <nav id="primary-nav">

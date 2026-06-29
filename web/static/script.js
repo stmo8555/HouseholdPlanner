@@ -3,9 +3,6 @@ import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.basic.min
 
 let navToggled = false;
 
-const NAV_ICON_OPEN = `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="3" y1="6" x2="21" y2="6" /><line x1="3" y1="12" x2="21" y2="12" /><line x1="3" y1="18" x2="21" y2="18" /></svg>`;
-const NAV_ICON_CLOSE = `<svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="5" y1="5" x2="19" y2="19" /><line x1="19" y1="5" x2="5" y2="19" /></svg>`;
-
 document.body.addEventListener("click", event => {
     const buttonClicked = event.target.closest("#nav-toggle");
     const overlayClicked = event.target.closest(".overlay");
@@ -14,7 +11,8 @@ document.body.addEventListener("click", event => {
     const overlay = document.querySelector(".overlay");
     const toggle = () => {
         navToggled = !navToggled;
-        button.innerHTML = navToggled ? NAV_ICON_CLOSE : NAV_ICON_OPEN;
+        button.querySelector(".nav-icon-open").hidden = navToggled;
+        button.querySelector(".nav-icon-close").hidden = !navToggled;
         nav.style.display = navToggled ? "block" : "none";
         overlay.style.display = navToggled ? "block" : "none";
     };
