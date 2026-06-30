@@ -16,4 +16,5 @@ type User struct {
 	Uname    string
 	Hash     string
 	LastSeen time.Time
+	IsAdmin  bool
 }

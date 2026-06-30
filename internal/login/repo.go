@@ -93,24 +93,25 @@ func (r *Repo) TouchLastSeen(ctx context.Context, userID int) error {
 
 func (r *Repo) User(ctx context.Context, uname string) (User, error) {
 	sql := `
-	SELECT id, pwd 
+	SELECT id, pwd, last_seen, is_admin 
 	FROM users
 	WHERE username=$1
 	`
 
-	var uid int
-	var hash string
+    var user User
 
-	err := r.db.QueryRow(ctx, sql, uname).Scan(&uid, &hash)
+	err := r.db.QueryRow(ctx, sql, uname).Scan(
+		&user.ID,
+		&user.Uname,
+		&user.Hash,
+		user.LastSeen,
+		user.IsAdmin,
+	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = ErrNotFound
 	}
 
-	return User{
-		ID:    uid,
-		Uname: uname,
-		Hash:  hash,
-	}, err
+	return user, err
 }
 
 func (r *Repo) getHouseholdId(user_id int) (int, error) {
