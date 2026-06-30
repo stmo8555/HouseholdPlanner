@@ -10,18 +10,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
-	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"golang.org/x/net/html"
 )
 
 type Service struct {
 	repo                IRepo
-	productService      *product.Service
-	ingredientExtractor *ingredient.Extractor
+	productService      IProductService
+	ingredientExtractor IIngredientExtractor
 }
 
-func NewService(repo IRepo, product *product.Service, ingredient *ingredient.Extractor) *Service {
+func NewService(repo IRepo, product IProductService, ingredient IIngredientExtractor) *Service {
 	if repo == nil || product == nil || ingredient == nil {
 		panic("service not initialized")
 	}
@@ -286,3 +284,4 @@ func printNode(n *html.Node) {
 	html.Render(&buf, n)
 	fmt.Println(buf.String())
 }
+

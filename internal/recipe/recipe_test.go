@@ -2,9 +2,12 @@ package recipe
 
 import (
 	"context"
-	"golang.org/x/net/html"
 	"net/http"
 	"testing"
+
+	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
+	"github.com/stmo8555/HouseholdPlanner/internal/product"
+	"golang.org/x/net/html"
 )
 
 var recipes = [...]string{
@@ -96,10 +99,22 @@ func (m *mockDB) Ingredients(ctx context.Context, recipeID, hid int) ([]RecipeIn
 	return nil, nil
 }
 
+type mockExtractor struct{}
+
+func (m *mockExtractor) FromRecipeURL(ctx context.Context, url string) ([]ingredient.Ingredient, error) {
+	return nil, nil
+}
+
+type mockProductService struct{}
+
+func (m *mockProductService) GetID(ctx context.Context, p product.Product) (int, error) {
+	return 0, nil
+}
+
 func TestAddRecipe(t *testing.T) {
 	var mockDB mockDB
 	mockDB.result = make([]Recipe, 0)
-	service := Service{repo: &mockDB}
+	service := Service{repo: &mockDB, ingredientExtractor: &mockExtractor{}, productService: &mockProductService{}}
 
 	for i, url := range recipes {
 		service.Add(context.Background(), i, url)
@@ -119,3 +134,5 @@ func TestAddRecipe(t *testing.T) {
 		}
 	}
 }
+
+
