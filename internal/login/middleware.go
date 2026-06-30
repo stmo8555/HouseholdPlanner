@@ -7,10 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// lastSeenThrottle bounds how often a request refreshes users.last_seen, so an
-// active session (or polling tab) doesn't write to the row on every request.
-const lastSeenThrottle = 10 * time.Minute
-
 func AuthMiddleware(s *Service) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		sessionID, err := c.Cookie("session_id")
@@ -25,15 +21,16 @@ func AuthMiddleware(s *Service) gin.HandlerFunc {
 			return
 		}
 
-		if time.Now().UTC().After(session.ExpiresAt) {
-			s.repo.RemoveSession(c.Request.Context(), sessionID)
+		now := time.Now().UTC()
 
+		if now.After(session.ExpiresAt) || now.Sub(session.CreatedAt) > MaxSessionLifetime {
+			s.repo.RemoveSession(c.Request.Context(), sessionID)
 			redirectToLogin(c)
 			return
 		}
 
-		if time.Since(session.User.LastSeen) > lastSeenThrottle {
-			s.TouchLastSeen(c.Request.Context(), session.User.ID)
+		if time.Until(session.ExpiresAt) < SessionTTL/2 {
+			s.ExtendSession(c.Request.Context(), sessionID, SessionTTL)
 		}
 
 		c.Set("user_id", session.User.ID)
@@ -77,3 +74,6 @@ func redirectToLogin(c *gin.Context) {
 	c.Redirect(http.StatusFound, "/login")
 	c.Abort()
 }
+
+
+

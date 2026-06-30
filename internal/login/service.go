@@ -10,6 +10,9 @@ import (
 
 const fakeHash = "$2a$10$7EqJtq98hPqEX7fNZaFWoOePaWxn96p36C1p0uZ1tcHTTX3e8DqGa"
 
+const SessionTTL = 36 * time.Hour
+const MaxSessionLifetime = 30 * 24 * time.Hour // 30 days
+
 var errInvalidCredentials = errors.New("invalid username or password")
 
 type Service struct {
@@ -80,7 +83,7 @@ func (s *Service) Authenticate(ctx context.Context, uname, pwd string) (string, 
 
 	session := Session{
 		User:      user,
-		ExpiresAt: time.Now().UTC().Add(time.Hour * 36),
+		ExpiresAt: time.Now().UTC().Add(SessionTTL),
 	}
 
 	return s.repo.AddSession(ctx, session)
@@ -90,10 +93,14 @@ func (s *Service) GetSession(ctx context.Context, sessionID string) (Session, er
 	return s.repo.getSession(ctx, sessionID)
 }
 
-func (s *Service) TouchLastSeen(ctx context.Context, userID int) error {
-	return s.repo.TouchLastSeen(ctx, userID)
+func (s *Service) ExtendSession(ctx context.Context, sessionID string, ttl time.Duration) error {
+	return s.repo.ExtendSession(ctx, sessionID, time.Now().UTC().Add(ttl))
 }
 
 func (s *Service) RemoveExpiredSessions(ctx context.Context) error {
 	return s.repo.RemoveExpiredSessions(ctx)
 }
+
+
+
+

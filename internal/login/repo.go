@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -80,32 +81,30 @@ func (r *Repo) RemoveSession(ctx context.Context, id string) error {
 	return err
 }
 
-func (r *Repo) TouchLastSeen(ctx context.Context, userID int) error {
+func (r *Repo) ExtendSession(ctx context.Context, id string, newExpiry time.Time) error {
 	sql := `
-	UPDATE users
-	SET last_seen=now()
-	WHERE id=$1;
+	UPDATE sessions
+	SET expires_at=$1
+	WHERE id=$2;
 	`
-	_, err := r.db.Exec(ctx, sql, userID)
+	_, err := r.db.Exec(ctx, sql, newExpiry, id)
 
 	return err
 }
 
 func (r *Repo) User(ctx context.Context, uname string) (User, error) {
 	sql := `
-	SELECT id, pwd, last_seen, is_admin 
+	SELECT id, pwd, is_admin 
 	FROM users
 	WHERE username=$1
 	`
 
-    var user User
+	var user User
 
 	err := r.db.QueryRow(ctx, sql, uname).Scan(
 		&user.ID,
-		&user.Uname,
 		&user.Hash,
-		user.LastSeen,
-		user.IsAdmin,
+		&user.IsAdmin,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = ErrNotFound
@@ -128,7 +127,7 @@ func (r *Repo) getHouseholdId(user_id int) (int, error) {
 
 func (r *Repo) getSession(ctx context.Context, id string) (Session, error) {
 	sql := `
-	SELECT s.id, s.expires_at, hm.household_id, u.id, u.username, u.pwd, u.last_seen
+	SELECT s.id, s.expires_at, s.created_at, hm.household_id, u.id, u.username, u.pwd
 	FROM sessions s
 	JOIN users u ON s.user_id=u.id
 	LEFT JOIN household_members hm ON s.user_id=hm.user_id
@@ -138,11 +137,11 @@ func (r *Repo) getSession(ctx context.Context, id string) (Session, error) {
 	err := r.db.QueryRow(ctx, sql, id).Scan(
 		&session.ID,
 		&session.ExpiresAt,
+		&session.CreatedAt,
 		&session.HouseholdID,
 		&session.User.ID,
 		&session.User.Uname,
 		&session.User.Hash,
-		&session.User.LastSeen,
 	)
 	if errors.Is(err, pgx.ErrNoRows) {
 		err = ErrNotFound
@@ -236,3 +235,7 @@ func (r *Repo) JoinHousehold(ctx context.Context, inviteCode string, userId int)
 
 	return tx.Commit(ctx)
 }
+
+
+
+

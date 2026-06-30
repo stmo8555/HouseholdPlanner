@@ -9,12 +9,14 @@ type Session struct {
 	User        User
 	HouseholdID *int
 	ExpiresAt   time.Time
+	CreatedAt   time.Time
 }
 
 type User struct {
-	ID       int
-	Uname    string
-	Hash     string
-	LastSeen time.Time
-	IsAdmin  bool
+	ID      int
+	Uname   string
+	Hash    string
+	IsAdmin bool
 }
+
+
