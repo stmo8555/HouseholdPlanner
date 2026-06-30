@@ -65,10 +65,10 @@ func (r *Repo) AddSession(ctx context.Context, session Session) (string, error) 
 	VALUES ($1, $2)
 	RETURNING id;
 	`
-	var id string
-	err := r.db.QueryRow(ctx, sql, session.User.ID, session.ExpiresAt).Scan(&id)
+	var uuid string
+	err := r.db.QueryRow(ctx, sql, session.User.ID, session.ExpiresAt).Scan(&uuid)
 
-	return id, err
+	return uuid, err
 }
 
 func (r *Repo) RemoveSession(ctx context.Context, id string) error {

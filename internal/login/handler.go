@@ -69,8 +69,16 @@ func (h *Handler) Register(c *gin.Context) {
 		panic(err)
 	}
 
-	c.Redirect(302, "/login?registered=1")
+	sessionID, err := h.service.CreateSessionForUser(c.Request.Context(), userId)
+	if err != nil {
+		c.Redirect(302, "/login")
+		return
+	}
+
+	setSessionCookie(c, sessionID)
+	c.Redirect(302, "/")
 }
+
 func (h *Handler) RegisterView(c *gin.Context) {
 	token := c.Query("invite")
 	valid, err := h.service.ValidateToken(c.Request.Context(), token)
@@ -138,6 +146,11 @@ func (h *Handler) SetupHousehold(c *gin.Context) {
 	c.Redirect(302, "/")
 }
 
+func setSessionCookie(c *gin.Context, sessionID string) {
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("session_id", sessionID, 0, "/", "", gin.Mode() == gin.ReleaseMode, true)
+}
+
 func NewHandler(s *Service) *Handler {
 	if s == nil {
 		panic("nil service for handler")
@@ -195,8 +208,7 @@ func (h *Handler) Authenticate(c *gin.Context) {
 	sessionID, err := h.service.Authenticate(c, uname, pwd)
 
 	if err == nil {
-		c.SetSameSite(http.SameSiteStrictMode)
-		c.SetCookie("session_id", sessionID, 0, "/", "", gin.Mode() == gin.ReleaseMode, true)
+		setSessionCookie(c, sessionID)
 		c.Redirect(302, "/")
 		return
 	}
@@ -211,5 +223,11 @@ func (h *Handler) Authenticate(c *gin.Context) {
 		return
 	}
 
-	c.String(http.StatusInternalServerError, "Login failed")
+	panic(err)
 }
+
+
+
+
+
+

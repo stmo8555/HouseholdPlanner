@@ -89,6 +89,15 @@ func (s *Service) Authenticate(ctx context.Context, uname, pwd string) (string, 
 	return s.repo.AddSession(ctx, session)
 }
 
+func (s *Service) CreateSessionForUser(ctx context.Context, userID int) (string, error) {
+	session := Session{
+		User:      User{ID: userID},
+		ExpiresAt: time.Now().UTC().Add(SessionTTL),
+	}
+
+	return s.repo.AddSession(ctx, session)
+}
+
 func (s *Service) GetSession(ctx context.Context, sessionID string) (Session, error) {
 	return s.repo.getSession(ctx, sessionID)
 }
@@ -100,6 +109,7 @@ func (s *Service) ExtendSession(ctx context.Context, sessionID string, ttl time.
 func (s *Service) RemoveExpiredSessions(ctx context.Context) error {
 	return s.repo.RemoveExpiredSessions(ctx)
 }
+
 
 
 

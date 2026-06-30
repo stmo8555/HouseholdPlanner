@@ -10,10 +10,6 @@
                 <h2 class="login-title">Welcome back</h2>
                 <p class="login-subtitle">Sign in to your household</p>
 
-                {{if .Registered}}
-                <div class="toast auth-toast" role="status">✓ Account created — sign in below</div>
-                {{end}}
-
                 {{if .Error}}
                 <p class="login-error" role="alert">{{.Error}}</p>
                 {{end}}
@@ -30,15 +26,6 @@
             </form>
         </main>
         <script type="module" src="/static/script.js"></script>
-        <script>
-            // document.querySelectorAll(".header-items").forEach(container => {
-            //     container.querySelectorAll(":scope > *").forEach(child => {
-            //         if (child.tagName !== "H1") {
-            //             child.remove();
-            //         }
-            //     });
-            // });
-        </script>
     </div>
 </body>
 

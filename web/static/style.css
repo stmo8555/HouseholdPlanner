@@ -836,13 +836,6 @@ form.htmx-request button .checkbox {
     }
 }
 
-.auth-toast {
-    position: absolute;
-    inset-inline: 0;
-    bottom: calc(100% + 12px);
-    text-align: center;
-}
-
 .success-toast {
     position: fixed;
     inset-block-end: 24px;
