@@ -20,7 +20,7 @@
                     {{template "close_button" .}}
                 </form>
 
-                <form class="add-form add-recipe-form" method="post" action="/recipes/add">
+                <form class="add-form add-recipe-form" method="post" action="/recipes/add" hx-boost="true">
                     <input class="inline-size-full glass-inner focus margin-block-end-24px"
                         placeholder="Add link to recipe..." id="1" type="text" name="link" required>
                     <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>

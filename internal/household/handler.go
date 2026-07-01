@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 )
 
 type handler struct {
@@ -150,11 +151,12 @@ func (h *handler) Settings(c *gin.Context) {
 	inviteLink := createLink(c, token)
 
 	c.HTML(200, "settings.html", gin.H{
-		"Title":        "Household settings",
-		"CurrentPath":  "/settings",
-		"SettingsView": settingsView,
-		"InviteLink":   inviteLink,
+		"Title":            "Household settings",
+		"CurrentPath":      "/settings",
+		"SettingsView":     settingsView,
+		"InviteLink":       inviteLink,
 		"HouseholdVersion": version,
+		"CSRFToken":        csrf.Token(c.Request),
 	})
 }
 

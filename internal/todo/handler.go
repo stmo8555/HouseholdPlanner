@@ -1,11 +1,13 @@
 package todo
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 )
 
 type Handler struct {
@@ -142,6 +144,7 @@ func (h *Handler) List(c *gin.Context) {
 
 	data["Title"] = "Todos"
 	data["CurrentPath"] = c.Request.URL.Path
+	data["CSRFToken"] = csrf.Token(c.Request)
 
 	c.HTML(200, "todos.html", data)
 }

@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 	"github.com/stmo8555/HouseholdPlanner/internal/household"
 	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
@@ -51,6 +52,7 @@ func (h *Handler) OverviewPage(c *gin.Context) {
 	data["HouseholdVersion"] = version
 	data["Title"] = "Groceries"
 	data["CurrentPath"] = c.Request.URL.Path
+	data["CSRFToken"] = csrf.Token(c.Request)
 
 	c.HTML(200, "groceries.html", data)
 }
@@ -96,6 +98,7 @@ func (h *Handler) ListPage(c *gin.Context) {
 	data["Lists"] = lists
 	data["Title"] = list.Name
 	data["CurrentPath"] = "/groceries"
+	data["CSRFToken"] = csrf.Token(c.Request)
 
 	c.HTML(200, "grocery_list.html", data)
 }
@@ -105,6 +108,7 @@ func (h *Handler) renderDeletedList(c *gin.Context, groceryListID int) {
 		"Title":       "List deleted",
 		"CurrentPath": "/groceries",
 		"ListID":      groceryListID,
+		"CSRFToken":   csrf.Token(c.Request),
 	}
 
 	c.HTML(200, "grocery_list_deleted.html", data)
@@ -685,3 +689,4 @@ func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin
 		"OOB":         false,
 	}, nil
 }
+

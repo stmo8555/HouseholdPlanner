@@ -6,10 +6,13 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/stmo8555/HouseholdPlanner/internal/ai"
@@ -57,8 +60,10 @@ func main() {
 	householdService = household.NewService(household.NewRepo(pool))
 
 	tmpl := template.Must(parseTemplates("web/templates"))
-
 	r := gin.Default()
+
+	r.Use(CSRFMiddleware())
+
 	r.TrustedPlatform = gin.PlatformCloudflare
 	r.SetHTMLTemplate(tmpl)
 	r.Static("/static/", "web/static")
@@ -240,4 +245,21 @@ func parseTemplates(patternRoot string) (*template.Template, error) {
 	}
 
 	return tmpl, nil
+}
+
+func CSRFMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		gorillaCSRF := csrf.Protect(
+			[]byte(getenv("CSRFToken", strings.Repeat("a", 32))),
+			csrf.Secure(gin.Mode() == gin.ReleaseMode),
+			csrf.ErrorHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				c.JSON(http.StatusForbidden, gin.H{"error": "CSRF token mismatch"})
+				c.Abort()
+			})),
+		)
+		gorillaCSRF(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			c.Request = r
+			c.Next()
+		})).ServeHTTP(c.Writer, c.Request)
+	}
 }

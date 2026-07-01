@@ -10,7 +10,7 @@
             <div class="home-wrapper margin-block-end-24px">
                 <div class="glass container padding-inline-24px ai-prompt">
                     <h2>Your AI friend</h2>
-                    <form class="todo-form margin-block-end-24px" method="post" action="/home/ai">
+                    <form class="todo-form margin-block-end-24px" method="post" action="/home/ai" hx-boost="true">
                         <label class="glass-inner" for="ai">
                             <!-- swap with textarea -->
                             <input class="" placeholder="What do you want me to add..." id="ai" type="text"
@@ -55,7 +55,7 @@
                 </div>
                 <div class="glass container quick-add padding-inline-24px">
                     <h3>Quick Add Grocery</h3>
-                    <form class="todo-form margin-block-end-24px" method="post" action="/home/add/grocery">
+                    <form class="todo-form margin-block-end-24px" method="post" action="/home/add/grocery" hx-boost="true">
                         <label class="glass-inner" for="grocery">
                             <input placeholder="Enter product name..." id="grocery" type="text" name="product" required>
                         </label>
@@ -64,7 +64,7 @@
                 </div>
                 <div class="glass container quick-add padding-inline-24px">
                     <h3>Quick Add Recipe</h3>
-                    <form class="todo-form margin-block-end-24px" method="post" action="/home/add/recipe">
+                    <form class="todo-form margin-block-end-24px" method="post" action="/home/add/recipe" hx-boost="true">
                         <label class="glass-inner" for="recipe">
                             <input placeholder="Paste recipe link..." id="recipe" type="text" name="recipe" required>
                         </label>

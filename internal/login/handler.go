@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/csrf"
 	"github.com/robfig/cron/v3"
 	"golang.org/x/time/rate"
 )
@@ -92,10 +93,11 @@ func (h *Handler) RegisterView(c *gin.Context) {
 	}
 
 	data := gin.H{
-		"Title":   "Register",
-		"HideNav": true,
-		"Error":   "",
-		"Token":   token,
+		"Title":     "Register",
+		"HideNav":   true,
+		"Error":     "",
+		"Token":     token,
+		"CSRFToken": csrf.Token(c.Request),
 	}
 
 	c.HTML(200, "register.html", data)
@@ -108,9 +110,10 @@ func (h *Handler) WelcomeView(c *gin.Context) {
 	}
 
 	c.HTML(200, "welcome.html", gin.H{
-		"Title":   "Set up your household",
-		"HideNav": true,
-		"Error":   "",
+		"Title":     "Set up your household",
+		"HideNav":   true,
+		"Error":     "",
+		"CSRFToken": csrf.Token(c.Request),
 	})
 }
 
@@ -136,9 +139,10 @@ func (h *Handler) SetupHousehold(c *gin.Context) {
 
 	if err != nil {
 		c.HTML(http.StatusBadRequest, "welcome.html", gin.H{
-			"Title":   "Set up your household",
-			"HideNav": true,
-			"Error":   "Could not set up your household. Check the invite code and try again.",
+			"Title":     "Set up your household",
+			"HideNav":   true,
+			"Error":     "Could not set up your household. Check the invite code and try again.",
+			"CSRFToken": csrf.Token(c.Request),
 		})
 		return
 	}
@@ -171,6 +175,7 @@ func (h *Handler) Login(c *gin.Context) {
 		"Title":      "Login",
 		"HideNav":    true,
 		"Registered": c.Query("registered") == "1",
+		"CSRFToken":  csrf.Token(c.Request),
 	}
 	c.HTML(200, "login.html", data)
 }
@@ -215,9 +220,10 @@ func (h *Handler) Authenticate(c *gin.Context) {
 
 	if errors.Is(err, errInvalidCredentials) {
 		data := gin.H{
-			"Title":   "Login",
-			"Error":   "Invalid username or password.",
-			"HideNav": true,
+			"Title":     "Login",
+			"Error":     "Invalid username or password.",
+			"HideNav":   true,
+			"CSRFToken": csrf.Token(c.Request),
 		}
 		c.HTML(http.StatusUnauthorized, "login.html", data)
 		return
@@ -225,6 +231,7 @@ func (h *Handler) Authenticate(c *gin.Context) {
 
 	panic(err)
 }
+
 
 
 
