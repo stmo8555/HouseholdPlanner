@@ -30,6 +30,13 @@
             </div>
         </div>
 
+        <label for="edit-category">Category</label>
+        <select id="edit-category" name="category" class="glass-inner">
+            {{range .Categories}}
+            <option value="{{.}}" {{if eq . $.Grocery.Ingredient.Product.Category}}selected{{end}}>{{.}}</option>
+            {{end}}
+        </select>
+
         <button type="submit">
             <span>Save</span>
             {{template "spinner" .}}

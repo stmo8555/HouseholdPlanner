@@ -391,8 +391,9 @@ func (h *Handler) EditGroceryForm(c *gin.Context) {
 	}
 
 	data := gin.H{
-		"Lists":   lists,
-		"Grocery": item,
+		"Lists":      lists,
+		"Grocery":    item,
+		"Categories": Categories,
 	}
 
 	c.HTML(200, "groceries/edit_grocery", data)
@@ -401,10 +402,15 @@ func (h *Handler) EditGroceryForm(c *gin.Context) {
 func (h *Handler) UpdateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
+	cat := c.PostForm("category")
+	if !IsValidCategory(cat) {
+		cat = ""
+	}
+
 	prod := product.Product{
 		Name:     c.PostForm("name"),
 		Brand:    c.PostForm("brand"),
-		Category: "",
+		Category: cat,
 	}
 
 	ing := ingredient.Ingredient{

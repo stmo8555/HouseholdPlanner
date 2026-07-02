@@ -78,21 +78,21 @@ func (r *Repo) GroceryList(ctx context.Context, groceryListID, hid int) (Grocery
 	return g, err
 }
 
-// GroceryListsStats returns per-list totals plus a per-category breakdown,
-// already sorted by count descending. Empty lists appear with a zero total and
-// no category entries. Everything comes from a single grouped query.
+
 func (r *Repo) GroceryListsStats(ctx context.Context, hid int) (map[int]GroceryListStats, error) {
 	sql := `
 	SELECT
 		gl.id,
-		p.category,
+		COALESCE(hpc.category, p.category) AS category,
 		COUNT(g.id) AS total
 	FROM grocery_lists gl
 	LEFT JOIN groceries g ON g.grocery_list_id = gl.id
 	LEFT JOIN products p ON p.id = g.product_id
+	LEFT JOIN household_product_category hpc
+		ON hpc.household_id = gl.household_id AND hpc.product_id = g.product_id
 	WHERE gl.household_id = $1
-	GROUP BY gl.id, p.category
-	ORDER BY gl.id, total DESC, p.category;
+	GROUP BY gl.id, COALESCE(hpc.category, p.category)
+	ORDER BY gl.id, total DESC, category;
 	`
 
 	rows, err := r.db.Query(ctx, sql, hid)
@@ -252,19 +252,21 @@ func (r *Repo) CreateGroceries(ctx context.Context, groceries []Grocery, grocery
 
 func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListID, householdID int) ([]Grocery, error) {
 	sql := fmt.Sprintf(`
-	SELECT 
+	SELECT
 		g.id,
 		g.product_id,
 		p.id,
 		p.name,
 		p.brand,
-		p.category,
+		COALESCE(hpc.category, p.category),
 		g.amount,
 		g.grocery_list_id,
 		g.picked
 	FROM groceries g
 	INNER JOIN products p ON g.product_id = p.id
 	INNER JOIN grocery_lists gl ON gl.id = g.grocery_list_id
+	LEFT JOIN household_product_category hpc
+		ON hpc.household_id = gl.household_id AND hpc.product_id = g.product_id
 	WHERE g.grocery_list_id = $1 AND gl.household_id = $2
 	ORDER BY %s %s
 `, sortBy, order)
@@ -303,19 +305,21 @@ func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListI
 
 func (r *Repo) Grocery(ctx context.Context, itemID int, hid int) (Grocery, error) {
 	sql := `
-	SELECT 
+	SELECT
 		g.id,
 		g.product_id,
 		p.id,
 		p.name,
 		p.brand,
-		p.category,
+		COALESCE(hpc.category, p.category),
 		g.amount,
 		g.grocery_list_id,
 		g.picked
 	FROM groceries g
 	INNER JOIN products p ON g.product_id = p.id
 	INNER JOIN grocery_lists gl ON gl.id = g.grocery_list_id
+	LEFT JOIN household_product_category hpc
+		ON hpc.household_id = gl.household_id AND hpc.product_id = g.product_id
 	WHERE g.id = $1 AND gl.household_id = $2
 	`
 
@@ -350,6 +354,14 @@ func (r *Repo) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, gro
       );
 	`
 	_, err := r.db.Exec(ctx, sql, ing.ProductID, ing.Amount, groceryID, householdID)
+
+	return err
+}
+
+func (r *Repo) SetCategoryOverride(ctx context.Context, householdID, productID int, category string) error {
+	
+	`
+	_, err := r.db.Exec(ctx, sql, householdID, productID, category)
 
 	return err
 }

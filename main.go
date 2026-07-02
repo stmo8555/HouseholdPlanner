@@ -9,10 +9,9 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/csrf"
+	// "github.com/gorilla/csrf"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/stmo8555/HouseholdPlanner/internal/ai"
@@ -34,6 +33,8 @@ var ingredientExtractor *ingredient.Extractor
 var recipeService *recipe.Service
 var groceryService *grocery.Service
 var householdService *household.Service
+
+var CSRFHandler func(http.Handler) http.Handler
 
 func main() {
 	pool, err := pgxpool.New(context.Background(), dbDSN())
@@ -62,7 +63,18 @@ func main() {
 	tmpl := template.Must(parseTemplates("web/templates"))
 	r := gin.Default()
 
-	r.Use(CSRFMiddleware())
+	// 1. Define your 32-byte secret key
+	// secret := []byte(getenv("CSRFToken", strings.Repeat("a", 32)))
+
+	// CSRFHandler = csrf.Protect(
+	// 	secret,
+	// 	csrf.Secure(gin.Mode() == gin.ReleaseMode),
+	// 	csrf.ErrorHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	// 		http.Error(w, "CSRF token mismatch", http.StatusForbidden)
+	// 	})),
+	// )
+
+	// r.Use(CSRFMiddleware())
 
 	r.TrustedPlatform = gin.PlatformCloudflare
 	r.SetHTMLTemplate(tmpl)
@@ -249,17 +261,8 @@ func parseTemplates(patternRoot string) (*template.Template, error) {
 
 func CSRFMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		gorillaCSRF := csrf.Protect(
-			[]byte(getenv("CSRFToken", strings.Repeat("a", 32))),
-			csrf.Secure(gin.Mode() == gin.ReleaseMode),
-			csrf.ErrorHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				c.JSON(http.StatusForbidden, gin.H{"error": "CSRF token mismatch"})
-				c.Abort()
-			})),
-		)
-		gorillaCSRF(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			c.Request = r
-			c.Next()
-		})).ServeHTTP(c.Writer, c.Request)
+        CSRFHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+            c.Next() // Proceed to next Gin handler
+        })).ServeHTTP(c.Writer, c.Request)
 	}
 }

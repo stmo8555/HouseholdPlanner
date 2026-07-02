@@ -2,6 +2,17 @@ package grocery
 
 import "github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 
+var Categories = []string{"Dairy", "Frozen", "Pantry", "Fruit & veg", "Meat & fish", "Other"}
+
+func IsValidCategory(c string) bool {
+	for _, category := range Categories {
+		if category == c {
+			return true
+		}
+	}
+	return false
+}
+
 type GroceryList struct {
 	ID          int
 	Name        string

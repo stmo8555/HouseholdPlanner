@@ -21,6 +21,7 @@ type IRepo interface {
 	Groceries(ctx context.Context, sortBy, order string, groceryListID, householdID int) ([]Grocery, error)
 	Grocery(ctx context.Context, itemID int, hid int) (Grocery, error) 
 	UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error
+	SetCategoryOverride(ctx context.Context, householdID, productID int, category string) error
 	MoveGrocery(ctx context.Context, groceryID, groceryListTargetID, householdID int) error
 	DeleteGrocery(ctx context.Context, groceryID, householdId int) error
 	DeletePicked(ctx context.Context, groceryListID, householdId int) error
