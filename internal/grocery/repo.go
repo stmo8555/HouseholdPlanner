@@ -359,7 +359,11 @@ func (r *Repo) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, gro
 }
 
 func (r *Repo) SetCategoryOverride(ctx context.Context, householdID, productID int, category string) error {
-	
+	sql := `
+	INSERT INTO household_product_category (household_id, product_id, category)
+	VALUES ($1, $2, $3)
+	ON CONFLICT (household_id, product_id)
+	DO UPDATE SET category = EXCLUDED.category;
 	`
 	_, err := r.db.Exec(ctx, sql, householdID, productID, category)
 
