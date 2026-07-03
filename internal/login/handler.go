@@ -152,7 +152,7 @@ func (h *Handler) SetupHousehold(c *gin.Context) {
 
 func setSessionCookie(c *gin.Context, sessionID string) {
 	c.SetSameSite(http.SameSiteStrictMode)
-	c.SetCookie("session_id", sessionID, 0, "/", "", gin.Mode() == gin.ReleaseMode, true)
+	c.SetCookie("session_id", sessionID, int(SessionTTL.Seconds()), "/", "", gin.Mode() == gin.ReleaseMode, true)
 }
 
 func NewHandler(s *Service) *Handler {

@@ -31,6 +31,7 @@ func AuthMiddleware(s *Service) gin.HandlerFunc {
 
 		if time.Until(session.ExpiresAt) < SessionTTL/2 {
 			s.ExtendSession(c.Request.Context(), sessionID, SessionTTL)
+			setSessionCookie(c, sessionID)
 		}
 
 		c.Set("user_id", session.User.ID)
