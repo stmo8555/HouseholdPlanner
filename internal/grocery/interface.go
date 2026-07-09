@@ -26,6 +26,7 @@ type IRepo interface {
 	DeleteGrocery(ctx context.Context, groceryID, householdId int) error
 	DeletePicked(ctx context.Context, groceryListID, householdId int) error
 	TogglePicked(ctx context.Context, id, householdID int) error
+	SetPicked(ctx context.Context, id, householdID int, picked bool) error
 
 	TopProducts(ctx context.Context, householdID int) ([]product.Product, error)
 }

@@ -87,6 +87,11 @@
     color: var(--text);
 }
 
+/* The hidden attribute must always win, even over classes that set display */
+[hidden] {
+    display: none !important;
+}
+
 html {
     min-block-size: 100dvh;
 }
@@ -2085,4 +2090,89 @@ select:disabled:hover {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* =========================
+   Offline mode
+========================= */
+
+/* Header bar of the offline shopping view (offline-list.html) */
+.offline-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    padding: 8px 14px;
+    background: rgba(180, 120, 20, 0.92);
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border-block-end: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.offline-banner button {
+    padding: 6px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+/* Compact entry point on the list page header */
+.offline-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    inline-size: 40px;
+    block-size: 40px;
+    flex: none;
+    padding: 0;
+    border-radius: 10px;
+    border: 1px solid var(--text-dimmed);
+    background: transparent;
+    color: var(--text);
+    cursor: pointer;
+}
+
+.offline-icon-btn:hover {
+    border-color: var(--text);
+}
+
+/* Checkbox button in the offline view (mirrors the SSR row's form button) */
+.offline-check {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grocery-row.offline-pending {
+    position: relative;
+}
+
+.grocery-row.offline-pending::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 6px;
+    inset-inline-end: 6px;
+    inline-size: 8px;
+    block-size: 8px;
+    border-radius: 50%;
+    background: rgb(230, 160, 40);
+}
+
+.offline-toast-container {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 500;
 }

@@ -158,6 +158,10 @@ func (s *Service) TogglePicked(ctx context.Context, id, householdID int) error {
 	return s.repo.TogglePicked(ctx, id, householdID)
 }
 
+func (s *Service) SetPicked(ctx context.Context, id, householdID int, picked bool) error {
+	return s.repo.SetPicked(ctx, id, householdID, picked)
+}
+
 func (s *Service) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
 	productID, err := s.productService.GetID(ctx, ing.Product)
 	if err != nil {

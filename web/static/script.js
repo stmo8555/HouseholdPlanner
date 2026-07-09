@@ -1,4 +1,7 @@
-import Fuse from "https://cdn.jsdelivr.net/npm/fuse.js@7.1.0/dist/fuse.basic.min.mjs";
+import Fuse from "./vendor/fuse.basic.min.mjs";
+import { initOffline } from "./offline.js";
+
+initOffline();
 
 
 let navToggled = false;

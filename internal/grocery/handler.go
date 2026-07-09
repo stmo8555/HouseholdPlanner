@@ -31,6 +31,79 @@ func NewHandler(s *Service, householdService *household.Service, ingredient *ing
 	}
 }
 
+type snapshotItem struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Brand    string `json:"brand"`
+	Amount   string `json:"amount"`
+	Category string `json:"category"`
+	Picked   bool   `json:"picked"`
+}
+
+// Snapshot returns the full list as JSON for the client-rendered offline
+// shopping view.
+func (h *Handler) Snapshot(c *gin.Context) {
+	hid := c.GetInt("household_id")
+
+	groceryListID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatus(400)
+		return
+	}
+
+	list, err := h.service.GroceryList(c, groceryListID, hid)
+	if errors.Is(err, ErrNotFound) {
+		c.AbortWithStatus(404)
+		return
+	}
+	if err != nil {
+		panic(err)
+	}
+
+	view, err := h.service.GroceriesView(c, "product", "asc", groceryListID, hid)
+	if err != nil {
+		panic(err)
+	}
+
+	items := []snapshotItem{}
+	appendBucket := func(category string, groceries []Grocery) {
+		for _, g := range groceries {
+			items = append(items, snapshotItem{
+				ID:       g.ID,
+				Name:     g.Ingredient.Product.Name,
+				Brand:    g.Ingredient.Product.Brand,
+				Amount:   g.Ingredient.Amount,
+				Category: category,
+				Picked:   g.Picked,
+			})
+		}
+	}
+	appendBucket("Dairy", view.Dairy)
+	appendBucket("Fruit & veg", view.FruitAndVegetables)
+	appendBucket("Meat & fish", view.MeatAndFish)
+	appendBucket("Frozen", view.Frozen)
+	appendBucket("Pantry", view.Pantry)
+	appendBucket("Other", view.Other)
+	// Picked rows keep their product category so unpicking offline puts
+	// them back in the right group.
+	for _, g := range view.Picked {
+		items = append(items, snapshotItem{
+			ID:       g.ID,
+			Name:     g.Ingredient.Product.Name,
+			Brand:    g.Ingredient.Product.Brand,
+			Amount:   g.Ingredient.Amount,
+			Category: g.Ingredient.Product.Category,
+			Picked:   true,
+		})
+	}
+
+	c.JSON(200, gin.H{
+		"listId":   groceryListID,
+		"listName": list.Name,
+		"items":    items,
+	})
+}
+
 func (h *Handler) OverviewPage(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
@@ -504,8 +577,23 @@ func (h *Handler) TogglePicked(c *gin.Context) {
 		panic(err)
 	}
 
-	if err := h.service.TogglePicked(c, itemID, hid); err != nil {
+	// Offline sync replays send an explicit picked value so the request is
+	// idempotent; the regular htmx form sends no value and keeps toggling.
+	switch c.PostForm("picked") {
+	case "true":
+		err = h.service.SetPicked(c, itemID, hid, true)
+	case "false":
+		err = h.service.SetPicked(c, itemID, hid, false)
+	default:
+		err = h.service.TogglePicked(c, itemID, hid)
+	}
+	if err != nil {
 		panic(err)
+	}
+
+	if c.GetHeader("X-Offline-Sync") == "1" {
+		c.Status(204)
+		return
 	}
 
 	h.RenderListPartial(c, groceryListID)
