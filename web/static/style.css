@@ -1186,12 +1186,6 @@ form.htmx-request button .checkbox {
     scale: 1.0;
 }
 
-.grocery-filter {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
 .add-list-section {
     position: fixed;
     inset-block-end: calc(var(--margin-block) + env(safe-area-inset-bottom, 0px));

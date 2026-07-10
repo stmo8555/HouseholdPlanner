@@ -23,7 +23,7 @@
         </form>
 
         <form class="add-form add-grocery-form" hx-post="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list"
-            hx-swap="outerHTML" hx-include="#grocery-list-state, #grocery-list-filter"
+            hx-swap="outerHTML" hx-include="#grocery-list-state"
             hx-on::after-request="if(event.detail.successful) this.reset()">
 
             <div class="margin-block-end-12px"><strong>Quick Select</strong></div>

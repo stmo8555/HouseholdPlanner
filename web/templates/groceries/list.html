@@ -4,94 +4,79 @@
 <section class='glass container grocery-list'>
     <div class='flex space-between'>
         <h2>{{.ListName}} ({{.Total}})</h2>
-        <div class="flex align-items gap-6px">
-            <button id="shop-offline-btn" type="button" class="offline-icon-btn" data-list-id="{{.ListID}}"
-                aria-label="Shop offline" title="Shop offline">
-                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <line x1="1" y1="1" x2="23" y2="23"></line>
-                    <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
-                    <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
-                    <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
-                    <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
-                    <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
-                    <line x1="12" y1="20" x2="12.01" y2="20"></line>
-                </svg>
-            </button>
-            {{template "groceries/filter" .}}
-        </div>
+        <button id="shop-offline-btn" type="button" class="offline-icon-btn" data-list-id="{{.ListID}}"
+            aria-label="Shop offline" title="Shop offline">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="1" y1="1" x2="23" y2="23"></line>
+                <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+                <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+                <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+                <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+                <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+                <line x1="12" y1="20" x2="12.01" y2="20"></line>
+            </svg>
+        </button>
     </div>
 
     <div class="grocery-grid">
         <div class="grocery-row grocery-header">
             <div></div>
-            <a href="/groceries/lists/{{.ListID}}?filter={{.Filter}}&sort=product&order={{.NextOrder}}">Product</a>
-            <a href="/groceries/lists/{{.ListID}}?filter={{.Filter}}&sort=amount&order={{.NextOrder}}">Amount</a>
-            <a href="/groceries/lists/{{.ListID}}?filter={{.Filter}}&sort=brand&order={{.NextOrder}}">Brand</a>
+            <a href="/groceries/lists/{{.ListID}}?sort=product&order={{.NextOrder}}">Product</a>
+            <a href="/groceries/lists/{{.ListID}}?sort=amount&order={{.NextOrder}}">Amount</a>
+            <a href="/groceries/lists/{{.ListID}}?sort=brand&order={{.NextOrder}}">Brand</a>
             <div></div>
         </div>
 
         {{if gt (len .Data.Dairy) 0}}
-        {{if eq .Filter "all"}}
         <div class="grocery-divider dairy">
             <strong>Dairy ({{len .Data.Dairy}})</strong>
         </div>
-        {{end}}
         {{range .Data.Dairy}}
         {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
         {{if gt (len .Data.FruitAndVegetables) 0}}
-        {{if eq .Filter "all"}}
         <div class="grocery-divider fruit">
             <strong>Fruit & veg ({{len .Data.FruitAndVegetables}})</strong>
         </div>
-        {{end}}
         {{range .Data.FruitAndVegetables}}
         {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
         {{if gt (len .Data.MeatAndFish) 0}}
-        {{if eq .Filter "all"}}
         <div class="grocery-divider meat">
             <strong>Meat & fish ({{len .Data.MeatAndFish}})</strong>
         </div>
-        {{end}}
         {{range .Data.MeatAndFish}}
         {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
         {{if gt (len .Data.Frozen) 0}}
-        {{if eq .Filter "all"}}
         <div class="grocery-divider frozen">
             <strong>Frozen ({{len .Data.Frozen}})</strong>
         </div>
-        {{end}}
         {{range .Data.Frozen}}
         {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
         {{if gt (len .Data.Pantry) 0}}
-        {{if eq .Filter "all"}}
         <div class="grocery-divider pantry">
             <strong>Pantry ({{len .Data.Pantry}})</strong>
         </div>
-        {{end}}
         {{range .Data.Pantry}}
         {{template "groceries/row" .}}
         {{end}}
         {{end}}
 
         {{if gt (len .Data.Other) 0}}
-        {{if eq .Filter "all"}}
         <div class="grocery-divider other">
             <strong>Other ({{len .Data.Other}})</strong>
         </div>
-        {{end}}
         {{range .Data.Other}}
         {{template "groceries/row" .}}
         {{end}}
@@ -109,14 +94,14 @@
 
     {{if gt (len .Data.Picked) 0}}
     <button hx-delete="/groceries/lists/{{.ListID}}/items/picked" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state, #grocery-list-filter" class="block margin-inline-auto inline-size-full margin-block-start-24px"
+        hx-include="#grocery-list-state" class="block margin-inline-auto inline-size-full margin-block-start-24px"
         type="submit">
         {{template "spinner" .}}
         <span>Done</span>
     </button>
     {{end}}
 </section>
-{{else if eq .Filter "all"}}
+{{else}}
 <section class='glass container grocery-list empty-state'>
     <h3>The list {{.ListName}} is empty</h3>
     <p>Use the buttons to get started:</p>
@@ -134,18 +119,6 @@
             <dd>Paste a recipe link to pull its ingredients into the list.</dd>
         </div>
     </dl>
-</section>
-{{else}}
-<section class='glass container grocery-list'>
-    <div class='flex space-between'>
-        <h2>{{.ListName}} ({{.Total}})</h2>
-        {{template "groceries/filter" .}}
-    </div>
-
-    <div class="empty-state">
-        <h3>No items in this category</h3>
-        <p>Try a different filter or add some groceries.</p>
-    </div>
 </section>
 {{end}}
 {{end}}

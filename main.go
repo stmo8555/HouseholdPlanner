@@ -180,7 +180,6 @@ func setupGroceries(r *gin.RouterGroup) {
 	r.POST("/groceries/lists/:id/transfer", handler.TransferGroceryList)
 
 	// Items within a list
-	r.GET("/groceries/lists/:id/items", handler.List)
 	r.GET("/groceries/lists/:id/snapshot", handler.Snapshot)
 	r.POST("/groceries/lists/:id/items", handler.CreateGrocery)
 	r.DELETE("/groceries/lists/:id/items/picked", handler.DeletePicked)

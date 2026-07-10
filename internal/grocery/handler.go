@@ -187,16 +187,6 @@ func (h *Handler) renderDeletedList(c *gin.Context, groceryListID int) {
 	c.HTML(200, "grocery_list_deleted.html", data)
 }
 
-func (h *Handler) List(c *gin.Context) {
-	groceryListID, err := strconv.Atoi(c.Param("id"))
-
-	if err != nil {
-		panic(err)
-	}
-
-	h.RenderListPartial(c, groceryListID)
-}
-
 func (h *Handler) RenderListPartial(c *gin.Context, groceryListID int) {
 	hid := c.GetInt("household_id")
 
@@ -728,7 +718,6 @@ func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ing
 func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin.H, error) {
 	sortBy := c.DefaultQuery("sort", c.DefaultPostForm("sort", "product"))
 	order := c.DefaultQuery("order", c.DefaultPostForm("order", "asc"))
-	filter := c.DefaultQuery("filter", c.DefaultPostForm("filter", "all"))
 
 	if order != "desc" {
 		order = "asc"
@@ -749,37 +738,13 @@ func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin
 		return nil, err
 	}
 
-	var filteredGroceries GroceriesView
-
-	filteredGroceries.Picked = groceries.Picked
-	switch filter {
-	case "all":
-		filteredGroceries = groceries
-	case "dairy":
-		filteredGroceries.Dairy = groceries.Dairy
-	case "fruitandvegetables":
-		filteredGroceries.FruitAndVegetables = groceries.FruitAndVegetables
-	case "meatandfish":
-		filteredGroceries.MeatAndFish = groceries.MeatAndFish
-	case "frozen":
-		filteredGroceries.Frozen = groceries.Frozen
-	case "pantry":
-		filteredGroceries.Pantry = groceries.Pantry
-	case "other":
-		filteredGroceries.Other = groceries.Other
-	default:
-		filter = "all"
-		filteredGroceries = groceries
-	}
-
 	return gin.H{
-		"Data":        filteredGroceries,
-		"Total":       filteredGroceries.Total(),
+		"Data":        groceries,
+		"Total":       groceries.Total(),
 		"TopProducts": topProducts,
 		"Sort":        sortBy,
 		"Order":       order,
 		"NextOrder":   nextOrder,
-		"Filter":      filter,
 		"OOB":         false,
 	}, nil
 }
