@@ -1058,6 +1058,11 @@ form.htmx-request button .checkbox {
     min-inline-size: 0;
 }
 
+.grocery-row [data-field] {
+    -webkit-hyphens: auto;
+    hyphens: auto;
+}
+
 .grocery-grid>.grocery-row:last-child {
     border-block-end: none;
 }
@@ -1138,7 +1143,7 @@ form.htmx-request button .checkbox {
 }
 
 .extracted-grocery-row {
-    grid-template-columns: 1fr 1fr 1fr 2em;
+    grid-template-columns: 2fr 1fr 1.4fr 2em;
     padding-block: 10px;
 }
 
@@ -1151,8 +1156,10 @@ form.htmx-request button .checkbox {
     padding: 0;
     inline-size: 75%;
     aspect-ratio: 1;
-    display: grid;
-    place-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
 }
 
 .edit-grocery-form,

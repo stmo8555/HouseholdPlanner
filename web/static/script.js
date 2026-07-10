@@ -68,7 +68,13 @@ document.body.addEventListener("click", event => {
     if (!button)
         return;
 
+    const grid = button.closest(".extracted-grocery-grid");
     button.closest(".extracted-grocery-row").remove();
+
+    const remaining = grid.querySelectorAll(".extracted-grocery-row:not(.grocery-header)");
+    if (remaining.length === 0) {
+        document.getElementById("extract-cancel")?.click();
+    }
 });
 
 document.body.addEventListener("click", event => {

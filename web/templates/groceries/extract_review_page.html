@@ -3,7 +3,7 @@
     {{if gt (len .Ingredients) 0}}
     <div class="margin-block-end-24px flex gap-6px">
         <button type="submit" form="extractedForm">Save</button>
-        <a href="/groceries/lists/{{.ListID}}" hx-boost="true" class="button-styling">Cancel</a>
+        <a href="/groceries/lists/{{.ListID}}" hx-boost="true" class="button-styling" id="extract-cancel">Cancel</a>
     </div>
 
     <form action="/groceries/lists/{{.ListID}}/extracted" method="post" hx-boost="true" id="extractedForm" class="glass container">
