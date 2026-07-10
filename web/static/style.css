@@ -676,8 +676,7 @@ dialog::backdrop {
 .household-notification {
     position: fixed;
     inset-inline: 12px;
-    /* Clear the fixed grocery button menu / add-list bar at the bottom. */
-    inset-block-end: calc(88px + env(safe-area-inset-bottom, 0px));
+    inset-block-end: calc(12px + env(safe-area-inset-bottom, 0px));
     z-index: 300;
     display: grid;
     gap: 12px;
@@ -1034,7 +1033,7 @@ form.htmx-request button .checkbox {
     }
 
     .household-notification {
-        inset-block-end: calc(88px + max(env(safe-area-inset-bottom, 0px), 28px));
+        inset-block-end: calc(12px + max(env(safe-area-inset-bottom, 0px), 28px));
     }
 
     .success-toast {
