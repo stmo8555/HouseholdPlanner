@@ -2,7 +2,7 @@
 {{if .OOB}}{{template "household/version_input" .}}{{end}}
 {{if or (gt .Total 0) (gt (len .Data.Picked) 0)}}
 <section class='glass container grocery-list'>
-    <div class='flex space-between'>
+    <div class='flex space-between align-items'>
         <h2>{{.ListName}} ({{.Total}})</h2>
         <button id="shop-offline-btn" type="button" class="offline-icon-btn" data-list-id="{{.ListID}}"
             aria-label="Shop offline" title="Shop offline">

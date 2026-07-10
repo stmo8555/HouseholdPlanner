@@ -1050,6 +1050,10 @@ form.htmx-request button .checkbox {
     min-inline-size: 0;
 }
 
+.grocery-grid>.grocery-row:last-child {
+    border-block-end: none;
+}
+
 .grocery-header {
     border-block-end: solid var(--text-lightly-dimmed) 2px;
     font-weight: 700;
