@@ -275,6 +275,9 @@ header {
     position: sticky;
     inset-block-start: 0;
     z-index: 1000;
+    /* viewport-fit=cover lets the page run under the notch/status bar;
+       keep the header content below it. */
+    padding-block-start: env(safe-area-inset-top, 0px);
     background: var(--bg);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
@@ -981,7 +984,7 @@ form.htmx-request button .checkbox {
 
 
     position: fixed;
-    inset-block-end: var(--margin-block);
+    inset-block-end: calc(var(--margin-block) + env(safe-area-inset-bottom, 0px));
     z-index: 50;
     inset-inline-start: 50dvw;
     translate: -50% 0;
@@ -1017,6 +1020,17 @@ form.htmx-request button .checkbox {
     display: block;
     white-space: nowrap;
     min-inline-size: fit-content;
+}
+
+/* Installed PWA: no browser chrome, so the gesture bar / home indicator
+   overlaps the bottom edge. Lift the menu clear of it even on devices
+   that report a zero safe-area inset. */
+@media (display-mode: standalone) {
+
+    .grocery-button-menu,
+    .add-list-section {
+        inset-block-end: calc(var(--margin-block) + max(env(safe-area-inset-bottom, 0px), 28px));
+    }
 }
 
 .grocery-grid {
@@ -1180,7 +1194,7 @@ form.htmx-request button .checkbox {
 
 .add-list-section {
     position: fixed;
-    inset-block-end: var(--margin-block);
+    inset-block-end: calc(var(--margin-block) + env(safe-area-inset-bottom, 0px));
     inset-inline-start: 50dvw;
     translate: -50% 0;
 
@@ -2096,27 +2110,47 @@ select:disabled:hover {
    Offline mode
 ========================= */
 
-/* Header bar of the offline shopping view (offline-list.html) */
+/* Header bar of the offline shopping view (offline-list.html).
+   Uses the theme's accent (pink in light, teal in dark) with the theme's
+   text color so it reads as native in both. */
 .offline-banner {
+    /* Deeper end of the accent range so the white text holds up */
+    --banner-bg: linear-gradient(135deg, var(--accent), var(--accent-dark));
+    --banner-text: #fff;
+    --banner-border: rgba(255, 255, 255, 0.4);
+    --banner-button-bg: rgba(255, 255, 255, 0.2);
+
     display: flex;
     align-items: center;
     justify-content: center;
     flex-wrap: wrap;
     gap: 8px 16px;
     padding: 8px 14px;
-    background: rgba(180, 120, 20, 0.92);
-    color: #fff;
+    background: var(--banner-bg);
     font-weight: 600;
     font-size: 0.9rem;
-    border-block-end: 1px solid rgba(255, 255, 255, 0.15);
+    border-block-end: 1px solid var(--banner-border);
+
+    @media (prefers-color-scheme: dark) {
+        --banner-bg: linear-gradient(135deg, var(--accent-dark), var(--accent));
+        --banner-border: rgba(255, 255, 255, 0.18);
+        --banner-button-bg: rgba(255, 255, 255, 0.1);
+    }
+}
+
+/* The universal selector pins color on every element, so set the children
+   explicitly rather than relying on inheritance. */
+.offline-banner,
+.offline-banner span {
+    color: var(--banner-text);
 }
 
 .offline-banner button {
     padding: 6px 14px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
+    border: 1px solid var(--banner-border);
     border-radius: 8px;
-    background: rgba(255, 255, 255, 0.15);
-    color: #fff;
+    background: var(--banner-button-bg);
+    color: var(--banner-text);
     font-weight: 700;
     cursor: pointer;
 }
