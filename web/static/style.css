@@ -676,7 +676,8 @@ dialog::backdrop {
 .household-notification {
     position: fixed;
     inset-inline: 12px;
-    inset-block-end: 12px;
+    /* Clear the fixed grocery button menu / add-list bar at the bottom. */
+    inset-block-end: calc(88px + env(safe-area-inset-bottom, 0px));
     z-index: 300;
     display: grid;
     gap: 12px;
@@ -684,7 +685,7 @@ dialog::backdrop {
 
     @media (width >=500px) {
         inset-inline: auto var(--margin-block);
-        inset-block-end: var(--margin-block);
+        inset-block-end: calc(var(--margin-block) + env(safe-area-inset-bottom, 0px));
         inline-size: min(360px, calc(100dvw - calc(var(--margin-block)) * 2));
     }
 }
@@ -846,7 +847,7 @@ form.htmx-request button .checkbox {
 
 .success-toast {
     position: fixed;
-    inset-block-end: 24px;
+    inset-block-end: calc(24px + env(safe-area-inset-bottom, 0px));
     inset-inline-end: 24px;
     z-index: 400;
     text-align: center;
@@ -1030,6 +1031,14 @@ form.htmx-request button .checkbox {
     .grocery-button-menu,
     .add-list-section {
         inset-block-end: calc(var(--margin-block) + max(env(safe-area-inset-bottom, 0px), 28px));
+    }
+
+    .household-notification {
+        inset-block-end: calc(88px + max(env(safe-area-inset-bottom, 0px), 28px));
+    }
+
+    .success-toast {
+        inset-block-end: calc(24px + max(env(safe-area-inset-bottom, 0px), 28px));
     }
 }
 
