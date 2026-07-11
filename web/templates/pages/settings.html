@@ -12,20 +12,13 @@
             <h2 class="settings-heading">Household settings</h2>
             <p class="settings-subheading">Manage <strong>{{.SettingsView.Household.Name}}</strong> and who's in it.</p>
 
-            <!-- Invite link -->
+            <!-- Invite links -->
             <section class="settings-card glass card">
-                <h3 class="settings-card-title">Invite link</h3>
-                <p class="settings-card-desc">Send this link to invite one new person to create an account.</p>
-                {{if .InviteLink}}
-                <div class="code-row">
-                    {{template "household/invite-link" .}}
-                    <button class="copy-button" type="button" data-copy-target="#invite-link">Copy</button>
-                </div>
-                <p class="settings-hint">Single-use · expires in 7 days</p>
-                {{else}}
-                <p class="settings-hint">No active invite link.</p>
-                {{end}}
-                <form hx-post="/settings/invite" hx-target="#invite-link" hx-swap="outerHTML">
+                <h3 class="settings-card-title">Invite links</h3>
+                <p class="settings-card-desc">Send one of these links to invite a new person to create an account. Each
+                    link works once and disappears when it's used or expires.</p>
+                {{template "household/invites-list" .}}
+                <form hx-post="/settings/invite" hx-target="#invites-list" hx-swap="outerHTML">
                     <button class="login-button settings-button" type="submit">
                         <span>Generate new invite link</span>
                         {{template "spinner" .}}
@@ -92,11 +85,28 @@
         <script type="module" src="/static/script.js"></script>
         <script>
             document.addEventListener("click", async (e) => {
-                const btn = e.target.closest(".copy-button");
+                // Reveal / dismiss the inline "revoke this link?" confirmation.
+                const revoke = e.target.closest("[data-revoke]");
+                if (revoke) {
+                    revoke.closest(".invite-row")?.classList.add("confirming");
+                    return;
+                }
+                const cancel = e.target.closest("[data-cancel]");
+                if (cancel) {
+                    cancel.closest(".invite-row")?.classList.remove("confirming");
+                    return;
+                }
+
+                const btn = e.target.closest("[data-copy-value], [data-copy-target]");
                 if (!btn) return;
-                const el = document.querySelector(btn.dataset.copyTarget);
-                if (!el) return;
-                const text = el.value ?? el.textContent;
+                let text;
+                if (btn.dataset.copyValue != null) {
+                    text = btn.dataset.copyValue;
+                } else {
+                    const el = document.querySelector(btn.dataset.copyTarget);
+                    if (!el) return;
+                    text = el.value ?? el.textContent;
+                }
                 try {
                     await navigator.clipboard.writeText(text.trim());
                     const original = btn.textContent;

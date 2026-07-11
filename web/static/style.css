@@ -1831,8 +1831,7 @@ main.auth-page {
     align-items: stretch;
 }
 
-.household-code,
-.invite-link {
+.household-code {
     flex: 1;
     min-inline-size: 0;
     display: flex;
@@ -1841,32 +1840,108 @@ main.auth-page {
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     font-size: 1rem;
     letter-spacing: 0.04em;
-}
-
-.household-code {
     font-weight: 600;
 }
 
-.invite-link {
-    inline-size: 100%;
-    overflow-x: auto;
+/* Invite links — compact rows matching the members list */
+.invite-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.invite-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 10px 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 2px solid var(--input-border);
+    background: var(--input-bg);
+}
+
+.invite-info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-inline-size: 0;
+}
+
+.invite-titlerow {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    flex-wrap: wrap;
+}
+
+.invite-name {
+    font-weight: 600;
+}
+
+.invite-status {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--accent) 24%, transparent);
+    color: var(--text-lightly-dimmed);
     white-space: nowrap;
 }
 
-.copy-button {
-    flex: 0 0 auto;
-    padding-inline: 16px;
-    border-radius: 16px;
-    border: 2px solid var(--accent-dark);
-    background: color-mix(in srgb, var(--accent) 20%, var(--input-bg));
-    color: var(--text);
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.15s ease;
+.invite-status--soon {
+    background: color-mix(in srgb, #e8a33d 26%, transparent);
+    color: color-mix(in srgb, #9a6410 75%, var(--text));
 }
 
-.copy-button:hover {
-    background: color-mix(in srgb, var(--accent) 34%, var(--input-bg));
+.invite-sub {
+    font-size: 0.78rem;
+    color: var(--text-dimmed);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    letter-spacing: 0.02em;
+}
+
+.invite-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.invite-confirm {
+    display: none;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px 10px;
+    inline-size: 100%;
+}
+
+.invite-confirm-text {
+    flex: 1 1 12ch;
+    min-inline-size: 0;
+    font-size: 0.85rem;
+    color: var(--text);
+}
+
+.invite-confirm form {
+    display: inline-flex;
+}
+
+.invite-row.confirming {
+    border-color: color-mix(in srgb, #c0392b 50%, transparent);
+    background: color-mix(in srgb, #c0392b 10%, var(--input-bg));
+}
+
+.invite-row.confirming .invite-info,
+.invite-row.confirming .invite-actions {
+    display: none;
+}
+
+.invite-row.confirming .invite-confirm {
+    display: flex;
 }
 
 .member-list {

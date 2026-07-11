@@ -206,19 +206,40 @@ func (r *Repo) CreateInvite(ctx context.Context, householdID, createdBy int, exp
 	return token, err
 }
 
-func (r *Repo) CurrentInvite(ctx context.Context, householdID int) (string, error) {
+func (r *Repo) CurrentInvites(ctx context.Context, householdID int) ([]Invite, error) {
 	sql := `
-	SELECT token
+	SELECT token, created_at, expires_at
 	FROM invites
 	WHERE household_id = $1 AND expires_at > now()
-	ORDER BY created_at DESC
-	LIMIT 1;
+	ORDER BY created_at DESC;
 	`
 
-	var token string
-	err := r.db.QueryRow(ctx, sql, householdID).Scan(&token)
+	rows, err := r.db.Query(ctx, sql, householdID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-	return token, err
+	var invites []Invite
+	for rows.Next() {
+		var inv Invite
+		if err := rows.Scan(&inv.Token, &inv.CreatedAt, &inv.ExpiresAt); err != nil {
+			return nil, err
+		}
+		invites = append(invites, inv)
+	}
+
+	return invites, rows.Err()
+}
+
+func (r *Repo) RemoveExpiredInvites(ctx context.Context) error {
+	_, err := r.db.Exec(ctx, `DELETE FROM invites WHERE expires_at <= now();`)
+	return err
+}
+
+func (r *Repo) RevokeInvite(ctx context.Context, token string, householdID int) error {
+	_, err := r.db.Exec(ctx, `DELETE FROM invites WHERE token=$1 AND household_id=$2;`, token, householdID)
+	return err
 }
 
 // deleteHouseholdData removes a household and everything scoped to it. Tables

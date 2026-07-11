@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/jackc/pgx/v5"
-
 	"github.com/stmo8555/HouseholdPlanner/internal/code"
 )
 
@@ -50,15 +48,12 @@ func (s *Service) GenerateInviteToken(ctx context.Context, uid, hid int) (string
 	return s.repo.CreateInvite(ctx, hid, uid, expiresAt)
 }
 
-func (s *Service) CurrentInviteToken(ctx context.Context, uid, hid int) (string, error) {
-	token, err := s.repo.CurrentInvite(ctx, hid)
-	if err == nil {
-		return token, nil
-	}
-	if !errors.Is(err, pgx.ErrNoRows) {
-		return "", fmt.Errorf("fetching current invite: %w", err)
-	}
-	return s.GenerateInviteToken(ctx, uid, hid)
+func (s *Service) RemoveExpiredInvites(ctx context.Context) error {
+	return s.repo.RemoveExpiredInvites(ctx)
+}
+
+func (s *Service) RevokeInvite(ctx context.Context, token string, hid int) error {
+	return s.repo.RevokeInvite(ctx, token, hid)
 }
 
 func (s *Service) PromoteMember(ctx context.Context, uid int, targetUID int, hid int) error {
@@ -76,6 +71,11 @@ func (s *Service) Settings(ctx context.Context, uid, hid int) (SettingsView, err
 		return SettingsView{}, fmt.Errorf("fetching members: %w", err)
 	}
 
+	invites, err := s.repo.CurrentInvites(ctx, hid)
+	if err != nil {
+		return SettingsView{}, fmt.Errorf("fetching invites: %w", err)
+	}
+
 	var callerIsOwner bool
 	for i := range members {
 		if members[i].ID == uid {
@@ -87,6 +87,7 @@ func (s *Service) Settings(ctx context.Context, uid, hid int) (SettingsView, err
 	return SettingsView{
 		Household: household,
 		Members:   members,
+		Invites:   invites,
 		IsOwner:   callerIsOwner,
 	}, nil
 }

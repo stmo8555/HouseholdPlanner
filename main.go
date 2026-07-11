@@ -118,12 +118,15 @@ func setupHousehold(r *gin.RouterGroup) {
 	handler := household.NewHandler(householdService)
 	r.POST("/settings/code/regenerate", handler.RegenerateHouseholdCode)
 	r.POST("/settings/invite", handler.GenerateInviteToken)
+	r.POST("/settings/invite/:token/revoke", handler.RevokeInvite)
 	r.POST("/settings/members/:id/promote", handler.PromoteMember)
 	r.POST("/settings/members/:id/remove", handler.RemoveMember)
 	r.POST("/settings/leave", handler.LeaveHousehold)
 	r.POST("/settings/delete", handler.DeleteHousehold)
 	r.POST("/settings/account/delete", handler.DeleteAccount)
 	r.GET("/settings", handler.Settings)
+
+	household.RunCleanup(context.Background(), householdService)
 }
 
 func setupNotifications(r *gin.RouterGroup) {

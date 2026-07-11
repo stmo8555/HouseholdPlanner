@@ -1,0 +1,39 @@
+{{define "household/invites-list"}}
+{{if .OOB}}{{template "household/version_input" .}}{{end}}
+{{if .Toast}}
+<div class="toast success-toast" role="status">✓ {{.Toast}}</div>
+{{end}}
+<div id="invites-list">
+    {{if .SettingsView.Invites}}
+    <ul class="invite-list">
+        {{range .SettingsView.Invites}}
+        <li class="invite-row">
+            <div class="invite-info">
+                <div class="invite-titlerow">
+                    <span class="invite-name">Invite link</span>
+                    <span class="invite-status{{if .ExpiringSoon}} invite-status--soon{{end}}">{{.Expires}}</span>
+                </div>
+                <span class="invite-sub">{{.Masked}} · {{.Created}}</span>
+            </div>
+            <div class="invite-actions">
+                <button class="member-action" type="button" data-copy-value="{{.Link}}">Copy</button>
+                <button class="member-action member-action--danger" type="button" data-revoke>Revoke</button>
+            </div>
+            <div class="invite-confirm">
+                <span class="invite-confirm-text">Revoke this link? It stops working immediately.</span>
+                <button class="member-action" type="button" data-cancel>Keep</button>
+                <form hx-post="/settings/invite/{{.Token}}/revoke" hx-target="#invites-list" hx-swap="outerHTML">
+                    <button class="member-action member-action--danger" type="submit">
+                        <span>Revoke</span>
+                        {{template "spinner" $}}
+                    </button>
+                </form>
+            </div>
+        </li>
+        {{end}}
+    </ul>
+    {{else}}
+    <p class="settings-hint">No active invite links.</p>
+    {{end}}
+</div>
+{{end}}
