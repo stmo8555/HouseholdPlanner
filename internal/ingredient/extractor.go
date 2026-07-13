@@ -5,9 +5,13 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
+	neturl "net/url"
 	"regexp"
 	"strings"
+	"syscall"
+	"time"
 
 	"github.com/stmo8555/HouseholdPlanner/internal/ai"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
@@ -48,8 +52,69 @@ func (e *Extractor) FromText(ctx context.Context, text string) ([]Ingredient, er
 	return ingredients, nil
 }
 
+// safeHTTPClient blocks Server-Side Request Forgery: the dialer's Control hook
+// runs for every connection — including redirects — after DNS resolution but
+// before the socket connects, so it rejects private, loopback, and link-local
+// targets even if a public hostname rebinds or redirects to an internal IP.
+var safeHTTPClient = &http.Client{
+	Timeout: 15 * time.Second,
+	Transport: &http.Transport{
+		DialContext: (&net.Dialer{
+			Timeout: 10 * time.Second,
+			Control: func(network, address string, _ syscall.RawConn) error {
+				host, _, err := net.SplitHostPort(address)
+				if err != nil {
+					return err
+				}
+				ip := net.ParseIP(host)
+				if ip == nil {
+					return fmt.Errorf("ssrf: could not resolve %q to an IP", address)
+				}
+				if isBlockedIP(ip) {
+					return fmt.Errorf("ssrf: refusing to connect to internal address %s", ip)
+				}
+				return nil
+			},
+		}).DialContext,
+	},
+	CheckRedirect: func(req *http.Request, via []*http.Request) error {
+		if len(via) >= 5 {
+			return errors.New("ssrf: too many redirects")
+		}
+		if req.URL.Scheme != "http" && req.URL.Scheme != "https" {
+			return fmt.Errorf("ssrf: refusing redirect to scheme %q", req.URL.Scheme)
+		}
+		return nil
+	},
+}
+
+func isBlockedIP(ip net.IP) bool {
+	return ip.IsLoopback() ||
+		ip.IsPrivate() ||
+		ip.IsLinkLocalUnicast() ||
+		ip.IsLinkLocalMulticast() ||
+		ip.IsInterfaceLocalMulticast() ||
+		ip.IsUnspecified()
+}
+
+func safeGet(ctx context.Context, rawURL string) (*http.Response, error) {
+	parsed, err := neturl.Parse(strings.TrimSpace(rawURL))
+	if err != nil {
+		return nil, fmt.Errorf("invalid url: %w", err)
+	}
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		return nil, fmt.Errorf("unsupported url scheme %q (only http/https allowed)", parsed.Scheme)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, parsed.String(), nil)
+	if err != nil {
+		return nil, err
+	}
+	return safeHTTPClient.Do(req)
+}
+
 func (e *Extractor) FromRecipeURL(ctx context.Context, url string) ([]Ingredient, error) {
-	resp, err := http.Get(url)
+	resp, err := safeGet(ctx, url)
 	if err != nil {
 		return nil, err
 	}
