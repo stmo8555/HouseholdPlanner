@@ -59,7 +59,7 @@
                     or remove the other members first to delete the household or your account.</p>
                 {{else}}
                 {{if not .SettingsView.IsOwner}}
-                <form method="POST" action="/settings/leave" hx-boost="true"
+                <form method="POST" action="/settings/leave"
                     onsubmit="return confirm('Leave this household? You will lose access to its lists until you are invited back.');">
                     <button class="login-button settings-button settings-button--danger" type="submit">Leave
                         household</button>
@@ -67,13 +67,13 @@
                 {{end}}
                 {{if and .SettingsView.IsOwner (eq (len .SettingsView.Members) 1)}}
                 <p class="settings-card-desc">Deleting the household permanently removes all of its lists and data.</p>
-                <form method="POST" action="/settings/delete" hx-boost="true"
+                <form method="POST" action="/settings/delete"
                     onsubmit="return confirm('Delete this household? This permanently removes all of its lists and data and cannot be undone.');">
                     <button class="login-button settings-button settings-button--danger" type="submit">Delete
                         household</button>
                 </form>
                 {{end}}
-                <form method="POST" action="/settings/account/delete" hx-boost="true"
+                <form method="POST" action="/settings/account/delete"
                     onsubmit="return confirm('Delete your account? This permanently deletes your login and cannot be undone.');">
                     <button class="login-button settings-button settings-button--danger" type="submit">Delete my
                         account</button>

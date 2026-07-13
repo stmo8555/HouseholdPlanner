@@ -255,11 +255,6 @@ body.flower-power::before {
     background-position: center;
     background-repeat: no-repeat;
     z-index: -1;
-    transition: transform 0.8s ease-in-out;
-}
-
-body.flower-power.slide-out::before {
-    transform: translateY(100%);
 }
 
 body.flower-power .background {
@@ -286,6 +281,12 @@ header {
     @media (prefers-color-scheme: dark) {
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
+}
+
+body.flower-power header {
+    background: transparent;
+    box-shadow: none;
+    border-bottom: none;
 }
 
 .header-items {
