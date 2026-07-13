@@ -96,7 +96,6 @@ if (recipeCards.length > 0 && searchInput && matchInput) {
         ingredients: [...card.querySelectorAll("li")].map(li => li.textContent.trim()),
     }));
 
-    console.log(data)
     const fuseTitle = new Fuse(data, {
         keys: ["title"],
         threshold: 0.5
@@ -148,10 +147,9 @@ if (recipeCards.length > 0 && searchInput && matchInput) {
 }
 
 function toggleSearch() {
-    document.querySelector(".search-section").classList.toggle("hidden");
-    focusables.forEach(e => {
-        e.focus();
-    });
+    const section = document.querySelector(".search-section");
+    const nowVisible = section.classList.toggle("hidden") === false;
+    if (nowVisible) section.querySelector("input")?.focus();
 }
 
 

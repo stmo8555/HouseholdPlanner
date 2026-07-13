@@ -5,7 +5,7 @@
 
 <body>
     <div class="background">
-        {{template "header" .}}
+        {{template "layouts/header" .}}
         <main>
             <div class="home-wrapper margin-block-end-24px">
                 <div class="glass container padding-inline-24px ai-prompt">
@@ -25,7 +25,7 @@
                 <div class="glass container recipe-card featured-recipe">
                     <div class="image-wrapper">
                         <img src="https://images.mathem.se/prod/oppskrifter/14abe335-1029-4fc7-b218-8d688b0da666?fit=bounds&format=auto&optimize=medium&quality=75&width=2000&s=0x1395fdc22824cb0ca9e2f76e5d9b77ce2c09f945"
-                            alt="">
+                            alt="Currykyckling med ris">
                     </div>
                     <div class="title">
                         <p>Currykyckling med ris</p>
@@ -41,7 +41,7 @@
                             <small>Active Tasks</small>
                             <p><strong>{{.Todos}}</strong></p>
                         </div>
-                        <img class="circle" src="/static/assets/check.svg">
+                        <img class="circle" src="/static/assets/check.svg" alt="">
                     </a>
                     <a href="/groceries"
                         class="glass-inner padding-inline-24px flex space-between align-items margin-block-end-24px">
@@ -49,7 +49,7 @@
                             <small>Groceries to Buy</small>
                             <p><strong>{{.Groceries}}</strong></p>
                         </div>
-                        <img class="circle" src="/static/assets/shopping-cart.svg">
+                        <img class="circle" src="/static/assets/shopping-cart.svg" alt="">
                     </a>
 
                 </div>
