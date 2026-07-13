@@ -31,7 +31,7 @@
             <ul class="margin-block-end-24px">
                 <li>
                     <label for="product-input">Product <small>(required)</small></label>
-                    <input class="glass-inner focus" id="product-input" type="text" name="name" required>
+                    <input class="glass-inner focus" id="product-input" type="text" name="name" required autofocus>
                 </li>
                 <li>
                     <label for="3">Amount</label>
@@ -59,7 +59,7 @@
         <form class="smart-add-form" hx-post="/groceries/lists/{{.ListID}}/smart-add" hx-target="main"
             hx-swap="outerHTML">
             <textarea id="smart-add" class="glass-inner margin-block-end-24px"
-                placeholder='Add groceries... (try: "10 bananas, 5L Arla milk"' name="text" required></textarea>
+                placeholder='Add groceries... (try: "10 bananas, 5L Arla milk"' name="text" required autofocus></textarea>
             <button class="inline-size-full margin-inline-auto block" type="submit">
                 <span>Add</span>
                 {{template "spinner" .}}
@@ -76,7 +76,7 @@
         <form class="extract-grocery-form" hx-post="/groceries/lists/{{.ListID}}/extract" hx-target="main"
             hx-swap="outerHTML">
             <input class="inline-size-full glass-inner focus margin-block-end-24px" placeholder="Add link to recipe..."
-                type="text" name="link" required>
+                type="text" name="link" required autofocus>
             <button class="inline-size-full margin-inline-auto block" type="submit">
                 <span>Add</span>
                 {{template "spinner" .}}

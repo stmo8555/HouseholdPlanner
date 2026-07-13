@@ -10,7 +10,7 @@
         <h3>Rename list</h3>
         <small>Change the name of this list.</small>
         <label class="sr-only" for="edit-name">List name</label>
-        <input type="text" class="glass-inner" id="edit-name" name="new-name" value="{{.List.GroceryList.Name}}" required>
+        <input type="text" class="glass-inner" id="edit-name" name="new-name" value="{{.List.GroceryList.Name}}" required autofocus>
         <button class="" type="submit">
             <span>Save</span>
             {{template "spinner" .}}

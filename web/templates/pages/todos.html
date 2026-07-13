@@ -27,7 +27,7 @@
                             }
                             ">
                     <input class="glass-inner margin-block-end-12px" placeholder="Add a new task..." id="1" type="text"
-                        name="task" required>
+                        name="task" required autofocus>
                     <fieldset>
                         <legend class="block margin-block-end-12px">Due</legend>
                         <div class="flex gap-6px margin-block-end-12px">
@@ -78,7 +78,7 @@
 
                 <form class="smart-add-form" hx-post="/todos/smartadd" hx-target=".todo-list" hx-swap="outerHTML">
                     <textarea id="smart-add" class="glass-inner margin-block-end-24px"
-                        placeholder='Add a task... (try: "clean window every sunday")' name="text" required></textarea>
+                        placeholder='Add a task... (try: "clean window every sunday")' name="text" required autofocus></textarea>
                     <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
                 </form>
             </dialog>
