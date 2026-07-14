@@ -188,7 +188,7 @@ func findTags(r io.Reader) string {
 	score_units := 5
 	score_numbers := 1
 
-	specialCharacters := regexp.MustCompile(`[^\w\såäöÅÄÖ\.,]+`)
+	specialCharacters := regexp.MustCompile(`[^\w\såäöÅÄÖé\.,]+`)
 	ingredient := regexp.MustCompile(`^[iI]ngredien(ser|ts)$`)
 	units := regexp.MustCompile(`^([mcd]?l|tm[sk]|k?g|krm)$`)
 	numbers := regexp.MustCompile(`^\d+$`)
