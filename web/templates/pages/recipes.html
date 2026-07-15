@@ -7,7 +7,7 @@
     <div class="background">
         {{template "layouts/header" .}}
         <main>
-            <div class="flex flex-wrap gap-6px margin-block-end-24px">
+            <div class="button-menu">
                 <button type="button"
                     onclick="document.getElementById('add-recipe-dialog').showModal()">Add from Link</button>
                 <button type="button"
@@ -21,9 +21,9 @@
                     <h2>Search</h2>
                     {{template "close_button" .}}
                 </form>
-                <label for="fuzzy-search">Find title</label>
+                <label for="fuzzy-search" class="sr-only">Search recipes by name</label>
                 <input type="text" id="fuzzy-search" class="inline-size-full glass-inner focus"
-                    placeholder="Type keywords...">
+                    placeholder="Search recipes by name…">
             </dialog>
 
             <!-- Type 1: link recipe. We fetch the link, image and ingredients from the URL. -->

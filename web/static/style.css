@@ -693,14 +693,33 @@ html:has(dialog:modal) {
 
 /* Search opens non-modally in normal flow, so it pushes the recipe grid down
    instead of floating over it. */
+/* On mobile the search pins to the bottom edge and overlaps the button-menu
+   bar (higher z-index). On wider screens the toolbar is a static top bar, so
+   search drops into normal flow and pushes the grid down instead. */
 .search-dialog[open] {
-    position: static;
+    position: fixed;
     inset: auto;
+    inset-inline-start: 50dvw;
+    inset-block-end: calc(var(--margin-block) + env(safe-area-inset-bottom, 0px));
     transform: none;
-    inline-size: auto;
-    max-block-size: none;
-    overflow: visible;
-    margin: 0 0 var(--margin-block);
+    translate: -50% 0;
+    z-index: calc(var(--z-bar) + 1);
+    margin: 0;
+
+    /* Opaque colored surface so it reads clearly over the button-menu bar. */
+    background: var(--bg-soft-alpha);
+
+    @media (width >=500px) {
+        position: static;
+        inset: auto;
+        translate: 0;
+        inline-size: auto;
+        max-block-size: none;
+        overflow: visible;
+        z-index: auto;
+        margin: 0 0 var(--margin-block);
+        background: linear-gradient(135deg, var(--surface-strong), var(--surface));
+    }
 }
 
 dialog::backdrop {
@@ -1040,7 +1059,7 @@ form.htmx-request button .checkbox {
     line-height: 1;
 }
 
-.grocery-button-menu {
+.button-menu {
     display: flex;
     gap: 6px;
     max-inline-size: calc(100dvw - var(--padding-inline) * 2);
@@ -1078,8 +1097,8 @@ form.htmx-request button .checkbox {
     }
 }
 
-.grocery-button-menu button,
-.grocery-button-menu .button-styling {
+.button-menu button,
+.button-menu .button-styling {
     display: block;
     white-space: nowrap;
     min-inline-size: fit-content;
@@ -1090,7 +1109,8 @@ form.htmx-request button .checkbox {
    that report a zero safe-area inset. */
 @media (display-mode: standalone) {
 
-    .grocery-button-menu,
+    .button-menu,
+    .search-dialog[open],
     .add-list-section {
         inset-block-end: calc(var(--margin-block) + max(env(safe-area-inset-bottom, 0px), 28px));
     }
