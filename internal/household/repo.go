@@ -243,15 +243,12 @@ func (r *Repo) RevokeInvite(ctx context.Context, token string, householdID int) 
 }
 
 // deleteHouseholdData removes a household and everything scoped to it. Tables
-// that reference households(id) without ON DELETE CASCADE must be cleared first,
-// and todos.next_id is a self-reference so it's broken before the rows go.
+// that reference households(id) without ON DELETE CASCADE must be cleared first.
 func deleteHouseholdData(ctx context.Context, tx pgx.Tx, hid int) error {
 	stmts := []string{
-		`UPDATE todos SET next_id = NULL WHERE household_id=$1;`,
 		`DELETE FROM groceries_history WHERE household_id=$1;`,
 		`DELETE FROM grocery_lists WHERE household_id=$1;`,
 		`DELETE FROM recipes WHERE household_id=$1;`,
-		`DELETE FROM todos WHERE household_id=$1;`,
 		`DELETE FROM restaurants WHERE household_id=$1;`,
 		`DELETE FROM invites WHERE household_id=$1;`,
 		`DELETE FROM household_members WHERE household_id=$1;`,

@@ -22,12 +22,10 @@ import (
 	"github.com/stmo8555/HouseholdPlanner/internal/notification"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
 	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
-	"github.com/stmo8555/HouseholdPlanner/internal/todo"
 )
 
 var aiService *ai.Service
 var loginService *login.Service
-var todoService *todo.Service
 var productService *product.Service
 var ingredientExtractor *ingredient.Extractor
 var recipeService *recipe.Service
@@ -55,7 +53,6 @@ func main() {
 	productService = product.NewService(product.NewRepo(pool), aiService, foodMap)
 	ingredientExtractor = ingredient.NewExtractor(aiService)
 	loginService = login.NewService(login.NewRepo(pool))
-	todoService = todo.CreateService(todo.CreateRepo(pool), aiService)
 	groceryService = grocery.NewService(grocery.NewRepo(pool), productService, ingredientExtractor)
 	recipeService = recipe.NewService(recipe.NewRepo(pool), productService, ingredientExtractor)
 	householdService = household.NewService(household.NewRepo(pool))
@@ -101,12 +98,10 @@ func main() {
 	hh := auth.Group("/")
 	hh.Use(login.RequireHousehold())
 
-	// setupTodos(hh)
-	// setupRecipes(hh)
+	setupRecipes(hh)
 	setupGroceries(hh)
 	setupNotifications(hh)
 	setupHousehold(hh)
-	// setupHome(hh)
 
 	err = r.Run(":" + getenv("PORT", "8080"))
 	if err != nil {
@@ -147,25 +142,10 @@ func setupLogin(r *gin.Engine, handler *login.Handler) {
 	login.RunCleanup(context.Background(), loginService)
 }
 
-func setupTodos(r *gin.RouterGroup) {
-	handler := todo.NewHandler(todoService)
-
-	r.GET("/todos", handler.List)
-	r.POST("/todos/add", handler.Add)
-	r.POST("/todos/smartadd", handler.SmartAdd)
-	r.POST("/todos/done", handler.MarkDone)
-	r.POST("/todos/undo", handler.MarkUnDone)
-	r.POST("/todos/delete", handler.Delete)
-
-	todo.RunCleanup(context.Background(), todoService)
-	todo.ScheduleRepeats(context.Background(), todoService)
-}
-
 func setupRecipes(r *gin.RouterGroup) {
 	handler := recipe.NewHandler(recipeService, groceryService)
 	r.GET("/recipes", handler.List)
 	r.POST("/recipes/add", handler.Add)
-	r.POST("/recipes/extract", handler.IngredientsFromRecipe)
 }
 
 func setupGroceries(r *gin.RouterGroup) {
@@ -196,21 +176,6 @@ func setupGroceries(r *gin.RouterGroup) {
 	r.PATCH("/groceries/lists/:id/items/:itemId/picked", handler.TogglePicked)
 	r.GET("/groceries/lists/:id/items/:itemId/edit", handler.EditGroceryForm)
 }
-
-// func setupHome(r *gin.RouterGroup) {
-// 	handler := &home.Handler{
-// 		GroceriesService: groceryService,
-// 		LoginService:     loginService,
-// 		RecipesService:   recipeService,
-// 		TodosService:     todosService,
-// 	}
-//
-// 	r.GET("/", handler.Index)
-// 	r.GET("/home", handler.Index)
-// 	// r.POST("/home/add/grocery", handler.AddGrocery)
-// 	r.POST("/home/add/recipe", handler.AddRecipe)
-// 	r.POST("/home/ai", handler.AI)
-// }
 
 func getenv(key, fallback string) string {
 	v := os.Getenv(key)
