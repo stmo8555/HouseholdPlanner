@@ -6,6 +6,8 @@
     /* Background */
     --bg: #94BBE1;
     --bg-soft: #BFD4F2;
+    --bg-alpha: rgba(148, 187, 225, 0.7);
+    --bg-soft-alpha: rgba(191, 212, 242, 0.7);
     --bg-image: url(assets/background.jpg);
     --bg-image-mobile: url(assets/background-mobile.jpg);
 
@@ -50,6 +52,8 @@
     :root {
         --bg: #0F172A;
         --bg-soft: #162033;
+        --bg-alpha: rgba(15, 23, 42, 0.7);
+        --bg-soft-alpha: rgba(22, 32, 51, 0.7);
         --bg-image: url(assets/background-dark.jpg);
         --bg-image-mobile: url(assets/background-dark.jpg);
 
@@ -303,7 +307,7 @@ body.flower-power header {
     width: 44px;
     height: 44px;
     flex: none;
-    z-index: 200;
+    z-index: 1001;
     background: inherit;
     border: none;
     padding: 0;
@@ -353,6 +357,9 @@ body.flower-power header {
     position: fixed;
     inset: 0;
     z-index: 1000;
+    /* background: rgba(0, 0, 0, 0.4); */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 nav {
@@ -360,10 +367,9 @@ nav {
     margin-block: auto;
     position: fixed;
     inset: 0 0 0 20%;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
     z-index: 1000;
+    /* border-inline-start: 2px var(--border) solid; */
+    background: linear-gradient(180deg, var(--bg-soft-alpha), var(--bg-soft-alpha));
 
     @media (width >=700px) {
         display: block;
@@ -2299,3 +2305,5 @@ select:disabled:hover {
     pointer-events: none;
     z-index: 500;
 }
+
+
