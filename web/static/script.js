@@ -87,13 +87,11 @@ document.body.addEventListener("click", event => {
 
 const recipeCards = [...document.querySelectorAll(".recipe-card")];
 const searchInput = document.getElementById("fuzzy-search");
-const matchInput = document.getElementById("fuzzy-match");
 
-if (recipeCards.length > 0 && searchInput && matchInput) {
+if (recipeCards.length > 0 && searchInput) {
     const data = recipeCards.map(card => ({
         element: card,
         title: card.dataset.title || "",
-        ingredients: [...card.querySelectorAll("li")].map(li => li.textContent.trim()),
     }));
 
     const fuseTitle = new Fuse(data, {
@@ -115,41 +113,20 @@ if (recipeCards.length > 0 && searchInput && matchInput) {
             r.item.element.hidden = false;
         });
     });
-
-    matchInput.addEventListener("input", e => {
-        const q = e.target.value.trim();
-
-        if (!q) {
-            recipeCards.forEach(card => card.hidden = false);
-            return;
-        }
-
-        recipeCards.forEach(c => c.hidden = true);
-
-        const tokens = q.toLowerCase().split(/\s+/).filter(Boolean);
-
-        recipeCards.forEach(card => {
-            const ingredients = [...card.querySelectorAll("li")]
-                .map(li => li.textContent.trim().toLowerCase());
-
-            const allTokensFound = tokens.every(token => {
-                const fuse = new Fuse(ingredients, {
-                    threshold: 0.2,
-                    ignoreDiacritics: true,
-                });
-
-                return fuse.search(token).length > 0;
-            });
-
-            card.hidden = !allTokensFound;
-        });
-    });
 }
 
 function toggleSearch() {
-    const section = document.querySelector(".search-section");
-    const nowVisible = section.classList.toggle("hidden") === false;
-    if (nowVisible) section.querySelector("input")?.focus();
+    const dialog = document.getElementById("search-dialog");
+    if (!dialog) return;
+
+    if (dialog.open) {
+        dialog.close();
+        return;
+    }
+
+    // show() keeps it non-modal so the grid behind stays interactive and filters live.
+    dialog.show();
+    dialog.querySelector("input")?.focus();
 }
 
 

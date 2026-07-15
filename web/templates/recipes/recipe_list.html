@@ -10,10 +10,6 @@
             </div>
             <div class="title">
                 <p>{{.Recipe.Title}}</p>
-                <form hx-post="/recipes/extract" hx-target="main" hx-swap="outerHTML">
-                    <input type="hidden" name="recipe_id" value="{{ .Recipe.Id }}">
-                    <button type="submit">Add To Groceries</button>
-                </form>
             </div>
         </section>
         <section aria-label="Back of recipe card" class="back" hidden>

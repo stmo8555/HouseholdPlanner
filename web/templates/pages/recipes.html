@@ -9,22 +9,27 @@
         <main>
             <div class="flex flex-wrap gap-6px margin-block-end-24px">
                 <button type="button"
-                    onclick="document.getElementById('add-recipe-dialog').showModal()">Add Recipe</button>
+                    onclick="document.getElementById('add-recipe-dialog').showModal()">Add from Link</button>
+                <button type="button"
+                    onclick="document.getElementById('add-own-recipe-dialog').showModal()">Create Your Own</button>
                 <button class="search-toggler">Search</button>
             </div>
 
-            <section class="glass container search-section hidden">
-                <h2>Search</h2>
+            <!-- Non-modal (show()) so the recipe grid stays visible and filters live while searching. -->
+            <dialog class="glass card add-dialog search-dialog" id="search-dialog">
+                <form class="flex align-items" method="dialog">
+                    <h2>Search</h2>
+                    {{template "close_button" .}}
+                </form>
                 <label for="fuzzy-search">Find title</label>
-                <input type="text" id="fuzzy-search" class="glass-inner focus" placeholder="Type keywords...">
+                <input type="text" id="fuzzy-search" class="inline-size-full glass-inner focus"
+                    placeholder="Type keywords...">
+            </dialog>
 
-                <label for="fuzzy-match">Match with ingredients</label>
-                <input type="text" id="fuzzy-match" class="glass-inner" placeholder="Type ingredients...">
-            </section>
-
+            <!-- Type 1: link recipe. We fetch the link, image and ingredients from the URL. -->
             <dialog class="glass card add-dialog" id="add-recipe-dialog">
                 <form class="flex align-items" method="dialog">
-                    <h2>Add Recipe</h2>
+                    <h2>Add from Link</h2>
                     {{template "close_button" .}}
                 </form>
 
@@ -36,9 +41,115 @@
                 </form>
             </dialog>
 
+            <!-- Type 2: own recipe. The user supplies title, picture, ingredients and how-to.
+                 UI only for now — the form is not wired to a backend. -->
+            <dialog class="glass card add-dialog add-own-recipe-dialog" id="add-own-recipe-dialog">
+                <form class="flex align-items" method="dialog">
+                    <h2>Create Your Own</h2>
+                    {{template "close_button" .}}
+                </form>
+
+                <form class="add-form own-recipe-form" id="own-recipe-form">
+                    <div class="own-field">
+                        <label class="own-field-label" for="own-title">Recipe name</label>
+                        <input id="own-title" name="title" type="text" lang="sv"
+                            class="inline-size-full glass-inner" placeholder="e.g. Farmors köttbullar" required>
+                    </div>
+
+                    <div class="own-field">
+                        <span class="own-field-label">Photo <span class="own-field-hint">optional</span></span>
+                        <input id="own-picture" name="picture" type="file" accept="image/*" class="sr-only">
+                        <label for="own-picture" class="button-styling file-picker inline-size-full">
+                            <span id="own-picture-name">Choose image…</span>
+                        </label>
+                        <img id="own-picture-preview" class="own-picture-preview hidden" alt="Photo preview">
+                    </div>
+
+                    <fieldset class="own-field">
+                        <legend class="own-field-label">Ingredients</legend>
+                        <div id="own-ingredients" class="own-ingredients"></div>
+                        <button type="button" id="add-ingredient-row" class="add-ingredient-btn">+ Add ingredient</button>
+                    </fieldset>
+
+                    <div class="own-field">
+                        <label class="own-field-label" for="own-howto">Instructions</label>
+                        <textarea id="own-howto" name="howto" lang="sv" rows="5"
+                            class="inline-size-full glass-inner" placeholder="One step per line…"></textarea>
+                    </div>
+
+                    <button class="inline-size-full margin-inline-auto block" type="submit">Save recipe</button>
+                </form>
+            </dialog>
+
             {{template "recipe-list" .}}
         </main>
         <script type="module" src="/static/script.js"></script>
+        <script>
+            (function () {
+                const addDialog = document.getElementById("add-own-recipe-dialog");
+                const form = document.getElementById("own-recipe-form");
+                const ingredientsContainer = document.getElementById("own-ingredients");
+                const addRowBtn = document.getElementById("add-ingredient-row");
+                const pictureInput = document.getElementById("own-picture");
+                const picturePreview = document.getElementById("own-picture-preview");
+                const pictureName = document.getElementById("own-picture-name");
+
+                function showPreview() {
+                    const file = pictureInput.files[0];
+                    if (!file) {
+                        pictureName.textContent = "Choose image…";
+                        picturePreview.classList.add("hidden");
+                        return;
+                    }
+                    pictureName.textContent = file.name;
+                    if (picturePreview.src) URL.revokeObjectURL(picturePreview.src);
+                    picturePreview.src = URL.createObjectURL(file);
+                    picturePreview.classList.remove("hidden");
+                }
+
+                function addIngredientRow() {
+                    const row = document.createElement("div");
+                    row.className = "own-ingredient-row";
+
+                    const name = document.createElement("input");
+                    name.type = "text";
+                    name.className = "glass-inner";
+                    name.placeholder = "Ingredient";
+                    name.setAttribute("lang", "sv");
+
+                    const amount = document.createElement("input");
+                    amount.type = "text";
+                    amount.className = "glass-inner";
+                    amount.placeholder = "Amount";
+
+                    const remove = document.createElement("button");
+                    remove.type = "button";
+                    remove.className = "removeRowBtn";
+                    remove.textContent = "×";
+                    remove.addEventListener("click", () => row.remove());
+
+                    row.append(name, amount, remove);
+                    ingredientsContainer.appendChild(row);
+                }
+
+                addRowBtn.addEventListener("click", addIngredientRow);
+                pictureInput.addEventListener("change", showPreview);
+
+                // Not wired to a backend yet — just reset and close on submit.
+                form.addEventListener("submit", e => {
+                    e.preventDefault();
+                    form.reset();
+                    ingredientsContainer.innerHTML = "";
+                    addIngredientRow();
+                    pictureName.textContent = "Choose image…";
+                    picturePreview.classList.add("hidden");
+                    addDialog.close();
+                });
+
+                // Seed one empty ingredient row for the add form.
+                addIngredientRow();
+            })();
+        </script>
     </div>
 </body>
 

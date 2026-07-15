@@ -1,12 +1,10 @@
 package recipe
 
 import (
-	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stmo8555/HouseholdPlanner/internal/grocery"
-	"github.com/stmo8555/HouseholdPlanner/internal/ingredient"
 )
 
 type Handler struct {
@@ -70,35 +68,6 @@ func (h *Handler) Add(c *gin.Context) {
 	}
 
 	h.ListPartial(c)
-}
-
-func (h *Handler) IngredientsFromRecipe(c *gin.Context) {
-	hid := c.GetInt("household_id")
-	recipeID, err := strconv.Atoi(c.PostForm("recipe_id"))
-
-	if err != nil {
-		panic(err)
-	}
-
-	recipeIngredients, err := h.service.Ingredients(c.Request.Context(), recipeID, hid)
-
-	if err != nil {
-		panic(err)
-	}
-
-	ingredients := make([]ingredient.Ingredient, 0, len(recipeIngredients))
-
-	for _, v := range recipeIngredients {
-		ingredients = append(ingredients, v.Ingredient)
-	}
-
-	data := gin.H{
-		"Ingredients":  ingredients,
-		"CancelURL":    "/recipes",
-		"RedirectPath": "/recipes",
-	}
-
-	c.HTML(200, "groceries_extraction.html", data)
 }
 
 func (h *Handler) recipeListData(c *gin.Context) (gin.H, error) {
