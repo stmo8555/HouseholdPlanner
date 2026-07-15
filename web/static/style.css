@@ -36,6 +36,15 @@
     --shadow: rgba(70, 90, 140, 0.14);
     --shadow-accent: rgba(242, 168, 199, 0.25);
 
+    /* Z-index — global page layers (higher = closer to viewer).
+       Local, within-component lifts stay as plain literals. */
+    --z-bar: 50;
+    /* bottom floating action bars */
+    --z-toast: 400;
+    /* notifications & toasts, above the bars */
+    --z-nav: 1000;
+    /* header, nav drawer, overlay, toggle */
+
     /* Spacing */
     --padding-inline: 12px;
     --padding-block: 12px;
@@ -273,7 +282,7 @@ body.flower-power .background {
 header {
     position: sticky;
     inset-block-start: 0;
-    z-index: 1000;
+    z-index: var(--z-nav);
     /* viewport-fit=cover lets the page run under the notch/status bar;
        keep the header content below it. */
     padding-block-start: env(safe-area-inset-top, 0px);
@@ -307,7 +316,7 @@ body.flower-power header {
     width: 44px;
     height: 44px;
     flex: none;
-    z-index: 1001;
+    z-index: calc(var(--z-nav) + 1);
     background: inherit;
     border: none;
     padding: 0;
@@ -356,7 +365,7 @@ body.flower-power header {
     display: none;
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: var(--z-nav);
     /* background: rgba(0, 0, 0, 0.4); */
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -367,7 +376,7 @@ nav {
     margin-block: auto;
     position: fixed;
     inset: 0 0 0 20%;
-    z-index: 1000;
+    z-index: var(--z-nav);
     /* border-inline-start: 2px var(--border) solid; */
     background: linear-gradient(180deg, var(--bg-soft-alpha), var(--bg-soft-alpha));
 
@@ -695,7 +704,7 @@ dialog::backdrop {
     position: fixed;
     inset-inline: 12px;
     inset-block-end: calc(12px + env(safe-area-inset-bottom, 0px));
-    z-index: 300;
+    z-index: var(--z-toast);
     display: grid;
     gap: 12px;
     padding: 14px;
@@ -866,7 +875,7 @@ form.htmx-request button .checkbox {
     position: fixed;
     inset-block-end: calc(24px + env(safe-area-inset-bottom, 0px));
     inset-inline-end: 24px;
-    z-index: 400;
+    z-index: var(--z-toast);
     text-align: center;
 }
 
@@ -1027,7 +1036,7 @@ form.htmx-request button .checkbox {
 
     position: fixed;
     inset-block-end: calc(var(--margin-block) + env(safe-area-inset-bottom, 0px));
-    z-index: 50;
+    z-index: var(--z-bar);
     inset-inline-start: 50dvw;
     translate: -50% 0;
 
@@ -1255,7 +1264,7 @@ form.htmx-request button .checkbox {
 
     inline-size: calc(100dvw - var(--padding-inline) * 2);
 
-    z-index: 50;
+    z-index: var(--z-bar);
     padding-block: 10px;
     padding-inline: 20px;
 
@@ -2342,7 +2351,7 @@ select:disabled:hover {
     align-items: center;
     justify-content: center;
     pointer-events: none;
-    z-index: 500;
+    z-index: var(--z-toast);
 }
 
 
