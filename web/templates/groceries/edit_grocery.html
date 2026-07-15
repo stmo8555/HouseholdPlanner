@@ -10,7 +10,7 @@
     <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
         hx-include="#grocery-list-state" class="modal-form" id="edit-grocery-form">
 
-        <h3>Edit grocery</h3>
+        <h3>Details</h3>
         <small>Update the product, amount, and brand.</small>
 
         <label for="edit-name">Product <small>(required)</small></label>
@@ -30,6 +30,19 @@
             </div>
         </div>
 
+        <button type="submit">
+            <span>Save</span>
+            {{template "spinner" .}}
+        </button>
+    </form>
+
+    <!-- Category Form -->
+    <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/category" hx-target=".grocery-list"
+        hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form" id="category-grocery-form">
+
+        <h3>Category</h3>
+        <small>Override where this product is grouped on the list.</small>
+
         <label for="edit-category">Category</label>
         <select id="edit-category" name="category" class="glass-inner">
             {{range .Categories}}
@@ -38,7 +51,7 @@
         </select>
 
         <button type="submit">
-            <span>Save</span>
+            <span>Set category</span>
             {{template "spinner" .}}
         </button>
     </form>

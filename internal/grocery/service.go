@@ -170,15 +170,16 @@ func (s *Service) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, 
 
 	ing.ProductID = productID
 
-	if err := s.repo.UpdateGrocery(ctx, ing, groceryID, householdID); err != nil {
+	return s.repo.UpdateGrocery(ctx, ing, groceryID, householdID)
+}
+
+func (s *Service) SetGroceryCategory(ctx context.Context, groceryID, householdID int, category string) error {
+	g, err := s.repo.Grocery(ctx, groceryID, householdID)
+	if err != nil {
 		return err
 	}
 
-	if ing.Product.Category != "" {
-		return s.repo.SetCategoryOverride(ctx, householdID, productID, ing.Product.Category)
-	}
-
-	return nil
+	return s.repo.SetCategoryOverride(ctx, householdID, g.Ingredient.ProductID, category)
 }
 
 func (s *Service) DeleteGrocery(ctx context.Context, groceryID, householdId int) error {

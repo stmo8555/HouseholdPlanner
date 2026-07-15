@@ -191,6 +191,7 @@ func setupGroceries(r *gin.RouterGroup) {
 	r.POST("/groceries/lists/:id/extracted", handler.SaveExtracted)
 	r.PATCH("/groceries/lists/:id/items/:itemId", handler.UpdateGrocery)
 	r.PATCH("/groceries/lists/:id/items/:itemId/move", handler.MoveGrocery)
+	r.PATCH("/groceries/lists/:id/items/:itemId/category", handler.SetGroceryCategory)
 	r.DELETE("/groceries/lists/:id/items/:itemId", handler.DeleteGrocery)
 	r.PATCH("/groceries/lists/:id/items/:itemId/picked", handler.TogglePicked)
 	r.GET("/groceries/lists/:id/items/:itemId/edit", handler.EditGroceryForm)

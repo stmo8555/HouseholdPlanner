@@ -465,15 +465,9 @@ func (h *Handler) EditGroceryForm(c *gin.Context) {
 func (h *Handler) UpdateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
-	cat := c.PostForm("category")
-	if !IsValidCategory(cat) {
-		cat = ""
-	}
-
 	prod := product.Product{
-		Name:     c.PostForm("name"),
-		Brand:    c.PostForm("brand"),
-		Category: cat,
+		Name:  c.PostForm("name"),
+		Brand: c.PostForm("brand"),
 	}
 
 	ing := ingredient.Ingredient{
@@ -496,6 +490,32 @@ func (h *Handler) UpdateGrocery(c *gin.Context) {
 	err = h.service.UpdateGrocery(c, ing, itemID, hid)
 
 	if err != nil {
+		panic(err)
+	}
+
+	h.RenderListPartial(c, groceryListID)
+}
+
+func (h *Handler) SetGroceryCategory(c *gin.Context) {
+	hid := c.GetInt("household_id")
+
+	cat := c.PostForm("category")
+	if !IsValidCategory(cat) {
+		c.String(400, "invalid category")
+		return
+	}
+
+	groceryListID, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		panic(err)
+	}
+
+	itemID, err := strconv.Atoi(c.Param("itemId"))
+	if err != nil {
+		panic(err)
+	}
+
+	if err := h.service.SetGroceryCategory(c, itemID, hid, cat); err != nil {
 		panic(err)
 	}
 
