@@ -36,51 +36,55 @@
         </button>
     </form>
 
-    <!-- Category Form -->
-    <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/category" hx-target=".grocery-list"
-        hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form" id="category-grocery-form">
+    <!-- Category + Move, side by side -->
+    <div class="modal-row">
 
-        <h3>Category</h3>
-        <small>Override where this product is grouped on the list.</small>
+        <!-- Category Form -->
+        <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/category" hx-target=".grocery-list"
+            hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form" id="category-grocery-form">
 
-        <label for="edit-category">Category</label>
-        <select id="edit-category" name="category" class="glass-inner">
-            {{range .Categories}}
-            <option value="{{.}}" {{if eq . $.Grocery.Ingredient.Product.Category}}selected{{end}}>{{.}}</option>
-            {{end}}
-        </select>
+            <h3>Category</h3>
+            <small>Override where this product is grouped on the list.</small>
 
-        <button type="submit">
-            <span>Set category</span>
-            {{template "spinner" .}}
-        </button>
-    </form>
+            <select id="edit-category" name="category" class="glass-inner">
+                {{range .Categories}}
+                <option value="{{.}}" {{if eq . $.Grocery.Ingredient.Product.Category}}selected{{end}}>{{.}}</option>
+                {{end}}
+            </select>
 
-    <!-- Move Form -->
-    <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/move" hx-target=".grocery-list"
-        hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form{{if le (len .Lists) 1}} darken{{end}}"
-        id="move-grocery-form">
+            <button type="submit">
+                <span>Set category</span>
+                {{template "spinner" .}}
+            </button>
+        </form>
 
-        <h3>Move to another list</h3>
-        <small>Move this grocery to a different list.</small>
+        <!-- Move Form -->
+        <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/move" hx-target=".grocery-list"
+            hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form{{if le (len .Lists) 1}} darken{{end}}"
+            id="move-grocery-form">
 
-        <select id="transfer-list-select" name="grocery-list-target-id" class="flex" {{if le (len .Lists)
-            1}}disabled{{end}}>
+            <h3>Move list</h3>
+            <small>Move this grocery to a different list.</small>
 
-            {{range .Lists}}
-            {{if ne .GroceryList.ID $.Grocery.ListID}}
-            <option value="{{.GroceryList.ID}}">
-                {{.GroceryList.Name}}
-            </option>
-            {{end}}
-            {{end}}
-        </select>
+            <select id="transfer-list-select" name="grocery-list-target-id" class="glass-inner" {{if le (len .Lists)
+                1}}disabled{{end}}>
 
-        <button type="submit" {{if le (len .Lists) 1}}disabled{{end}}>
-            <span>Transfer</span>
-            {{template "spinner" .}}
-        </button>
-    </form>
+                {{range .Lists}}
+                {{if ne .GroceryList.ID $.Grocery.ListID}}
+                <option value="{{.GroceryList.ID}}">
+                    {{.GroceryList.Name}}
+                </option>
+                {{end}}
+                {{end}}
+            </select>
+
+            <button type="submit" {{if le (len .Lists) 1}}disabled{{end}}>
+                <span>Transfer</span>
+                {{template "spinner" .}}
+            </button>
+        </form>
+
+    </div>
 
     <!-- Delete Form -->
     <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"

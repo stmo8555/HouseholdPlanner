@@ -666,9 +666,20 @@ dialog[open] {
     inset: 50% auto auto 50%;
     transform: translate(-50%, -50%);
     inline-size: min(32rem, calc(100% - 2rem));
-    
+
     height: auto;
-    margin:auto;
+    max-block-size: calc(100dvh - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    margin: auto;
+}
+
+/* showModal() blocks clicks behind the dialog but not page scrolling, so
+   dragging on the backdrop (e.g. beside the Save button) scrolls the page
+   underneath. Lock the page while any dialog is open; the dialog itself
+   scrolls internally via max-block-size + overflow-y above. */
+html:has(dialog[open]) {
+    overflow: hidden;
 }
 
 dialog::backdrop {
@@ -787,7 +798,7 @@ form.htmx-request button .checkbox {
 #edit-modal[open],
 .add-dialog[open] {
     display: grid;
-    gap: 1.5rem;
+    gap: 1rem;
 }
 
 .toast {
@@ -876,8 +887,8 @@ form.htmx-request button .checkbox {
 #edit-grocery-list-modal .modal-form,
 #edit-modal .modal-form {
     display: grid;
-    gap: 0.75rem;
-    padding-block-end: 1.5rem;
+    gap: 0.5rem;
+    padding-block-end: 1rem;
     border-bottom: 1px solid var(--text-dimmed);
 }
 
@@ -904,6 +915,34 @@ form.htmx-request button .checkbox {
     border-bottom: 0;
 }
 
+/* Category + Move share a single row, split by a vertical divider, over one
+   bottom divider. Both forms are subgrids of the same 4 rows (heading, help,
+   select, button) so their fields line up and render at identical sizes even
+   when one help text wraps to more lines than the other. */
+#edit-modal .modal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto auto;
+    padding-block-end: 1rem;
+    border-bottom: 1px solid var(--text-dimmed);
+}
+
+#edit-modal .modal-row .modal-form {
+    grid-row: span 4;
+    grid-template-rows: subgrid;
+    padding-block-end: 0;
+    border-bottom: 0;
+}
+
+#edit-modal .modal-row .modal-form:first-child {
+    padding-inline-end: 1rem;
+    border-inline-end: 1px solid var(--text-dimmed);
+}
+
+#edit-modal .modal-row .modal-form:last-child {
+    padding-inline-start: 1rem;
+}
+
 /* Edit grocery item modal: full-width inputs and side-by-side Amount/Brand */
 #edit-modal .modal-form .glass-inner {
     inline-size: 100%;
@@ -913,10 +952,6 @@ form.htmx-request button .checkbox {
     flex: 1;
     display: grid;
     gap: 0.35rem;
-}
-
-#edit-modal #move-grocery-form select {
-    inline-size: 100%;
 }
 
 /* Always a single full-width column. */
@@ -2248,6 +2283,10 @@ select:disabled:hover {
     color: var(--banner-text);
     font-weight: 700;
     cursor: pointer;
+}
+
+.offline-banner button.htmx-request {
+    cursor: progress;
 }
 
 /* Compact entry point on the list page header */
