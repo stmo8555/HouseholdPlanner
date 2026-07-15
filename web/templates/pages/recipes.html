@@ -34,10 +34,14 @@
                 </form>
 
                 <form class="add-form add-recipe-form" hx-post="/recipes/add" hx-swap="outerHTML"
-                    hx-target=".grid-recipe">
+                    hx-target=".grid-recipe"
+                    hx-on::after-request="if(event.detail.successful) { this.reset(); this.closest('dialog').close(); }">
                     <input class="inline-size-full glass-inner focus margin-block-end-24px"
                         placeholder="Add link to recipe..." id="1" type="text" name="link" required autofocus>
-                    <button class="inline-size-full margin-inline-auto block" type="submit">Add</button>
+                    <button class="inline-size-full margin-inline-auto block" type="submit">
+                        <span>Add</span>
+                        {{template "spinner" .}}
+                    </button>
                 </form>
             </dialog>
 
@@ -125,7 +129,8 @@
                     const remove = document.createElement("button");
                     remove.type = "button";
                     remove.className = "removeRowBtn";
-                    remove.textContent = "×";
+                    remove.setAttribute("aria-label", "Remove");
+                    remove.innerHTML = '<svg viewBox="0 0 24 24" width="1em" height="1em" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18" /></svg>';
                     remove.addEventListener("click", () => row.remove());
 
                     row.append(name, amount, remove);
