@@ -21,14 +21,12 @@ import (
 	"github.com/stmo8555/HouseholdPlanner/internal/login"
 	"github.com/stmo8555/HouseholdPlanner/internal/notification"
 	"github.com/stmo8555/HouseholdPlanner/internal/product"
-	"github.com/stmo8555/HouseholdPlanner/internal/recipe"
 )
 
 var aiService *ai.Service
 var loginService *login.Service
 var productService *product.Service
 var ingredientExtractor *ingredient.Extractor
-var recipeService *recipe.Service
 var groceryService *grocery.Service
 var householdService *household.Service
 
@@ -54,7 +52,6 @@ func main() {
 	ingredientExtractor = ingredient.NewExtractor(aiService)
 	loginService = login.NewService(login.NewRepo(pool))
 	groceryService = grocery.NewService(grocery.NewRepo(pool), productService, ingredientExtractor)
-	recipeService = recipe.NewService(recipe.NewRepo(pool), productService, ingredientExtractor)
 	householdService = household.NewService(household.NewRepo(pool))
 
 	tmpl := template.Must(parseTemplates("web/templates"))
@@ -98,7 +95,6 @@ func main() {
 	hh := auth.Group("/")
 	hh.Use(login.RequireHousehold())
 
-	setupRecipes(hh)
 	setupGroceries(hh)
 	setupNotifications(hh)
 	setupHousehold(hh)
@@ -140,12 +136,6 @@ func setupLogin(r *gin.Engine, handler *login.Handler) {
 	r.POST("/register/:token", handler.Register)
 
 	login.RunCleanup(context.Background(), loginService)
-}
-
-func setupRecipes(r *gin.RouterGroup) {
-	handler := recipe.NewHandler(recipeService, groceryService)
-	r.GET("/recipes", handler.List)
-	r.POST("/recipes/add", handler.Add)
 }
 
 func setupGroceries(r *gin.RouterGroup) {

@@ -18,7 +18,7 @@ go build ./...
 go test ./...
 
 # Run tests in a specific package
-go test ./internal/recipe/...
+go test ./internal/grocery/...
 
 # Start just the database
 docker compose -f household-db/docker-compose.db.yml up -d
@@ -43,9 +43,9 @@ The `OPENAI_API_KEY` environment variable must be set for AI features to work. D
 
 **Product categorization:** When a product is first added, `internal/product/service.go` classifies it using `food_category_lookup.json` (exact match, then token match). Unrecognized products default to `"other"`. Categories are: `dairy`, `fruit & vegetables`, `meat and fish`, `pantry`, `other`. The `GroceriesView` struct groups items by category.
 
-**Household versioning:** A `bump_household_version()` PL/pgSQL trigger fires on every INSERT/UPDATE/DELETE to `groceries`, `todos`, `recipes`, `restaurants`, and `household_members`, incrementing `households.version`. This enables optimistic concurrency checks without manual version bumps.
+**Household versioning:** PL/pgSQL triggers increment `households.version` for grocery and household mutations. This enables optimistic concurrency checks without manual version bumps.
 
-**Currently disabled:** The `recipes` and `home` route groups are commented out in `main.go`. Their handlers, services, and repos exist in `internal/recipe/` and `internal/home/` but are not wired up.
+**Currently disabled:** The `home` route group is not wired up in `main.go`.
 
 ## Database
 

@@ -248,8 +248,6 @@ func deleteHouseholdData(ctx context.Context, tx pgx.Tx, hid int) error {
 	stmts := []string{
 		`DELETE FROM groceries_history WHERE household_id=$1;`,
 		`DELETE FROM grocery_lists WHERE household_id=$1;`,
-		`DELETE FROM recipes WHERE household_id=$1;`,
-		`DELETE FROM restaurants WHERE household_id=$1;`,
 		`DELETE FROM invites WHERE household_id=$1;`,
 		`DELETE FROM household_members WHERE household_id=$1;`,
 		`DELETE FROM households WHERE id=$1;`,

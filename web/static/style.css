@@ -691,37 +691,6 @@ html:has(dialog:modal) {
     overflow: hidden;
 }
 
-/* Search opens non-modally in normal flow, so it pushes the recipe grid down
-   instead of floating over it. */
-/* On mobile the search pins to the bottom edge and overlaps the button-menu
-   bar (higher z-index). On wider screens the toolbar is a static top bar, so
-   search drops into normal flow and pushes the grid down instead. */
-.search-dialog[open] {
-    position: fixed;
-    inset: auto;
-    inset-inline-start: 50dvw;
-    inset-block-end: calc(var(--margin-block) + env(safe-area-inset-bottom, 0px));
-    transform: none;
-    translate: -50% 0;
-    z-index: calc(var(--z-bar) + 1);
-    margin: 0;
-
-    /* Opaque colored surface so it reads clearly over the button-menu bar. */
-    background: var(--bg-soft-alpha);
-
-    @media (width >=500px) {
-        position: static;
-        inset: auto;
-        translate: 0;
-        inline-size: auto;
-        max-block-size: none;
-        overflow: visible;
-        z-index: auto;
-        margin: 0 0 var(--margin-block);
-        background: linear-gradient(135deg, var(--surface-strong), var(--surface));
-    }
-}
-
 dialog::backdrop {
     background: rgba(0, 0, 0, 0.35);
     backdrop-filter: blur(4px);
@@ -1110,7 +1079,6 @@ form.htmx-request button .checkbox {
 @media (display-mode: standalone) {
 
     .button-menu,
-    .search-dialog[open],
     .add-list-section {
         inset-block-end: calc(var(--margin-block) + max(env(safe-area-inset-bottom, 0px), 28px));
     }
@@ -1436,150 +1404,6 @@ label.empty-state {
     font: inherit;
 }
 
-
-/* =========================
-   Recipe pages
-========================= */
-
-.grid-recipe {
-    display: grid;
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-    gap: 10px;
-
-    @media (width >=500px) {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    @media (width >=900px) {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-}
-
-.group {
-    margin-inline: auto;
-    margin-block-end: 10px;
-    padding-block-end: 10px;
-}
-
-.recipe-card {
-    overflow: hidden;
-}
-
-.recipe-card img {
-    display: block;
-    inline-size: 100%;
-    block-size: 100%;
-}
-
-.recipe-card .image-wrapper {
-    height: 180px;
-    overflow: hidden;
-    position: relative;
-}
-
-.recipe-card .image-wrapper a {
-    position: absolute;
-    inline-size: 2rem;
-    text-align: center;
-    place-content: center;
-    inset-inline-end: 1ch;
-    inset-block-start: 1ch;
-    z-index: 100;
-    padding: 0px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-}
-
-.recipe-card .title {
-    padding: 16px;
-    text-align: center;
-}
-
-.recipe-card .title p {
-    margin: 0 0 12px;
-    font-size: 1rem;
-    line-height: 1.4;
-}
-
-/* Own recipe: add form */
-.own-ingredients {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-block-end: 12px;
-}
-
-.own-ingredient-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 2em;
-    gap: 6px;
-    align-items: center;
-}
-
-.own-ingredient-row input {
-    inline-size: 100%;
-    min-inline-size: 0;
-    padding: 8px;
-}
-
-.own-ingredient-row .removeRowBtn {
-    padding: 0;
-    inline-size: 100%;
-    aspect-ratio: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 1;
-}
-
-.add-ingredient-btn {
-    inline-size: 100%;
-}
-
-/* Create-your-own recipe form: consistent field rhythm */
-.own-recipe-form .own-field {
-    margin-block-end: 20px;
-}
-
-.own-field-label {
-    display: block;
-    font-weight: bold;
-    margin-block-end: 8px;
-}
-
-.own-field-hint {
-    font-weight: normal;
-    font-size: 0.85rem;
-    color: var(--text-lightly-dimmed);
-}
-
-.file-picker {
-    box-sizing: border-box;
-    text-align: center;
-    cursor: pointer;
-    padding: 10px 12px;
-}
-
-.file-picker span {
-    display: block;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-}
-
-#own-picture:focus-visible + .file-picker {
-    box-shadow: inset 0 0 0 2px white;
-}
-
-.own-picture-preview {
-    display: block;
-    inline-size: 100%;
-    block-size: 160px;
-    object-fit: cover;
-    border-radius: 18px;
-    background: var(--input-bg);
-    margin-block-start: 8px;
-}
 
 /* =========================
    Login page
@@ -2314,5 +2138,4 @@ select:disabled:hover {
     pointer-events: none;
     z-index: var(--z-toast);
 }
-
 

@@ -768,4 +768,3 @@ func (h *Handler) buildListViewData(c *gin.Context, groceryListID, hid int) (gin
 		"OOB":         false,
 	}, nil
 }
-

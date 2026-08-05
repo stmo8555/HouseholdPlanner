@@ -3,7 +3,7 @@
 ## Commands
 - `air` runs hot reload: Air builds `go build -o ./tmp/main .`, serves the app on `:8080`, and exposes the proxy on `:8090`.
 - `go run .` runs the app directly; `go build ./...` is the fast full compile check.
-- `go test ./...` runs all tests; currently the recipe tests fetch live external recipe URLs, so they are network-sensitive.
+- `go test ./...` runs all tests.
 - Start only Postgres with `docker compose -f household-db/docker-compose.db.yml up -d`; start app plus DB with `docker compose up`.
 
 ## Runtime Setup
@@ -13,7 +13,7 @@
 - Seed users are `steffe` and `anna`, both in household `la casa`.
 
 ## Architecture
-- `main.go` wires global services and routes. Active authenticated areas are groceries and todos; recipes and home setup functions exist but are commented out.
+- `main.go` wires global services and routes. Groceries and household settings are the active authenticated areas.
 - Domain packages under `internal/` follow Handler -> Service -> Repo. Repos take `pgxpool.Pool`; handlers should not query DB directly.
 - Auth middleware sets `user_id` and `household_id` in Gin context; use `c.GetInt("household_id")` for tenant scoping on authenticated routes.
 - Product categories are assigned in `internal/product/service.go` from `food_category_lookup.json` by exact match, then token match, else `other`.
@@ -26,8 +26,8 @@
 
 ## Frontend
 - There is no frontend build pipeline; `package.json` is empty. Templates, `web/static/style.css`, and `web/static/script.js` are served directly.
-- Frontend libraries are loaded from CDNs in templates/static JS, including HTMX and Fuse.
+- Frontend libraries and fonts are vendored under `web/static/vendor/`.
 
 ## Database Gotchas
-- `bump_household_version()` triggers increment `households.version` on grocery, todo, recipe, restaurant, and household member mutations.
+- `bump_household_version()` triggers increment `households.version` on grocery and household mutations.
 - Grocery history is updated when groceries are inserted and drives quick-select/top-product UI.

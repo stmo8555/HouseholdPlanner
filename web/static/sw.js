@@ -1,4 +1,4 @@
-const STATIC_CACHE = "hp-static-v50";
+const STATIC_CACHE = "hp-static-v51";
 
 const OFFLINE_SHELL = "/static/offline-list.html";
 const FALLBACK = "/static/offline-fallback.html";
@@ -12,7 +12,6 @@ const PRECACHE = [
     OFFLINE_SHELL,
     FALLBACK,
     "/static/vendor/htmx.min.js",
-    "/static/vendor/fuse.basic.min.mjs",
     "/static/vendor/fonts.css",
     "/static/vendor/roboto-normal-latin.woff2",
     "/static/vendor/roboto-normal-latin-ext.woff2",

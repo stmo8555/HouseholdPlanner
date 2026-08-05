@@ -1,4 +1,3 @@
-import Fuse from "./vendor/fuse.basic.min.mjs";
 import { initOffline } from "./offline.js";
 
 initOffline();
@@ -36,14 +35,6 @@ document.body.addEventListener("click", event => {
     if (!isInDialog) {
         dialog.close();
     }
-});
-
-document.body.addEventListener("click", event => {
-    const button = event.target.closest(".search-toggler");
-    if (!button)
-        return;
-
-    toggleSearch()
 });
 
 document.body.addEventListener("input", event => {
@@ -84,49 +75,3 @@ document.body.addEventListener("click", event => {
 
     document.getElementById("product-input").value = button.textContent;
 });
-
-const recipeCards = [...document.querySelectorAll(".recipe-card")];
-const searchInput = document.getElementById("fuzzy-search");
-
-if (recipeCards.length > 0 && searchInput) {
-    const data = recipeCards.map(card => ({
-        element: card,
-        title: card.dataset.title || "",
-    }));
-
-    const fuseTitle = new Fuse(data, {
-        keys: ["title"],
-        threshold: 0.5
-    });
-
-    searchInput.addEventListener("input", e => {
-        const q = e.target.value.trim();
-
-        if (!q) {
-            recipeCards.forEach(c => c.hidden = false);
-            return;
-        }
-
-        recipeCards.forEach(c => c.hidden = true);
-
-        fuseTitle.search(q).forEach(r => {
-            r.item.element.hidden = false;
-        });
-    });
-}
-
-function toggleSearch() {
-    const dialog = document.getElementById("search-dialog");
-    if (!dialog) return;
-
-    if (dialog.open) {
-        dialog.close();
-        return;
-    }
-
-    // show() keeps it non-modal so the grid behind stays interactive and filters live.
-    dialog.show();
-    dialog.querySelector("input")?.focus();
-}
-
-
