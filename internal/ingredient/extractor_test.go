@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 	"testing"
+
+	"golang.org/x/net/html"
 )
 
 func TestIsBlockedIP(t *testing.T) {
@@ -75,7 +77,11 @@ func TestExtractIngredientText(t *testing.T) {
 			}
 			defer reader.Close()
 
-			result := normalizeWhitespace(extractIngredientText(reader))
+			result, err := extractIngredientText(reader)
+			if err != nil {
+				t.Fatalf("extract ingredient text: %v", err)
+			}
+			result = normalizeWhitespace(result)
 
 			expected, err := os.ReadFile("testdata/" + name + ".expected.txt")
 			if err != nil {
@@ -87,6 +93,38 @@ func TestExtractIngredientText(t *testing.T) {
 				t.Errorf("extractIngredientText() = %q\n\nwant %q", result, want)
 			}
 		})
+	}
+}
+
+func TestJSONLDContinuesUntilRecipeIngredientMatch(t *testing.T) {
+	doc, err := html.Parse(strings.NewReader(`
+		<script type="application/ld+json">{"@type":"WebSite"}</script>
+		<script type="application/ld+json">{"recipeIngredient":["1 egg","2 dl milk"]}</script>
+	`))
+	if err != nil {
+		t.Fatalf("parse HTML: %v", err)
+	}
+
+	got, err := extractJSONLDIngredientText(doc)
+	if err != nil {
+		t.Fatalf("extract JSON-LD: %v", err)
+	}
+	if want := "1 egg\n2 dl milk"; got != want {
+		t.Errorf("extractJSONLDIngredientText() = %q, want %q", got, want)
+	}
+}
+
+func TestJSONLDReturnsErrorWhenRecipeIngredientIsMissing(t *testing.T) {
+	doc, err := html.Parse(strings.NewReader(`
+		<script type="application/ld+json">{"@type":"WebSite"}</script>
+		<script type="application/ld+json">{"@type":"Organization"}</script>
+	`))
+	if err != nil {
+		t.Fatalf("parse HTML: %v", err)
+	}
+
+	if _, err := extractJSONLDIngredientText(doc); err == nil {
+		t.Fatal("extractJSONLDIngredientText() error = nil, want recipeIngredient not found error")
 	}
 }
 
