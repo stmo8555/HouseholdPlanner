@@ -2,6 +2,7 @@ package ingredient
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -9,6 +10,7 @@ import (
 	"net/http"
 	neturl "net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -120,9 +122,9 @@ func (e *Extractor) FromRecipeURL(ctx context.Context, url string) ([]Ingredient
 	}
 	defer resp.Body.Close()
 
-	tags := findTags(resp.Body)
+	ingredientText := extractIngredientText(resp.Body)
 
-	aiIngredients, err := e.AIService.ExtractIngredients(ctx, tags)
+	aiIngredients, err := e.AIService.ExtractIngredients(ctx, ingredientText)
 	ingredients := make([]Ingredient, 0, len(aiIngredients.List))
 
 	for _, v := range aiIngredients.List {
@@ -138,27 +140,151 @@ func (e *Extractor) FromRecipeURL(ctx context.Context, url string) ([]Ingredient
 	return ingredients, nil
 }
 
-func findTags(r io.Reader) string {
+func extractIngredientText(r io.Reader) string {
 	doc, err := html.Parse(r)
 
 	if err != nil {
 		panic(err)
 	}
 
+	data := jsonLD(doc)
+
+	return data
+	if data != "" {
+		return data
+	}
+
+	ingredientNode := findIngredientNode(doc)
+	if ingredientNode == nil {
+		return ""
+	}
+
+	return extractNodeText(ingredientNode)
+}
+
+var (
+	specialCharacters = regexp.MustCompile(`[^\w\såäöÅÄÖé\.,]+`)
+	ingredient        = regexp.MustCompile(`^[iI]ngredien(ser|ts)$`)
+	units             = regexp.MustCompile(`^([mcd]?l|tm[sk]|k?g|krm)$`)
+	numbers           = regexp.MustCompile(`^\d+$`)
+	containIngredient = regexp.MustCompile(`[iI]ngredien(ser|ts)`)
+)
+
+func jsonLD(doc *html.Node) string {
+
+	var node *html.Node = nil
+
+	var processNode func(n *html.Node)
+	processNode = func(n *html.Node) {
+		if n.Data == "script" {
+			for _, attr := range n.Attr {
+				if attr.Key == "type" && attr.Val == "application/ld+json" {
+					node = n
+					fmt.Println("FOUND!!!!!!!!!")
+					return
+				}
+			}
+		}
+
+		for c := n.FirstChild; c != nil; c = c.NextSibling {
+			processNode(c)
+		}
+	}
+	processNode(doc)
+
+	if node == nil {
+		return ""
+	}
+
+	pattern := regexp.MustCompile(`"recipeIngredient"\s*:\s*(\[[^]]*\])`)
+
+	match := pattern.FindStringSubmatch(node.FirstChild.Data)
+
+	if len(match) < 2 {
+		panic(fmt.Errorf("recipeIngredient not found"))
+	}
+
+	rawIngredients := match[1]
+	var ingredients []string
+	if err := json.Unmarshal([]byte(rawIngredients), &ingredients); err != nil {
+		return ""
+	}
+	return strings.Join(ingredients, "\n")
+}
+
+func printNodeTree(node *html.Node) {
+	var output strings.Builder
+
+	var walk func(n *html.Node, depth int)
+	walk = func(n *html.Node, depth int) {
+		if n == nil {
+			return
+		}
+
+		indent := strings.Repeat("  ", depth)
+		switch n.Type {
+		case html.DocumentNode:
+			for child := n.FirstChild; child != nil; child = child.NextSibling {
+				walk(child, depth)
+			}
+			return
+		case html.ElementNode:
+			output.WriteString(indent)
+			output.WriteByte('<')
+			output.WriteString(n.Data)
+			for _, attr := range n.Attr {
+				fmt.Fprintf(&output, " %s=%q", attr.Key, attr.Val)
+			}
+			output.WriteString(">\n")
+		case html.TextNode:
+			text := strings.TrimSpace(n.Data)
+			if text != "" {
+				fmt.Fprintf(&output, "%s%q\n", indent, text)
+			}
+			return
+		case html.CommentNode:
+			fmt.Fprintf(&output, "%s<!-- %s -->\n", indent, strings.TrimSpace(n.Data))
+			return
+		case html.DoctypeNode:
+			fmt.Fprintf(&output, "%s<!doctype %s>\n", indent, n.Data)
+			return
+		}
+
+		for child := n.FirstChild; child != nil; child = child.NextSibling {
+			walk(child, depth+1)
+		}
+		if n.Type == html.ElementNode {
+			fmt.Fprintf(&output, "%s</%s>\n", indent, n.Data)
+		}
+	}
+
+	walk(node, 0)
+	fmt.Print(output.String())
+}
+
+func findIngredientNode(doc *html.Node) *html.Node {
 	potentialCandidates := make([]*html.Node, 0)
 
 	var processNode func(n *html.Node, pattern *regexp.Regexp)
 	processNode = func(n *html.Node, pattern *regexp.Regexp) {
 		if n.Type == html.TextNode {
 			if pattern.MatchString(strings.TrimSpace(n.Data)) {
-				parent := n.Parent
-				for parent != nil && parent.Data == "div" {
-					parent = parent.Parent
+				daddyTag := regexp.MustCompile("div|script")
+				tag := n.Parent
+				for tag != nil && daddyTag.MatchString(tag.Data) {
+					fmt.Println("loooping....")
+					tag = tag.Parent
 				}
-
-				parent = parent.Parent
-				for ; parent != nil; parent = parent.NextSibling {
-					potentialCandidates = append(potentialCandidates, parent)
+				if tag == nil {
+					return
+				}
+				i := 0
+				for ; tag != nil; tag = tag.NextSibling {
+					fmt.Println("-----" + strconv.Itoa(i) + "-----")
+					printNodeTree(tag)
+					potentialCandidates = append(potentialCandidates, tag)
+					fmt.Println("-----------")
+					i++
 				}
 
 				return
@@ -168,7 +294,7 @@ func findTags(r io.Reader) string {
 			processNode(c, pattern)
 		}
 	}
-	ingredientHeader := regexp.MustCompile(`^[iI]ngredien(ser|ts)$`)
+	ingredientHeader := regexp.MustCompile(`^Ingredien(ser|ts)$`)
 	ingredientLoose := regexp.MustCompile(`[iI]ngredien(ser|ts)`)
 	processNode(doc, ingredientHeader)
 
@@ -176,7 +302,7 @@ func findTags(r io.Reader) string {
 	if len(potentialCandidates) == 0 {
 		processNode(doc, ingredientLoose)
 		if len(potentialCandidates) == 0 {
-			return ""
+			return nil
 		}
 	}
 
@@ -187,12 +313,6 @@ func findTags(r io.Reader) string {
 	score_regularText := 2
 	score_units := 5
 	score_numbers := 1
-
-	specialCharacters := regexp.MustCompile(`[^\w\såäöÅÄÖé\.,]+`)
-	ingredient := regexp.MustCompile(`^[iI]ngredien(ser|ts)$`)
-	units := regexp.MustCompile(`^([mcd]?l|tm[sk]|k?g|krm)$`)
-	numbers := regexp.MustCompile(`^\d+$`)
-	containIngredient := regexp.MustCompile(`[iI]ngredien(ser|ts)`)
 
 	var bestFit func(n *html.Node, index int)
 
@@ -243,19 +363,6 @@ func findTags(r io.Reader) string {
 		bestFit(nodes, i)
 	}
 
-	var text strings.Builder
-
-	var findText func(n *html.Node)
-	findText = func(n *html.Node) {
-		if n.Type == html.TextNode {
-			line := specialCharacters.ReplaceAllString(strings.TrimSpace(n.Data), "")
-			text.WriteString(line + " ")
-		}
-		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			findText(c)
-		}
-	}
-
 	maxIndex := 0
 	maxValue := points[0]
 
@@ -268,23 +375,28 @@ func findTags(r io.Reader) string {
 	}
 
 	fmt.Printf("Choosing: %v\n", maxIndex)
-	findText(potentialCandidates[maxIndex])
+	return potentialCandidates[maxIndex]
+}
 
-	fmt.Printf("Bytes: %v", text.Len())
+func extractNodeText(node *html.Node) string {
+	var text strings.Builder
 
-	var findJSON func(n *html.Node)
-	findJSON = func(n *html.Node) {
-		if n.Type == html.ElementNode && n.Data == "script" {
-			for _, attr := range n.Attr {
-				if attr.Key == "type" && attr.Val == "application/ld+json" {
-					fmt.Println(n.FirstChild.Data)
-				}
+	var findText func(n *html.Node)
+	findText = func(n *html.Node) {
+		if n.Type == html.TextNode {
+			line := strings.TrimSpace(n.Data)
+			if line != "" {
+				text.WriteString(line)
+				text.WriteByte(' ')
 			}
 		}
+
 		for c := n.FirstChild; c != nil; c = c.NextSibling {
-			findJSON(c)
+			findText(c)
 		}
 	}
+	findText(node)
 
+	fmt.Printf("Bytes: %v\n", text.Len())
 	return text.String()
 }

@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 )
@@ -61,4 +62,34 @@ func TestSafeGet_RejectsNonHTTPScheme(t *testing.T) {
 			t.Errorf("expected scheme rejection for %q, got nil error", u)
 		}
 	}
+}
+
+func TestExtractIngredientText(t *testing.T) {
+	// testData := []string{"arla", "ica", "koket", "mathem", "recept"}
+	testData := []string{"recept"}
+	for _, name := range testData {
+		t.Run(name, func(t *testing.T) {
+			reader, err := os.Open("testdata/" + name + ".html")
+			if err != nil {
+				t.Fatalf("open input fixture: %v", err)
+			}
+			defer reader.Close()
+
+			result := normalizeWhitespace(extractIngredientText(reader))
+
+			expected, err := os.ReadFile("testdata/" + name + ".expected.txt")
+			if err != nil {
+				t.Fatalf("read expected fixture: %v", err)
+			}
+			want := normalizeWhitespace(string(expected))
+
+			if result != want {
+				t.Errorf("extractIngredientText() = %q\n\nwant %q", result, want)
+			}
+		})
+	}
+}
+
+func normalizeWhitespace(text string) string {
+	return strings.Join(strings.Fields(text), " ")
 }
