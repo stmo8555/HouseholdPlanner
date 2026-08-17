@@ -19,7 +19,10 @@ import (
 // tests exercise the real SQL scoping (the household ownership guards), so they
 // need an actual database rather than a mocked IRepo. If docker is unavailable
 // the whole package's DB tests are skipped.
-var testPool *pgxpool.Pool
+var (
+	testPool   *pgxpool.Pool
+	testUserID int
+)
 
 func TestMain(m *testing.M) {
 	if _, err := exec.LookPath("docker"); err != nil {
@@ -56,6 +59,14 @@ func TestMain(m *testing.M) {
 	}
 	testPool = pool
 
+	// init.sql creates no users; the real deployment seeds one from
+	// zz-admin-user.sh, which needs env this harness does not provide.
+	if err := pool.QueryRow(context.Background(),
+		`INSERT INTO users (username, pwd) VALUES ('test-owner', 'x') RETURNING id`,
+	).Scan(&testUserID); err != nil {
+		teardownFatal(name, "seed user", err)
+	}
+
 	code := m.Run()
 
 	pool.Close()
@@ -86,7 +97,11 @@ func mappedPort(name string) (string, error) {
 func waitReady(name string) error {
 	deadline := time.Now().Add(60 * time.Second)
 	for time.Now().Before(deadline) {
-		if exec.Command("docker", "exec", name, "pg_isready", "-U", "test", "-d", "test").Run() == nil {
+		// Not pg_isready: it also answers the temporary server initdb runs
+		// during bootstrap, before the real database exists. A query against
+		// "test" only succeeds once the container is genuinely serving it.
+		if exec.Command("docker", "exec", name,
+			"psql", "-U", "test", "-d", "test", "-c", "SELECT 1").Run() == nil {
 			return nil
 		}
 		time.Sleep(time.Second)
@@ -114,13 +129,13 @@ var uniq int64
 
 func next() int64 { return atomic.AddInt64(&uniq, 1) }
 
-// created_by references user 1 (steffe), seeded by init.sql.
 func insertHousehold(t *testing.T, label string) int {
 	t.Helper()
 	var id int
+	n := next()
 	if err := testPool.QueryRow(context.Background(),
-		`INSERT INTO households (name, created_by) VALUES ($1, 1) RETURNING id`,
-		fmt.Sprintf("%s-%d", label, next())).Scan(&id); err != nil {
+		`INSERT INTO households (name, code, created_by) VALUES ($1, $2, $3) RETURNING id`,
+		fmt.Sprintf("%s-%d", label, n), fmt.Sprintf("%06d", n), testUserID).Scan(&id); err != nil {
 		t.Fatalf("insert household: %v", err)
 	}
 	return id
@@ -147,6 +162,17 @@ func insertProduct(t *testing.T) int {
 		t.Fatalf("insert product: %v", err)
 	}
 	return id
+}
+
+func countOverrides(t *testing.T, hid, productID int) int {
+	t.Helper()
+	var n int
+	if err := testPool.QueryRow(context.Background(),
+		`SELECT count(*) FROM household_product_category WHERE household_id = $1 AND product_id = $2`,
+		hid, productID).Scan(&n); err != nil {
+		t.Fatalf("count overrides: %v", err)
+	}
+	return n
 }
 
 func countItems(t *testing.T, listID int) int {
@@ -229,5 +255,73 @@ func TestDeleteGrocery_ScopedToHousehold(t *testing.T) {
 	}
 	if n := countItems(t, list); n != 0 {
 		t.Fatalf("owner delete: want 0 rows, got %d", n)
+	}
+}
+
+// TestSetCategoryOverride_ClearedWhenBackToDefault covers the round trip: moving a
+// product away from its default stores an override, moving it back removes the row
+// rather than storing one that merely duplicates the default.
+func TestSetCategoryOverride_ClearedWhenBackToDefault(t *testing.T) {
+	repo := NewRepo(testPool)
+	ctx := context.Background()
+
+	hid := insertHousehold(t, "override")
+	list := insertList(t, hid)
+	prod := insertProduct(t) // seeded with category 'other'
+
+	if err := repo.CreateGroceries(ctx, milk(list, prod), list, hid); err != nil {
+		t.Fatalf("seed grocery: %v", err)
+	}
+	var itemID int
+	if err := testPool.QueryRow(ctx,
+		`SELECT id FROM groceries WHERE grocery_list_id = $1 LIMIT 1`, list).Scan(&itemID); err != nil {
+		t.Fatalf("fetch seeded item: %v", err)
+	}
+
+	// Away from the default: the override is stored and takes effect.
+	if err := repo.SetCategoryOverride(ctx, hid, prod, "Dairy"); err != nil {
+		t.Fatalf("set override: %v", err)
+	}
+	if n := countOverrides(t, hid, prod); n != 1 {
+		t.Fatalf("want 1 override row, got %d", n)
+	}
+	g, err := repo.Grocery(ctx, itemID, hid)
+	if err != nil {
+		t.Fatalf("read grocery: %v", err)
+	}
+	if g.Ingredient.Product.Category != "Dairy" {
+		t.Fatalf("want effective category Dairy, got %q", g.Ingredient.Product.Category)
+	}
+
+	// Back to the default: the row is removed, not rewritten.
+	if err := repo.SetCategoryOverride(ctx, hid, prod, "other"); err != nil {
+		t.Fatalf("reset override: %v", err)
+	}
+	if n := countOverrides(t, hid, prod); n != 0 {
+		t.Fatalf("want the override removed, got %d rows", n)
+	}
+	g, err = repo.Grocery(ctx, itemID, hid)
+	if err != nil {
+		t.Fatalf("read grocery: %v", err)
+	}
+	if g.Ingredient.Product.Category != "other" {
+		t.Fatalf("want effective category other, got %q", g.Ingredient.Product.Category)
+	}
+}
+
+// TestSetCategoryOverride_NoOpWhenAlreadyDefault covers the case where no override
+// exists and the default is re-selected: the delete must not fail on a missing row.
+func TestSetCategoryOverride_NoOpWhenAlreadyDefault(t *testing.T) {
+	repo := NewRepo(testPool)
+	ctx := context.Background()
+
+	hid := insertHousehold(t, "override-noop")
+	prod := insertProduct(t)
+
+	if err := repo.SetCategoryOverride(ctx, hid, prod, "other"); err != nil {
+		t.Fatalf("set override to default: %v", err)
+	}
+	if n := countOverrides(t, hid, prod); n != 0 {
+		t.Fatalf("want no override row, got %d", n)
 	}
 }

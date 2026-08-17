@@ -359,13 +359,33 @@ func (r *Repo) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, gro
 }
 
 func (r *Repo) SetCategoryOverride(ctx context.Context, householdID, productID int, category string) error {
-	sql := `
+	var defaultCategory string
+
+	err := r.db.QueryRow(ctx, `
+	SELECT category FROM products WHERE id = $1;
+	`, productID).Scan(&defaultCategory)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return ErrNotFound
+	}
+	if err != nil {
+		return err
+	}
+
+	if defaultCategory == category {
+		_, err := r.db.Exec(ctx, `
+		DELETE FROM household_product_category
+		WHERE household_id = $1 AND product_id = $2;
+		`, householdID, productID)
+
+		return err
+	}
+
+	_, err = r.db.Exec(ctx, `
 	INSERT INTO household_product_category (household_id, product_id, category)
 	VALUES ($1, $2, $3)
 	ON CONFLICT (household_id, product_id)
 	DO UPDATE SET category = EXCLUDED.category;
-	`
-	_, err := r.db.Exec(ctx, sql, householdID, productID, category)
+	`, householdID, productID, category)
 
 	return err
 }
