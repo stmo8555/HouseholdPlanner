@@ -231,12 +231,12 @@ func (r *Repo) CreateGroceries(ctx context.Context, groceries []Grocery, grocery
 
 	sql := `
 	INSERT INTO groceries
-	(product_id, amount, grocery_list_id)
-	VALUES ($1, $2, $3)
+	(product_id, amount, note, grocery_list_id)
+	VALUES ($1, $2, $3, $4)
 	`
 
 	for _, grocery := range groceries {
-		_, err = tx.Exec(ctx, sql, grocery.Ingredient.ProductID, grocery.Ingredient.Amount, grocery.ListID)
+		_, err = tx.Exec(ctx, sql, grocery.Ingredient.ProductID, grocery.Ingredient.Amount, grocery.Ingredient.Note, grocery.ListID)
 		if err != nil {
 			return err
 		}
@@ -257,9 +257,9 @@ func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListI
 		g.product_id,
 		p.id,
 		p.name,
-		p.brand,
 		COALESCE(hpc.category, p.category),
 		g.amount,
+		g.note,
 		g.grocery_list_id,
 		g.picked
 	FROM groceries g
@@ -287,9 +287,9 @@ func (r *Repo) Groceries(ctx context.Context, sortBy, order string, groceryListI
 			&g.Ingredient.ProductID,
 			&g.Ingredient.Product.Id,
 			&g.Ingredient.Product.Name,
-			&g.Ingredient.Product.Brand,
 			&g.Ingredient.Product.Category,
 			&g.Ingredient.Amount,
+			&g.Ingredient.Note,
 			&g.ListID,
 			&g.Picked,
 		)
@@ -310,9 +310,9 @@ func (r *Repo) Grocery(ctx context.Context, itemID int, hid int) (Grocery, error
 		g.product_id,
 		p.id,
 		p.name,
-		p.brand,
 		COALESCE(hpc.category, p.category),
 		g.amount,
+		g.note,
 		g.grocery_list_id,
 		g.picked
 	FROM groceries g
@@ -330,9 +330,9 @@ func (r *Repo) Grocery(ctx context.Context, itemID int, hid int) (Grocery, error
 		&g.Ingredient.ProductID,
 		&g.Ingredient.Product.Id,
 		&g.Ingredient.Product.Name,
-		&g.Ingredient.Product.Brand,
 		&g.Ingredient.Product.Category,
 		&g.Ingredient.Amount,
+		&g.Ingredient.Note,
 		&g.ListID,
 		&g.Picked,
 	)
@@ -346,14 +346,14 @@ func (r *Repo) Grocery(ctx context.Context, itemID int, hid int) (Grocery, error
 func (r *Repo) UpdateGrocery(ctx context.Context, ing ingredient.Ingredient, groceryID, householdID int) error {
 	sql := `
 	UPDATE groceries
-    SET product_id=$1, amount=$2
-    WHERE id=$3
+    SET product_id=$1, amount=$2, note=$3
+    WHERE id=$4
       AND EXISTS (
         SELECT 1 FROM grocery_lists gl
-        WHERE gl.id = groceries.grocery_list_id AND gl.household_id = $4
+        WHERE gl.id = groceries.grocery_list_id AND gl.household_id = $5
       );
 	`
-	_, err := r.db.Exec(ctx, sql, ing.ProductID, ing.Amount, groceryID, householdID)
+	_, err := r.db.Exec(ctx, sql, ing.ProductID, ing.Amount, ing.Note, groceryID, householdID)
 
 	return err
 }
@@ -433,7 +433,7 @@ func (r *Repo) SetPicked(ctx context.Context, id, householdID int, picked bool) 
 
 func (r *Repo) TopProducts(ctx context.Context, householdID int) ([]product.Product, error) {
 	sql := `
-		SELECT p.id, p.name, p.brand, p.category
+		SELECT p.id, p.name, p.category
 		FROM groceries_history gh
 		INNER JOIN products p ON gh.product_id=p.id
 		WHERE household_id = $1

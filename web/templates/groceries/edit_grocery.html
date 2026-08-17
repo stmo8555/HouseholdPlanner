@@ -11,7 +11,7 @@
         hx-include="#grocery-list-state" class="modal-form" id="edit-grocery-form">
 
         <h3>Details</h3>
-        <small>Update the product, amount, and brand.</small>
+        <small>Update the product, amount, and note.</small>
 
         <label for="edit-name">Product <small>(required)</small></label>
         <input type="text" class="glass-inner focus" id="edit-name" name="name" value="{{.Grocery.Ingredient.Product.Name}}"
@@ -24,9 +24,9 @@
             </div>
 
             <div>
-                <label for="edit-brand">Brand</label>
-                <input class="glass-inner" type="text" id="edit-brand" name="brand"
-                    value="{{.Grocery.Ingredient.Product.Brand}}">
+                <label for="edit-note">Note</label>
+                <input class="glass-inner" type="text" id="edit-note" name="note" lang="sv"
+                    value="{{.Grocery.Ingredient.Note}}">
             </div>
         </div>
 

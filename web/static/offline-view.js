@@ -37,7 +37,7 @@ function renderRow(item, pendingKeys) {
     row.appendChild(btn);
 
     const lineThrough = item.picked ? " line-through" : "";
-    for (const [field, value] of [["name", item.name], ["amount", item.amount], ["brand", item.brand]]) {
+    for (const [field, value] of [["name", item.name], ["amount", item.amount], ["note", item.note]]) {
         const span = el("span", lineThrough.trim() || null, value);
         span.dataset.field = field;
         row.appendChild(span);

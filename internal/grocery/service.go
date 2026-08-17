@@ -112,7 +112,7 @@ func (s *Service) ParseGroceries(ctx context.Context, text string) ([]ingredient
 func (s *Service) GroceriesView(ctx context.Context, sortBy, order string, groceryListID, householdID int) (GroceriesView, error) {
 	allowedSorts := map[string]string{
 		"product": "p.name",
-		"brand":   "p.brand",
+		"note":    "g.note",
 		"amount":  "g.amount",
 	}
 

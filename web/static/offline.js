@@ -178,7 +178,7 @@ function snapshotFromDom(listId) {
         const id = Number(el.dataset.id);
         if (!id) continue;
         const field = name => el.querySelector(`[data-field="${name}"]`)?.textContent.trim() || "";
-        items.push({ id, name: field("name"), brand: field("brand"), amount: field("amount"), category, picked });
+        items.push({ id, name: field("name"), note: field("note"), amount: field("amount"), category, picked });
     }
 
     return { listId: Number(listId), listName, items, savedAt: Date.now() };

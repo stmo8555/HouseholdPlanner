@@ -22,8 +22,9 @@ func (s *Service) ExtractIngredients(ctx context.Context, text string) (Extracte
 	prompt := `Extract groceries from text.
 				Rules:
 				- Do not guess or infer.
-				- Missing amount, brand, or store = "".
+				- Missing amount or note = "".
 				- Product is the grocery name only.
+				- Note holds anything else written about the item (brand, store, quality or preparation remarks), copied as written.
 				- The text is most of the time given in swedish. Don't translate it to english.
 
 				Text:

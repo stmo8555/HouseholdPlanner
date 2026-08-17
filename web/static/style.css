@@ -952,7 +952,7 @@ form.htmx-request button .checkbox {
     padding-inline-start: 1rem;
 }
 
-/* Edit grocery item modal: full-width inputs and side-by-side Amount/Brand */
+/* Edit grocery item modal: full-width inputs and side-by-side Amount/Note */
 #edit-modal .modal-form .glass-inner {
     inline-size: 100%;
 }

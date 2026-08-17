@@ -6,4 +6,5 @@ type Ingredient struct {
 	ProductID int
 	Product   product.Product
 	Amount    string
+	Note      string
 }

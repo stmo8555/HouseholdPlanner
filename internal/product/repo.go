@@ -23,7 +23,7 @@ func NewRepo(db *pgxpool.Pool) *Repo {
 
 func (r *Repo) Get(ctx context.Context, id int) (Product, error) {
 	sql := `
-		SELECT id, name, brand, category
+		SELECT id, name, category
 		FROM products
 		WHERE id = $1
 		`
@@ -45,7 +45,7 @@ func (r *Repo) GetID(ctx context.Context, p Product) (int, error) {
 	sql := `
 		SELECT id
 		FROM products
-		WHERE name=$1 AND brand=$2;
+		WHERE name=$1;
 		`
 	var id int
 
@@ -53,7 +53,6 @@ func (r *Repo) GetID(ctx context.Context, p Product) (int, error) {
 		ctx,
 		sql,
 		p.Name,
-		p.Brand,
 	).Scan(&id)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return id, ErrNotFound
@@ -65,8 +64,8 @@ func (r *Repo) GetID(ctx context.Context, p Product) (int, error) {
 func (r *Repo) Add(ctx context.Context, p Product) (int, error) {
 
 	sql := `
-		INSERT INTO products (name, brand, category)
-		VALUES ($1, $2, $3)
+		INSERT INTO products (name, category)
+		VALUES ($1, $2)
 		RETURNING id
 		`
 	var id int
@@ -75,7 +74,6 @@ func (r *Repo) Add(ctx context.Context, p Product) (int, error) {
 		ctx,
 		sql,
 		p.Name,
-		p.Brand,
 		p.Category,
 	).Scan(&id)
 

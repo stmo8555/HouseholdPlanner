@@ -43,10 +43,10 @@ func (e *Extractor) FromText(ctx context.Context, text string) ([]Ingredient, er
 	for _, v := range aiIngredients.List {
 		ingredients = append(ingredients, Ingredient{
 			Product: product.Product{
-				Name:  v.Product,
-				Brand: v.Brand,
+				Name: v.Product,
 			},
 			Amount: v.Amount,
+			Note:   v.Note,
 		})
 	}
 
@@ -135,10 +135,10 @@ func (e *Extractor) FromRecipeURL(ctx context.Context, url string) ([]Ingredient
 	for _, v := range aiIngredients.List {
 		ingredients = append(ingredients, Ingredient{
 			Product: product.Product{
-				Name:  v.Product,
-				Brand: v.Brand,
+				Name: v.Product,
 			},
 			Amount: v.Amount,
+			Note:   v.Note,
 		})
 	}
 

@@ -34,7 +34,7 @@ func NewHandler(s *Service, householdService *household.Service, ingredient *ing
 type snapshotItem struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
-	Brand    string `json:"brand"`
+	Note     string `json:"note"`
 	Amount   string `json:"amount"`
 	Category string `json:"category"`
 	Picked   bool   `json:"picked"`
@@ -71,7 +71,7 @@ func (h *Handler) Snapshot(c *gin.Context) {
 			items = append(items, snapshotItem{
 				ID:       g.ID,
 				Name:     g.Ingredient.Product.Name,
-				Brand:    g.Ingredient.Product.Brand,
+				Note:     g.Ingredient.Note,
 				Amount:   g.Ingredient.Amount,
 				Category: category,
 				Picked:   g.Picked,
@@ -90,7 +90,7 @@ func (h *Handler) Snapshot(c *gin.Context) {
 		items = append(items, snapshotItem{
 			ID:       g.ID,
 			Name:     g.Ingredient.Product.Name,
-			Brand:    g.Ingredient.Product.Brand,
+			Note:     g.Ingredient.Note,
 			Amount:   g.Ingredient.Amount,
 			Category: g.Ingredient.Product.Category,
 			Picked:   true,
@@ -394,10 +394,10 @@ func (h *Handler) CreateGrocery(c *gin.Context) {
 	ingredients = append(ingredients, ingredient.Ingredient{
 		Product: product.Product{
 			Name:     name,
-			Brand:    c.PostForm("brand"),
 			Category: "",
 		},
 		Amount: c.PostForm("amount"),
+		Note:   c.PostForm("note"),
 	})
 
 	err = h.service.CreateGroceries(c, ingredients, groceryListID, hid)
@@ -466,13 +466,13 @@ func (h *Handler) UpdateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
 	prod := product.Product{
-		Name:  c.PostForm("name"),
-		Brand: c.PostForm("brand"),
+		Name: c.PostForm("name"),
 	}
 
 	ing := ingredient.Ingredient{
 		Product: prod,
 		Amount:  c.PostForm("amount"),
+		Note:    c.PostForm("note"),
 	}
 
 	groceryListID, err := strconv.Atoi(c.Param("id"))
@@ -698,17 +698,22 @@ func (h *Handler) SaveExtracted(c *gin.Context) {
 
 	products := c.PostFormArray("name")
 	amounts := c.PostFormArray("amount")
-	brands := c.PostFormArray("brand")
+	notes := c.PostFormArray("note")
+
+	if len(amounts) != len(products) || len(notes) != len(products) {
+		c.String(400, "mismatched extracted rows")
+		return
+	}
 
 	ingredients := make([]ingredient.Ingredient, len(products))
 	for i := range ingredients {
 		ingredients[i] = ingredient.Ingredient{
 			Product: product.Product{
 				Name:     products[i],
-				Brand:    brands[i],
 				Category: "",
 			},
 			Amount: amounts[i],
+			Note:   notes[i],
 		}
 	}
 

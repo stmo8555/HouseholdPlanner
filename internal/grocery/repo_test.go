@@ -142,8 +142,8 @@ func insertProduct(t *testing.T) int {
 	var id int
 	n := next()
 	if err := testPool.QueryRow(context.Background(),
-		`INSERT INTO products (name, brand, category) VALUES ($1, $2, 'other') RETURNING id`,
-		fmt.Sprintf("prod-%d", n), fmt.Sprintf("brand-%d", n)).Scan(&id); err != nil {
+		`INSERT INTO products (name, category) VALUES ($1, 'other') RETURNING id`,
+		fmt.Sprintf("prod-%d", n)).Scan(&id); err != nil {
 		t.Fatalf("insert product: %v", err)
 	}
 	return id

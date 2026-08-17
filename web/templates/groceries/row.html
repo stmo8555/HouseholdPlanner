@@ -10,7 +10,7 @@
 
     <span class="{{if .Picked}}line-through{{end}}" data-field="name" lang="sv">{{.Ingredient.Product.Name}}</span>
     <span class="{{if .Picked}}line-through{{end}}" data-field="amount">{{.Ingredient.Amount}}</span>
-    <span class="{{if .Picked}}line-through{{end}}" data-field="brand" lang="sv">{{.Ingredient.Product.Brand}}</span>
+    <span class="{{if .Picked}}line-through{{end}}" data-field="note" lang="sv">{{.Ingredient.Note}}</span>
     <button type="button" hx-get="/groceries/lists/{{.ListID}}/items/{{.ID}}/edit" hx-target="#modal-root"
         hx-swap="innerHTML" class="edit-btn">⋮</button>
 </div>
