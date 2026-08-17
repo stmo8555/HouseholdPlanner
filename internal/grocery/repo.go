@@ -414,23 +414,6 @@ func (r *Repo) TogglePicked(ctx context.Context, id, householdID int) error {
 	return err
 }
 
-// SetPicked is the idempotent variant used by offline sync replay; a queued
-// change applied twice (or against an item deleted meanwhile) is a no-op.
-func (r *Repo) SetPicked(ctx context.Context, id, householdID int, picked bool) error {
-	sql := `
-	UPDATE groceries
-	SET picked = $3
-	WHERE id=$1
-	  AND EXISTS (
-	    SELECT 1 FROM grocery_lists gl
-	    WHERE gl.id = groceries.grocery_list_id AND gl.household_id = $2
-	  );
-	`
-	_, err := r.db.Exec(ctx, sql, id, householdID, picked)
-
-	return err
-}
-
 func (r *Repo) TopProducts(ctx context.Context, householdID int) ([]product.Product, error) {
 	sql := `
 		SELECT p.id, p.name, p.category

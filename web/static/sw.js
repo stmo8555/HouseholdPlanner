@@ -1,15 +1,11 @@
-const STATIC_CACHE = "hp-static-v53";
+const STATIC_CACHE = "hp-static-v54";
 
-const OFFLINE_SHELL = "/static/offline-list.html";
 const FALLBACK = "/static/offline-fallback.html";
 
 const PRECACHE = [
     "/static/style.css",
     "/static/script.js",
-    "/static/offline.js",
-    "/static/offline-view.js",
     "/static/manifest.json",
-    OFFLINE_SHELL,
     FALLBACK,
     "/static/vendor/htmx.min.js",
     "/static/vendor/fonts.css",
@@ -68,16 +64,6 @@ self.addEventListener("fetch", event => {
 
     const url = new URL(request.url);
     if (url.origin !== self.location.origin) return;
-    if (url.pathname === "/ping") return;
-
-    // The offline shopping view must load with or without network.
-    if (url.pathname === "/offline") {
-        event.respondWith(
-            caches.match(OFFLINE_SHELL, { cacheName: STATIC_CACHE })
-                .then(cached => cached || fetch(request))
-        );
-        return;
-    }
 
     if (url.pathname.startsWith("/static/") || url.pathname === "/sw.js") {
         event.respondWith(staticCacheFirst(request));

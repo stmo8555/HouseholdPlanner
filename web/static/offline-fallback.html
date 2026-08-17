@@ -32,14 +32,8 @@
     <main>
         <h1>You're offline</h1>
         <p>This page isn't available offline.</p>
-        <p id="offline-link" hidden><a href="/offline">Continue in offline mode</a></p>
         <p><a href="/groceries">Go to your grocery lists</a></p>
     </main>
-    <script>
-        if (localStorage.getItem("hp.offline.snapshot")) {
-            document.getElementById("offline-link").hidden = false;
-        }
-    </script>
 </body>
 
 </html>

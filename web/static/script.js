@@ -1,7 +1,6 @@
-import { initOffline } from "./offline.js";
-
-initOffline();
-
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js");
+}
 
 let navToggled = false;
 

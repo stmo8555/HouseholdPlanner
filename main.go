@@ -75,12 +75,6 @@ func main() {
 	r.Static("/static/", "web/static")
 	// Served from the root so the service worker gets root scope.
 	r.StaticFile("/sw.js", "web/static/sw.js")
-	// Connectivity probe; unauthenticated and never cached.
-	r.GET("/ping", func(c *gin.Context) { c.Status(204) })
-	// Offline shopping view: a static shell rendered entirely from
-	// localStorage, so it needs no auth and works without the network
-	// (the service worker precaches it).
-	r.StaticFile("/offline", "web/static/offline-list.html")
 
 	loginHandler := login.NewHandler(loginService)
 	setupLogin(r, loginHandler)
@@ -153,7 +147,6 @@ func setupGroceries(r *gin.RouterGroup) {
 	r.POST("/groceries/lists/:id/transfer", handler.TransferGroceryList)
 
 	// Items within a list
-	r.GET("/groceries/lists/:id/snapshot", handler.Snapshot)
 	r.POST("/groceries/lists/:id/items", handler.CreateGrocery)
 	r.DELETE("/groceries/lists/:id/items/picked", handler.DeletePicked)
 	r.POST("/groceries/lists/:id/smart-add", handler.SmartAdd)
