@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go/v3"
@@ -21,8 +22,9 @@ func NewClient() *Client {
 func SendStructuredRequest[T any](c *Client, ctx context.Context, prompt string, name string) (T, error) {
 	var result T
 
+	start := time.Now()
 	response, err := c.API.Responses.New(ctx, responses.ResponseNewParams{
-		Model: openai.ChatModelGPT4_1Nano,
+		Model: openai.ChatModelGPT5_6Luna,
 		Input: responses.ResponseNewParamsInputUnion{
 			OfString: openai.String(prompt),
 		},
@@ -32,13 +34,29 @@ func SendStructuredRequest[T any](c *Client, ctx context.Context, prompt string,
 				GenerateSchema[T](),
 			),
 		},
-		Temperature:     openai.Float(0),
-		MaxOutputTokens: openai.Int(1000),
+		Reasoning: openai.ReasoningParam{
+			Effort: openai.ReasoningEffortNone,
+		},
+		MaxOutputTokens: openai.Int(4000),
 	})
+
+	elapsed := time.Since(start)
 
 	if err != nil {
 		return result, err
 	}
+
+	fmt.Printf("ai: %s took %s (in=%d out=%d reasoning=%d)\n",
+		response.Model,
+		elapsed.Round(time.Millisecond),
+		response.Usage.InputTokens,
+		response.Usage.OutputTokens,
+		response.Usage.OutputTokensDetails.ReasoningTokens)
+
+	if response.Status == responses.ResponseStatusIncomplete {
+		return result, fmt.Errorf("ai response incomplete (%s), no usable output", response.IncompleteDetails.Reason)
+	}
+
 	fmt.Println("response from ai: " + response.OutputText())
 
 	if err := json.Unmarshal([]byte(response.OutputText()), &result); err != nil {
