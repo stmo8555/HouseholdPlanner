@@ -1,0 +1,21 @@
+# Version control — 52MB of the 57MB build context
+.git
+.gitignore
+
+# Secrets: compose reads .env from the host via env_file, the image never needs it
+.env
+
+# Local tooling and docs, irrelevant to the build
+.claude
+.air.toml
+tmp/
+*.md
+LICENSE
+
+# Bind-mounted by compose from the host, not copied into the image
+household-db
+
+# Node tooling is not part of the Go build
+package.json
+package-lock.json
+node_modules
