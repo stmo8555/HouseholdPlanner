@@ -31,7 +31,7 @@ The `OPENAI_API_KEY` environment variable must be set for AI features to work. D
 
 ## Architecture
 
-**Tech stack:** Go + Gin (HTTP), PostgreSQL (pgx), HTMX (frontend interactivity), OpenAI GPT-4.1 Nano (AI), Air (hot reload).
+**Tech stack:** Go + Gin (HTTP), PostgreSQL (pgx), HTMX (frontend interactivity), OpenAI gpt-5.6-luna with reasoning disabled (AI), Air (hot reload).
 
 **Pattern:** Every domain under `internal/` follows Handler → Service → Repo. All handlers are registered in `main.go`. The auth middleware (`internal/login/middleware.go`) injects `user_id` and `household_id` into Gin's context for every authenticated route — handlers read `household_id` via `c.GetInt("household_id")` to enforce multi-tenancy.
 
