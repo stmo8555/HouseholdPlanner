@@ -8,7 +8,6 @@
 
     <form action="/groceries/lists/{{.ListID}}/extracted" method="post" hx-boost="true" id="extractedForm" class="glass container">
         <h2>{{.Heading}}</h2>
-        <input type="hidden" name="redirect-path" value="{{.RedirectPath}}">
 
         <div class="grocery-grid extracted-grocery-grid">
             <div class="grocery-row extracted-grocery-row grocery-header">
