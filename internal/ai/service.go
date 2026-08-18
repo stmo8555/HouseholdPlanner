@@ -22,6 +22,13 @@ func (s *Service) ExtractIngredients(ctx context.Context, text string) (Extracte
 	prompt := `Extract groceries from text.
 				Rules:
 				- Do not guess or infer.
+				- Only extract things that are actually food, drink, or
+				  household shopping items. Leave out anything else entirely:
+				  names of people, greetings, dates, headings, notes to self,
+				  serving suggestions ("Serveringsforslag"), and any word that
+				  is not a real product -- including profanity, insults, crude
+				  or joke words, and nonsense typed to test the feature.
+				- If nothing in the text is a grocery, return an empty list.
 				- Missing amount or note = "".
 				- Product is the grocery name only.
 				- Note holds anything else written about the item (brand, store, quality or preparation remarks), copied as written.
