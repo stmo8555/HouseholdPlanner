@@ -559,7 +559,8 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 	}
 
 	if strings.TrimSpace(text) == "" {
-		panic("no text")
+		c.String(400, "no text to extract from")
+		return
 	}
 
 	groceries, err := h.service.ParseGroceries(c, text)
@@ -568,7 +569,7 @@ func (h *Handler) SmartAdd(c *gin.Context) {
 		panic(err)
 	}
 
-	h.ExtractReviewPage(c, groceries, groceryListID)
+	h.ExtractReviewPage(c, groceries, groceryListID, "Extracted From Text")
 }
 
 func (h *Handler) ExtractFromRecipe(c *gin.Context) {
@@ -576,7 +577,8 @@ func (h *Handler) ExtractFromRecipe(c *gin.Context) {
 	link := c.PostForm("link")
 
 	if strings.TrimSpace(link) == "" {
-		panic("no link")
+		c.String(400, "no recipe link provided")
+		return
 	}
 
 	groceryListID, err := strconv.Atoi(c.Param("id"))
@@ -598,7 +600,7 @@ func (h *Handler) ExtractFromRecipe(c *gin.Context) {
 		panic(err)
 	}
 
-	h.ExtractReviewPage(c, ingredients, groceryListID)
+	h.ExtractReviewPage(c, ingredients, groceryListID, "Extracted From Recipe")
 }
 
 func (h *Handler) SaveExtracted(c *gin.Context) {
@@ -645,10 +647,11 @@ func (h *Handler) SaveExtracted(c *gin.Context) {
 	c.Redirect(303, path)
 }
 
-func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ingredient, groceryListID int) {
+func (h *Handler) ExtractReviewPage(c *gin.Context, ingredients []ingredient.Ingredient, groceryListID int, heading string) {
 	data := gin.H{
 		"Ingredients": ingredients,
 		"ListID":      groceryListID,
+		"Heading":     heading,
 	}
 
 	c.HTML(200, "groceries/extract_review_page", data)
