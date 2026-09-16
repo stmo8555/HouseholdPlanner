@@ -172,7 +172,7 @@ func dbDSN() string {
 	user := getenv("POSTGRES_USER", "Admin")
 	password := getenv("POSTGRES_PASSWORD", "Admin")
 	host := getenv("POSTGRES_HOST", "localhost")
-	port := getenv("POSTGRES_PORT", "5432")
+	port := getenv("POSTGRES_PORT", "5433")
 	name := getenv("POSTGRES_DB", "db")
 	sslmode := getenv("POSTGRES_SSLMODE", "disable")
 
