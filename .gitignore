@@ -38,3 +38,5 @@ go.work.sum
 
 #tmp
 tmp/
+/Session.vim
+/Session_arena.json
