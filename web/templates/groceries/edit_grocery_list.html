@@ -1,46 +1,42 @@
 {{define "edit-grocery-list"}}
-<dialog class="glass card" id="edit-grocery-list-modal" hx-on::after-request="if(event.detail.successful) { this.remove(); }">
+<dialog class="glass card" id="edit-grocery-list-modal"
+    hx-on::after-request="if(event.detail.successful) { this.remove(); }">
     <form class="flex align-items" method="dialog" onsubmit="this.closest('dialog').remove()">
         <h2>Edit list - <span id="edit-modal-title">{{.List.GroceryList.Name}}</span></h2>
         {{template "close_button" .}}
     </form>
 
-    <form id="list-rename-form" hx-patch="/groceries/lists/{{.List.GroceryList.ID}}" hx-target="main"
-        hx-swap="outerHTML" class="modal-form">
-        <h3>Rename list</h3>
-        <small>Change the name of this list.</small>
-        <label class="sr-only" for="edit-name">List name</label>
-        <input type="text" class="glass-inner" id="edit-name" name="new-name" value="{{.List.GroceryList.Name}}" required autofocus>
-        <button class="" type="submit">
+    <form hx-patch="/groceries/lists/{{.List.GroceryList.ID}}" hx-target="main"
+        hx-swap="outerHTML" class="edit-grocery-list-form" id="update-grocery-list-form">
+        <div class="modal-form">
+            <h3>Rename list</h3>
+            <small>Change the name of this list.</small>
+            <label class="sr-only" for="edit-name">List name</label>
+            <input type="text" class="glass-inner" id="edit-name" name="new-name" value="{{.List.GroceryList.Name}}"
+                required autofocus>
+        </div>
+
+        <div class="modal-form">
+            <h3>Transfer groceries</h3>
+            <small>Change which list this list's groceries are on.</small>
+            <select name="grocery-list-target-id" class="glass-inner">
+                {{range .Lists}}
+                <option value="{{.GroceryList.ID}}" {{if eq .GroceryList.ID $.List.GroceryList.ID}}selected{{end}}>
+                    {{.GroceryList.Name}}</option>
+                {{end}}
+            </select>
+        </div>
+    </form>
+
+    <div class="flex space-between">
+        <form id="list-delete-form" hx-delete="/groceries/lists/{{.List.GroceryList.ID}}" hx-target="main"
+            hx-swap="outerHTML">
+            {{template "trash_button" .}}
+        </form>
+        <button type="submit" form="update-grocery-list-form">
             <span>Save</span>
             {{template "spinner" .}}
         </button>
-    </form>
-
-    <form id="list-transfer-form" hx-post="/groceries/lists/{{.List.GroceryList.ID}}/transfer" hx-target="main"
-        hx-swap="outerHTML" class="modal-form{{if le (len .Lists) 1}} darken{{end}}">
-        <h3>Transfer groceries</h3>
-        <small>Move all groceries in this list to another list.</small>
-        <select id="transfer-list-select" name="grocery-list-target-id" class="flex" {{if le (len .Lists) 1}}disabled{{end}}>
-            {{range .Lists}}
-            {{if ne .GroceryList.ID $.List.GroceryList.ID}}
-            <option value="{{.GroceryList.ID}}">{{.GroceryList.Name}}</option>
-            {{end}}
-            {{end}}
-        </select>
-        <button type="submit" {{if le (len .Lists) 1}}disabled{{end}}>Transfer</button>
-    </form>
-
-    <form id="list-delete-form" hx-delete="/groceries/lists/{{.List.GroceryList.ID}}" hx-target="main"
-        hx-swap="outerHTML" class="modal-form">
-        <h3>Delete list</h3>
-        <div>
-            <small>This will permanently delete the list and all its groceries.</small>
-            <button class="delete-button" type="submit">
-                <span>Delete</span>
-                {{template "spinner" .}}
-            </button>
-        </div>
-    </form>
+    </div>
 </dialog>
 {{end}}

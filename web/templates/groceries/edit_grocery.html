@@ -1,105 +1,83 @@
 {{define "groceries/edit_grocery"}}
-<dialog class="glass card" id="edit-modal"  hx-on::after-request="if(event.detail.successful) { this.remove(); }">
+<dialog class="glass card" id="edit-modal" hx-on::after-request="if(event.detail.successful) { this.remove(); }">
 
     <form class="flex align-items" method="dialog" onsubmit="this.closest('dialog').remove()">
         <h2>Edit Grocery</h2>
         {{template "close_button" .}}
     </form>
 
-    <!-- Edit Form -->
-    <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state" class="modal-form" id="edit-grocery-form">
+    <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list"
+        hx-swap="outerHTML" hx-include="#grocery-list-state" class="edit-grocery-form" id="update-grocery-form">
 
-        <h3>Details</h3>
-        <small>Update the product, amount, and note.</small>
+        <div class="modal-form">
 
-        <label for="edit-name">Product <small>(required)</small></label>
-        <input type="text" class="glass-inner focus" id="edit-name" name="name" value="{{.Grocery.Ingredient.Product.Name}}"
-            required autofocus>
+            <h3>Details</h3>
+            <small>Update the product, amount, and note.</small>
 
-        <div class="field-row">
-            <div>
-                <label for="edit-amount">Amount</label>
-                <input class="glass-inner" type="text" id="edit-amount" name="amount" value="{{.Grocery.Ingredient.Amount}}">
-            </div>
+            <label for="edit-name">Product <small>(required)</small></label>
+            <input type="text" class="glass-inner focus" id="edit-name" name="name"
+                value="{{.Grocery.Ingredient.Product.Name}}" required autofocus>
 
-            <div>
-                <label for="edit-note">Note</label>
-                <input class="glass-inner" type="text" id="edit-note" name="note" lang="sv"
-                    value="{{.Grocery.Ingredient.Note}}">
+            <div class="field-row">
+                <div>
+                    <label for="edit-amount">Amount</label>
+                    <input class="glass-inner" type="text" id="edit-amount" name="amount"
+                        value="{{.Grocery.Ingredient.Amount}}">
+                </div>
+
+                <div>
+                    <label for="edit-note">Note</label>
+                    <input class="glass-inner" type="text" id="edit-note" name="note" lang="sv"
+                        value="{{.Grocery.Ingredient.Note}}">
+                </div>
             </div>
         </div>
 
-        <button type="submit">
+        <!-- Category + Move, side by side -->
+        <div class="modal-row">
+
+            <!-- Category Form -->
+            <div class="modal-form" id="category-grocery-form">
+
+                <h3>Category</h3>
+                <small>Change which category this product is grouped under.</small>
+
+                <select id="edit-category" name="category" class="glass-inner">
+                    {{range .Categories}}
+                    <option value="{{.}}" {{if eq . $.Grocery.Ingredient.Product.Category}}selected{{end}}>{{.}}
+                    </option>
+                    {{end}}
+                </select>
+            </div>
+
+            <!-- Move Form -->
+            <div class="modal-form">
+
+                <h3>Move list</h3>
+                <small>Change which list this grocery is on.</small>
+
+                <select id="transfer-list-select" name="grocery-list-target-id" class="glass-inner">
+                    {{range .Lists}}
+                    <option value="{{.GroceryList.ID}}" {{if eq .GroceryList.ID $.Grocery.ListID}}selected{{end}}>
+                        {{.GroceryList.Name}}
+                    </option>
+                    {{end}}
+                </select>
+            </div>
+
+        </div>
+    </form>
+
+    <div class="flex space-between">
+        <!-- Delete Form -->
+        <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list"
+            hx-swap="outerHTML" hx-include="#grocery-list-state" id="delete-grocery-form">
+            {{template "trash_button" .}}
+        </form>
+        <button type="submit" form="update-grocery-form">
             <span>Save</span>
             {{template "spinner" .}}
         </button>
-    </form>
-
-    <!-- Category + Move, side by side -->
-    <div class="modal-row">
-
-        <!-- Category Form -->
-        <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/category" hx-target=".grocery-list"
-            hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form" id="category-grocery-form">
-
-            <h3>Category</h3>
-            <small>Override where this product is grouped on the list.</small>
-
-            <select id="edit-category" name="category" class="glass-inner">
-                {{range .Categories}}
-                <option value="{{.}}" {{if eq . $.Grocery.Ingredient.Product.Category}}selected{{end}}>{{.}}</option>
-                {{end}}
-            </select>
-
-            <button type="submit">
-                <span>Set category</span>
-                {{template "spinner" .}}
-            </button>
-        </form>
-
-        <!-- Move Form -->
-        <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}/move" hx-target=".grocery-list"
-            hx-swap="outerHTML" hx-include="#grocery-list-state" class="modal-form{{if le (len .Lists) 1}} darken{{end}}"
-            id="move-grocery-form">
-
-            <h3>Move list</h3>
-            <small>Move this grocery to a different list.</small>
-
-            <select id="transfer-list-select" name="grocery-list-target-id" class="glass-inner" {{if le (len .Lists)
-                1}}disabled{{end}}>
-
-                {{range .Lists}}
-                {{if ne .GroceryList.ID $.Grocery.ListID}}
-                <option value="{{.GroceryList.ID}}">
-                    {{.GroceryList.Name}}
-                </option>
-                {{end}}
-                {{end}}
-            </select>
-
-            <button type="submit" {{if le (len .Lists) 1}}disabled{{end}}>
-                <span>Transfer</span>
-                {{template "spinner" .}}
-            </button>
-        </form>
-
     </div>
-
-    <!-- Delete Form -->
-    <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list" hx-swap="outerHTML"
-        hx-include="#grocery-list-state" class="modal-form" id="delete-grocery-form">
-
-        <h3>Delete this grocery</h3>
-
-        <div>
-            <small>This action cannot be undone.</small>
-
-            <button class="delete-button" type="submit">
-                <span>Delete</span>
-                {{template "spinner" .}}
-            </button>
-        </div>
-    </form>
 </dialog>
 {{end}}

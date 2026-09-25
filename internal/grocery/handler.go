@@ -193,6 +193,16 @@ func (h *Handler) UpdateGroceryList(c *gin.Context) {
 	if err != nil {
 		panic(err)
 	}
+	
+	groceryListTargetID, err := strconv.Atoi(c.PostForm("grocery-list-target-id"))
+	if err != nil {
+		panic(err)
+	}
+
+	err = h.service.TransferGroceries(c.Request.Context(), groceryListTargetID, groceryListID, hid)
+	if err != nil {
+		panic(err)
+	}
 
 	lists, err := h.service.GroceryLists(c, hid)
 	if err != nil {
@@ -270,6 +280,7 @@ func (h *Handler) EditGroceryListForm(c *gin.Context) {
 	c.String(404, "grocery list not found")
 }
 
+//deprecated
 func (h *Handler) TransferGroceryList(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
@@ -389,6 +400,7 @@ func (h *Handler) EditGroceryForm(c *gin.Context) {
 	c.HTML(200, "groceries/edit_grocery", data)
 }
 
+// TODO: comebine the sql statements
 func (h *Handler) UpdateGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
@@ -420,9 +432,30 @@ func (h *Handler) UpdateGrocery(c *gin.Context) {
 		panic(err)
 	}
 
+	cat := c.PostForm("category")
+	if !IsValidCategory(cat) {
+		c.String(400, "invalid category")
+		return
+	}
+
+	if err := h.service.SetGroceryCategory(c, itemID, hid, cat); err != nil {
+		panic(err)
+	}
+	
+	groceryListTargetID, err := strconv.Atoi(c.PostForm("grocery-list-target-id"))
+	if err != nil {
+		panic(err)
+	}
+
+	err = h.service.MoveGrocery(c, itemID, groceryListTargetID, hid)
+	if err != nil {
+		panic(err)
+	}
+
 	h.RenderListPartial(c, groceryListID)
 }
 
+//deprecated
 func (h *Handler) SetGroceryCategory(c *gin.Context) {
 	hid := c.GetInt("household_id")
 
@@ -449,6 +482,7 @@ func (h *Handler) SetGroceryCategory(c *gin.Context) {
 	h.RenderListPartial(c, groceryListID)
 }
 
+//deprecated
 func (h *Handler) MoveGrocery(c *gin.Context) {
 	hid := c.GetInt("household_id")
 

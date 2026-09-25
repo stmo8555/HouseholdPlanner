@@ -220,17 +220,17 @@ main {
         inset 0 1px 0 rgba(255, 255, 255, 0.25);
 }
 
-.glass::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background: linear-gradient(135deg,
-            rgba(255, 255, 255, 0.25),
-            rgba(255, 255, 255, 0.08) 45%,
-            transparent 65%);
-    pointer-events: none;
-}
+/* .glass::before { */
+/*     content: ""; */
+/*     position: absolute; */
+/*     inset: 0; */
+/*     border-radius: inherit; */
+/*     background: linear-gradient(135deg, */
+/*             rgba(255, 255, 255, 0.25), */
+/*             rgba(255, 255, 255, 0.08) 45%, */
+/*             transparent 65%); */
+/*     pointer-events: none; */
+/* } */
 
 .glass-inner {
     background: var(--input-bg);
@@ -640,6 +640,29 @@ button span {
     }
 }
 
+.trash-button {
+    display: grid;
+    place-items: center;
+    padding: 0.5rem;
+    border-radius: 100%;
+    background: inherit;
+    opacity: 0.8;
+    border: var(--border) solid 1px;
+    aspect-ratio: 1;
+    flex-shrink: 0;
+    align-self: center;
+
+    &:hover {
+        scale: 1.05;
+        opacity: 1;
+    }
+
+    span {
+        display: grid;
+        place-items: center;
+    }
+}
+
 .delete-button {
     background: linear-gradient(to bottom,
             #8f3d5a,
@@ -810,6 +833,12 @@ form.htmx-request button .checkbox {
     gap: 1rem;
 }
 
+.edit-grocery-list-form,
+.edit-grocery-form {
+    display: grid;
+    gap: 1rem;
+}
+
 .toast {
     padding: 14px 22px;
     border-radius: 12px;
@@ -884,51 +913,32 @@ form.htmx-request button .checkbox {
     max-inline-size: unset;
 }
 
-.add-dialog :is(h2, h3) {
+dialog :is(h2, h3) {
     margin: 0;
 }
 
-#edit-grocery-list-modal :is(h2, h3),
-#edit-modal :is(h2, h3) {
-    margin: 0;
-}
-
-#edit-grocery-list-modal .modal-form,
-#edit-modal .modal-form {
+.modal-form {
     display: grid;
     gap: 0.5rem;
     padding-block-end: 1rem;
     border-bottom: 1px solid var(--text-dimmed);
 }
 
-#edit-grocery-list-modal .modal-form>div,
-#edit-modal .modal-form>div {
+.modal-form>div {
     display: flex;
     align-items: center;
     gap: 1rem;
 }
 
-#edit-grocery-list-modal .modal-form small,
-#edit-modal .modal-form small {
+.modal-form small {
     color: var(--text-lightly-dimmed)
 }
 
-#edit-grocery-list-modal .modal-form button,
-#edit-modal .modal-form button {
+.modal-form button {
     margin-inline-start: auto;
 }
 
-#edit-grocery-list-modal .modal-form:last-child,
-#edit-modal .modal-form:last-child {
-    padding-block-end: 0;
-    border-bottom: 0;
-}
-
-/* Category + Move share a single row, split by a vertical divider, over one
-   bottom divider. Both forms are subgrids of the same 4 rows (heading, help,
-   select, button) so their fields line up and render at identical sizes even
-   when one help text wraps to more lines than the other. */
-#edit-modal .modal-row {
+.modal-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto auto auto auto;
@@ -936,34 +946,32 @@ form.htmx-request button .checkbox {
     border-bottom: 1px solid var(--text-dimmed);
 }
 
-#edit-modal .modal-row .modal-form {
+.modal-row .modal-form {
     grid-row: span 4;
     grid-template-rows: subgrid;
     padding-block-end: 0;
     border-bottom: 0;
 }
 
-#edit-modal .modal-row .modal-form:first-child {
+.modal-row .modal-form:first-child {
     padding-inline-end: 1rem;
     border-inline-end: 1px solid var(--text-dimmed);
 }
 
-#edit-modal .modal-row .modal-form:last-child {
+.modal-row .modal-form:last-child {
     padding-inline-start: 1rem;
 }
 
-/* Edit grocery item modal: full-width inputs and side-by-side Amount/Note */
-#edit-modal .modal-form .glass-inner {
+.modal-form .glass-inner {
     inline-size: 100%;
 }
 
-#edit-modal #edit-grocery-form .field-row>div {
+.field-row>div {
     flex: 1;
     display: grid;
     gap: 0.35rem;
 }
 
-/* Always a single full-width column. */
 .grocery-list-cards {
     display: grid;
     grid-template-columns: 1fr;
@@ -1213,14 +1221,12 @@ form.htmx-request button .checkbox {
     line-height: 1;
 }
 
-.edit-grocery-form,
 .add-grocery-form {
     @media (width >=500px) {
         inline-size: auto;
     }
 }
 
-.edit-grocery-form li,
 .add-grocery-form li {
     display: flex;
     flex-direction: column;
