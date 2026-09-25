@@ -160,29 +160,27 @@ func (r *Repo) DeleteGroceryList(ctx context.Context, groceryListID int, hid int
 }
 
 func (r *Repo) TransferGroceries(ctx context.Context, groceryListTargetID int, groceryListID int, hid int) error {
-	sql := `
-    UPDATE groceries
-    SET grocery_list_id = $1
-    WHERE grocery_list_id = $2
-      AND EXISTS (
-        SELECT 1 FROM grocery_lists
-        WHERE id = $2 AND household_id = $3
-      )
-      AND EXISTS (
-        SELECT 1 FROM grocery_lists
-        WHERE id = $1 AND household_id = $3
-      );
-    `
-	res, err := r.db.Exec(ctx, sql, groceryListTargetID, groceryListID, hid)
+	var bothInHousehold bool
+	err := r.db.QueryRow(ctx, `
+    SELECT
+      EXISTS (SELECT 1 FROM grocery_lists WHERE id = $1 AND household_id = $3)
+      AND EXISTS (SELECT 1 FROM grocery_lists WHERE id = $2 AND household_id = $3);
+    `, groceryListTargetID, groceryListID, hid).Scan(&bothInHousehold)
 	if err != nil {
 		return err
 	}
 
-	if res.RowsAffected() == 0 {
-		return fmt.Errorf("target list not found in household or source list is empty")
+	if !bothInHousehold {
+		return fmt.Errorf("target or source list not found in household")
 	}
 
-	return nil
+	_, err = r.db.Exec(ctx, `
+    UPDATE groceries
+    SET grocery_list_id = $1
+    WHERE grocery_list_id = $2;
+    `, groceryListTargetID, groceryListID)
+
+	return err
 }
 
 func (r *Repo) MoveGrocery(ctx context.Context, groceryID int, groceryListTargetID int, hid int) error {
