@@ -712,6 +712,10 @@ dialog[open] {
     margin: auto;
 }
 
+dialog:focus {
+    outline: none;
+}
+
 /* showModal() blocks clicks behind the dialog but not page scrolling, so
    dragging on the backdrop (e.g. beside the Save button) scrolls the page
    underneath. Lock the page while any dialog is open; the dialog itself
@@ -914,7 +918,7 @@ form.htmx-request button .checkbox {
     text-align: center;
 }
 
-.add-dialog button[type="submit"] {
+.add-dialog button[type="submit"]:not(.quick-btn) {
     padding: 10px 12px;
     max-inline-size: unset;
 }
@@ -1254,13 +1258,13 @@ dialog :is(h2, h3) {
     margin-block-end: 12px;
 }
 
-.add-grocery-form .quick-select {
+.quick-add-form .quick-add {
     display: flex;
     flex-wrap: wrap;
     gap: 5px;
 }
 
-.quick-select-empty {
+.quick-add-empty {
     margin: 0;
     color: var(--text-lightly-dimmed);
     font-size: 0.85rem;

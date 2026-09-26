@@ -67,14 +67,6 @@ document.body.addEventListener("click", event => {
     }
 });
 
-document.body.addEventListener("click", event => {
-    const button = event.target.closest(".quick-btn");
-    if (!button)
-        return;
-
-    document.getElementById("product-input").value = button.textContent;
-});
-
 document.body.addEventListener("click", async event => {
     const button = event.target.closest("[data-paste-target]");
     if (!button)

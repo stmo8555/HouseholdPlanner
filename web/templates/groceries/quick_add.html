@@ -1,0 +1,11 @@
+{{define "groceries/quick_add"}}
+<div class="quick-add margin-block-end-24px" id="grocery-quick-add" {{if .OOB}}hx-swap-oob="true"{{end}}>
+    {{if .TopProducts}}
+    {{range .TopProducts}}
+    <button type="submit" class="quick-btn" name="name" value="{{.}}">{{.}}</button>
+    {{end}}
+    {{else}}
+    <p class="quick-add-empty">Your most-added products will show up here for one-tap adding.</p>
+    {{end}}
+</div>
+{{end}}

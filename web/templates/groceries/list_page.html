@@ -15,19 +15,22 @@
             onclick="document.getElementById('extract-dialog').showModal()">Extract</button>
     </div>
 
-    <dialog class="glass card add-dialog" id="add-grocery-dialog"
+    <dialog class="glass card add-dialog" id="add-grocery-dialog" autofocus
         onclose="this.querySelector('#grocery-add-toast').replaceChildren()">
         <form class="flex align-items" method="dialog">
             <h2>Add Grocery</h2>
             {{template "close_button" .}}
         </form>
 
+        <form class="quick-add-form" hx-post="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list"
+            hx-swap="outerHTML" hx-include="#grocery-list-state">
+            <div class="margin-block-end-12px"><strong>Quick Add</strong></div>
+            {{template "groceries/quick_add" .}}
+        </form>
+
         <form class="add-form add-grocery-form" hx-post="/groceries/lists/{{.ListID}}/items" hx-target=".grocery-list"
             hx-swap="outerHTML" hx-include="#grocery-list-state"
             hx-on::after-request="if(event.detail.successful) this.reset()">
-
-            <div class="margin-block-end-12px"><strong>Quick Select</strong></div>
-            {{template "groceries/quick_select" .}}
             <ul class="margin-block-end-24px">
                 <li>
                     <label for="product-input">Product <small>(required)</small></label>
@@ -42,7 +45,7 @@
                     <input class="glass-inner" id="2" type="text" name="note" lang="sv">
                 </li>
             </ul>
-            <button class="inline-size-full margin-inline-auto block" type="submit" autofocus>
+            <button class="inline-size-full margin-inline-auto block" type="submit">
                 <span>Add</span>
                 {{template "spinner" .}}
             </button>
