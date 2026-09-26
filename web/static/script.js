@@ -74,3 +74,15 @@ document.body.addEventListener("click", event => {
 
     document.getElementById("product-input").value = button.textContent;
 });
+
+document.body.addEventListener("click", async event => {
+    const button = event.target.closest("[data-paste-target]");
+    if (!button)
+        return;
+
+    const input = document.querySelector(button.dataset.pasteTarget);
+    try {
+        input.value = (await navigator.clipboard.readText()).trim();
+    } catch (_) { }
+    input.focus();
+});

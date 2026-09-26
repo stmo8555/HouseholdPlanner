@@ -643,11 +643,11 @@ button span {
 .trash-button {
     display: grid;
     place-items: center;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border-radius: 100%;
     background: inherit;
     opacity: 0.8;
-    border: var(--border) solid 1px;
+    border: none;
     aspect-ratio: 1;
     flex-shrink: 0;
     align-self: center;
@@ -660,6 +660,12 @@ button span {
     span {
         display: grid;
         place-items: center;
+    }
+
+    .trash-icon {
+        width: 1.5rem;
+        height: 1.5rem;
+        fill: #e53935;
     }
 }
 
@@ -911,6 +917,20 @@ form.htmx-request button .checkbox {
 .add-dialog button[type="submit"] {
     padding: 10px 12px;
     max-inline-size: unset;
+}
+
+.paste-field {
+    display: flex;
+    gap: 0.5rem;
+
+    & input {
+        flex: 1;
+        min-inline-size: 0;
+    }
+
+    & button {
+        padding: 10px 14px;
+    }
 }
 
 dialog :is(h2, h3) {

@@ -31,7 +31,7 @@
             <ul class="margin-block-end-24px">
                 <li>
                     <label for="product-input">Product <small>(required)</small></label>
-                    <input class="glass-inner focus" id="product-input" type="text" name="name" required autofocus>
+                    <input class="glass-inner" id="product-input" type="text" name="name" required>
                 </li>
                 <li>
                     <label for="3">Amount</label>
@@ -75,8 +75,11 @@
 
         <form class="extract-grocery-form" hx-post="/groceries/lists/{{.ListID}}/extract" hx-target="main"
             hx-swap="outerHTML">
-            <input class="inline-size-full glass-inner focus margin-block-end-24px" placeholder="Add link to recipe..."
-                type="text" name="link" required autofocus>
+            <div class="paste-field margin-block-end-24px">
+                <input class="glass-inner" id="recipe-link" placeholder="Add link to recipe..."
+                    type="text" name="link" required autofocus>
+                <button type="button" data-paste-target="#recipe-link">Paste</button>
+            </div>
             <button class="inline-size-full margin-inline-auto block" type="submit">
                 <span>Add</span>
                 {{template "spinner" .}}
