@@ -7,7 +7,7 @@
     {{if .SettingsView.Invites}}
     <ul class="invite-list">
         {{range .SettingsView.Invites}}
-        <li class="invite-row">
+        <li class="invite-row" style="view-transition-name: invite-{{.Token}}">
             <div class="invite-info">
                 <div class="invite-titlerow">
                     <span class="invite-name">Invite link</span>
@@ -22,7 +22,7 @@
             <div class="invite-confirm">
                 <span class="invite-confirm-text">Revoke this link? It stops working immediately.</span>
                 <button class="member-action" type="button" data-cancel>Keep</button>
-                <form hx-post="/settings/invite/{{.Token}}/revoke" hx-target="#invites-list" hx-swap="outerHTML">
+                <form hx-post="/settings/invite/{{.Token}}/revoke" hx-target="#invites-list" hx-swap="outerHTML transition:true">
                     <button class="member-action member-action--danger" type="submit">
                         <span>Revoke</span>
                         {{template "spinner" $}}

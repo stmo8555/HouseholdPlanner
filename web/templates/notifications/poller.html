@@ -9,7 +9,7 @@
     <div class="household-notification-actions">
         <button type="button" onclick="window.location.reload()">Refresh</button>
         <button type="button" class="notification-dismiss" hx-get="/notifications/ack" hx-target="#household-sync-state"
-            hx-swap="innerHTML">Dismiss</button>
+            hx-swap="innerHTML swap:250ms">Dismiss</button>
     </div>
 </section>
 {{end}}

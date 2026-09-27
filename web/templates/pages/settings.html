@@ -18,7 +18,7 @@
                 <p class="settings-card-desc">Send one of these links to invite a new person to create an account. Each
                     link works once and disappears when it's used or expires.</p>
                 {{template "household/invites-list" .}}
-                <form hx-post="/settings/invite" hx-target="#invites-list" hx-swap="outerHTML">
+                <form hx-post="/settings/invite" hx-target="#invites-list" hx-swap="outerHTML transition:true">
                     <button class="login-button settings-button" type="submit">
                         <span>Generate new invite link</span>
                         {{template "spinner" .}}
@@ -111,7 +111,11 @@
                     await navigator.clipboard.writeText(text.trim());
                     const original = btn.textContent;
                     btn.textContent = "Copied!";
-                    setTimeout(() => (btn.textContent = original), 1500);
+                    btn.classList.add("copied");
+                    setTimeout(() => {
+                        btn.textContent = original;
+                        btn.classList.remove("copied");
+                    }, 1500);
                 } catch (_) { }
             });
         </script>

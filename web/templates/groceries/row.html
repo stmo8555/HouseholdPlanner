@@ -1,7 +1,7 @@
 {{define "groceries/row"}}
-<div data-id="{{.ID}}" class="grocery-row changable">
+<div data-id="{{.ID}}" class="grocery-row changable" style="view-transition-name: item-{{.ID}}">
     <form hx-patch="/groceries/lists/{{.ListID}}/items/{{.ID}}/picked" hx-target=".grocery-list"
-        hx-swap="outerHTML" hx-include="#grocery-list-state">
+        hx-swap="outerHTML transition:true" hx-include="#grocery-list-state">
         <button type="submit">
             <div class="checkbox {{if .Picked}}checked{{end}}"></div>
             {{template "spinner" .}}

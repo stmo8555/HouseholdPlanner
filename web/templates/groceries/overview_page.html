@@ -3,7 +3,7 @@
 <main>
     <section class="add-list-section" aria-labelledby="add-list-title">
         <h2 id="add-list-title">Create a new list</h2>
-        <form hx-post="/groceries/lists" hx-target="main" hx-swap="outerHTML"
+        <form hx-post="/groceries/lists" hx-target="main" hx-swap="outerHTML transition:true"
             hx-on::after-request="if(event.detail.successful) this.reset();" class="add-list">
             <label for="add-list" class="sr-only">List Name</label>
 
@@ -24,9 +24,10 @@
         <div class="grocery-list-cards">
             {{range .Lists}}
             <article class="grocery-list-card card glass flex space-between" data-list-id="{{.GroceryList.ID}}"
-                data-list-name="{{.GroceryList.Name}}">
+                data-list-name="{{.GroceryList.Name}}" style="view-transition-name: list-{{.GroceryList.ID}}">
 
-                <a href="/groceries/lists/{{.GroceryList.ID}}" hx-boost="true" class="card-link-overlay"
+                <a href="/groceries/lists/{{.GroceryList.ID}}" hx-boost="true" hx-swap="innerHTML transition:true"
+                    class="card-link-overlay"
                     aria-label="Open {{.GroceryList.Name}}"></a>
 
                 <div>

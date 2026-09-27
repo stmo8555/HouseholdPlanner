@@ -5,7 +5,7 @@
     <div class="toast success-toast" role="status">✓ Code Regenerated</div>
     {{end}}
     <div class="code-row">
-        <code class="household-code glass-inner" id="household-code-value">{{if .OOB}}{{.Code}}{{else}}{{.SettingsView.Household.Code}}{{end}}</code>
+        <code class="household-code glass-inner" id="household-code-value" {{if .OOB}}data-scramble{{end}}>{{if .OOB}}{{.Code}}{{else}}{{.SettingsView.Household.Code}}{{end}}</code>
         <button class="member-action" type="button" data-copy-target="#household-code-value">Copy</button>
     </div>
 </div>

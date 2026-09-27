@@ -15,6 +15,12 @@
 
     <meta name="csrf-token" content="{{ .CSRFToken }}">
     <script>
+        addEventListener("pagereveal", (e) => {
+            if (e.viewTransition) document.documentElement.classList.add("intro-done", "vt-page");
+        });
+        setTimeout(() => document.documentElement.classList.add("intro-done"), 1500);
+    </script>
+    <script>
         document.addEventListener('htmx:configRequest', (e) => {
             e.detail.headers['X-CSRF-Token'] =
                 document.querySelector('meta[name="csrf-token"]').content;

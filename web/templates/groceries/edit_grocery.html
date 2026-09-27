@@ -1,13 +1,13 @@
 {{define "groceries/edit_grocery"}}
-<dialog class="glass card" id="edit-modal" hx-on::after-request="if(event.detail.successful) { this.remove(); }">
+<dialog class="glass card" id="edit-modal" hx-on::after-request="if(event.detail.successful) { this.close(); }">
 
-    <form class="flex align-items" method="dialog" onsubmit="this.closest('dialog').remove()">
+    <form class="flex align-items" method="dialog">
         <h2>Edit Grocery</h2>
         {{template "close_button" .}}
     </form>
 
     <form hx-patch="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list"
-        hx-swap="outerHTML" hx-include="#grocery-list-state" class="edit-grocery-form" id="update-grocery-form">
+        hx-swap="outerHTML swap:200ms transition:true" hx-include="#grocery-list-state" class="edit-grocery-form" id="update-grocery-form">
 
         <div class="modal-form">
 
@@ -71,7 +71,7 @@
     <div class="flex space-between align-items">
         <!-- Delete Form -->
         <form hx-delete="/groceries/lists/{{.Grocery.ListID}}/items/{{.Grocery.ID}}" hx-target=".grocery-list"
-            hx-swap="outerHTML" hx-include="#grocery-list-state" id="delete-grocery-form">
+            hx-swap="outerHTML swap:200ms transition:true" hx-include="#grocery-list-state" id="delete-grocery-form">
             {{template "trash_button" .}}
         </form>
         <button type="submit" form="update-grocery-form">
