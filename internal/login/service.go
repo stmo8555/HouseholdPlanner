@@ -10,7 +10,7 @@ import (
 
 const fakeHash = "$2a$10$7EqJtq98hPqEX7fNZaFWoOePaWxn96p36C1p0uZ1tcHTTX3e8DqGa"
 
-const SessionTTL = 36 * time.Hour
+const SessionTTL = 14 * 24 * time.Hour
 const MaxSessionLifetime = 30 * 24 * time.Hour // 30 days
 
 var errInvalidCredentials = errors.New("invalid username or password")

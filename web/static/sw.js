@@ -1,4 +1,4 @@
-const STATIC_CACHE = "hp-static-v65";
+const STATIC_CACHE = "hp-static-v66";
 
 const FALLBACK = "/static/offline-fallback.html";
 
